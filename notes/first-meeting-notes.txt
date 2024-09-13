@@ -1,0 +1,26 @@
+Before meeting notes:
+
+Our Medical Group needs a system/database that can sort and report names and due dates for electronic training. Currently, they have to pull training completion reports from roughly 9 different platforms and manually insert names and completion dates into an excel. If there is a bot that could do that, or a system that you can insert the reports into in order to auto sort this data, that is what they are looking for. If it could auto-populate into some sort of spreadsheet, that would also be ideal.
+
+• What are the names of the ~9 platforms?
+• Can we get sample data from each of the platforms’ reports?
+• How will we get access to the data?
+• Does the data consist of just names and dates?
+• Preferred language/framework?
+• Will this be a standalone application or some sort of webapp/api?
+• Is excel the preferred output, any other formats needed?
+
+Meeting summary:
+
+• Elevate has a list of people to get trained
+ - Need to report who has completed training from all the systems (there are different levels of completion)
+ - Multiple training systems
+ - They combine all systems to one database (currently an Excel sheets) manually, which can take up to a day
+
+• Want a system to combine all systems to one database (ie Excel sheets)
+ - Data is currently only names and dates of completion
+ - Dates needs to be sorted
+ - The data is stored in files (pdf?)
+ - Suggested we use Python
+ - They use MS office 365, windows, excel
+
