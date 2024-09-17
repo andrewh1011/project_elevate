@@ -1,0 +1,13 @@
+
+excel/csv:
+py -m pip install wheels
+py -m pip install pandas
+py -m pip install openpyxl
+
+ui:
+py -m pip install PyQt5
+
+
+
+https://build-system.fman.io/pyqt5-tutorial
+https://pandas.pydata.org/docs/reference/api/pandas.read_csv.html
