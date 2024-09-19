@@ -1,0 +1,20 @@
+from PyQt5 import QtWidgets
+from PyQt5.QtWidgets import QApplication, QMainWindow
+import sys
+
+def window():
+    app = QApplication(sys.argv)
+
+    win = QMainWindow()
+    xpos = ypos = 200
+    width = height = 300
+    win.setGeometry(xpos, ypos, width, height)
+    win.setWindowTitle("Project Elevate")
+
+    label = QtWidgets.QLabel(win)
+    label.setText("Hello World")
+
+    win.show()
+    sys.exit(app.exec_())
+
+window()
