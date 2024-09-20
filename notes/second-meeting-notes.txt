@@ -1,0 +1,44 @@
+Before meeting questions for meeting (9/20)
+
+• Python or excel macros(written in Visual basic)?
+• Would the team be able to run a Python program?
+• Is there sample data that we could get access to?
+• Does Capt Larson’s team use excel, do they use macros already?
+• Are pdfs the only output these training apps supply, or can we insert excel sheets/csv files into our program? Ie is Captain Larson only using pdfs right now because of the fact they need to look at each sheet(something our app will get rid of).
+• Is Excel the preferred output format? Are other formats like csv acceptable?
+
+During Meeting Notes:
+
+Participants: 
+Olivia, Capt Larson (in the Medical Team that has the problem), Tyler (technical sergeant), Heather
+
+• There are 500+ trainees
+• Pull reports monthly
+• Gets added to one Excel sheet
+• Different requirements for training - can get complicated 
+ Readiness phases - different levels for training for each person
+• Takes around a day to do a report or set of training.
+• Medical team uses mrdss
+• Can download data in csv/excel with all platforms (NO MORE PDFS)
+• Lots of unnecessary data
+• Typically use Excel, but open to other platforms/languages
+ - May not have authority to run certain programs
+ - Python/executable may not be an issue 
+ - Performance of computer needs to be thought about 
+ - dha approved software
+
+
+Questions we have:
+
+Is there a document that describes the process to combine all the data?
+Should the program simply combine the data or is there more to do?
+What do the dates specifically represent?
+How should the sorting work?
+
+
+TODO:
+
+•  Learn PyQt5 and QT designer for a UI
+• Work on Project Proposal
+• View sample data once sent
+• Meet next week
