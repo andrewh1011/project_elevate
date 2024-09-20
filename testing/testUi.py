@@ -7,6 +7,7 @@ class Ui(QtWidgets.QDialog):
         uic.loadUi('test.ui', self)
         self.show()
 
+
 app = QtWidgets.QApplication(sys.argv)
 window = Ui()
 app.exec_()
