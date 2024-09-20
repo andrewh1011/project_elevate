@@ -22,10 +22,10 @@ Olivia, Capt Larson (in the Medical Team that has the problem), Tyler (technical
 • Can download data in csv/excel with all platforms (NO MORE PDFS)
 • Lots of unnecessary data
 • Typically use Excel, but open to other platforms/languages
-May not have authority to run certain programs
-Python/executable may not be an issue 
-Performance of computer needs to be thought about 
-dha approved software
+ - May not have authority to run certain programs
+ - Python/executable may not be an issue 
+ - Performance of computer needs to be thought about 
+ - dha approved software
 
 
 Questions we have:
