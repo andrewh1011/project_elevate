@@ -1,0 +1,38 @@
+September 27th Meeting
+
+Questions:
+
+- Could you walk us through all the pictures?
+- What do the final reports look like?
+- What are the important data points that we need to keep track of?
+- Any updates on Python?
+- How would the maintenance work?
+
+Notes:
+Edipi: unique identifier for each person
+Tsgt west already has proof of concept for this app
+Look up id number, grab name
+
+Output looks like -> ID, Last Name, First Name, and a compilation of trainings from multiple sources and whether or not they have been completed
+
+Idea: take first last name trim whitespace combine into one string and map to unique dodid/edipi number for lookup
+
+
+Don’t care about level of completion, just whether they are done or not 
+
+Tsgt west recommends moving away from excel, making standalone app. Team isnt very proficient with excel and will not use the excel report once he leaves
+
+Upload everything to folder, run python script, output report card
+
+Status: AD (active duty) or CIV (civilian), some trainings are only active duty
+
+Python and executable may be blocked 
+
+Probably stay away from executable
+
+Python more likely, can move ahead 
+
+tyler.m.west2.mil@health.mil - forwarded him the email chain
+
+Monthly plans - specific goals
+Semester plan - high level
