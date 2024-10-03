@@ -17,8 +17,8 @@ class App(QWidget):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
         
-        self.openFileNameDialog()
-        self.openFileNamesDialog()
+        #self.openFileNameDialog()
+        #self.openFileNamesDialog()
         self.saveFileDialog()
         
         self.show()

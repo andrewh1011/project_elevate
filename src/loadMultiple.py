@@ -11,6 +11,7 @@ class Ui(QMainWindow):
 		self.ui = Ui_Dialog()
 		self.ui.setupUi(self)
 		self.ui.importButton.clicked.connect(self.import_clicked)
+		self.ui.listWidget.itemClicked.connect(self.item_clicked)
 		self.ui.label.setText("File chosen: ")
 	
 	def import_clicked(self):
@@ -20,6 +21,9 @@ class Ui(QMainWindow):
 			fileName = file[0].rsplit('/', 1)[-1]
 			self.ui.label.setText("File chosen: " + fileName)
 			self.add_to_list(fileName, fileFullPath)
+
+	def item_clicked(self, item):
+		self.ui.label.setText(self.fileNames[item.text()])
 
 	def add_to_list(self,name,path):
 		
