@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(624, 307)
+        Dialog.resize(980, 465)
         self.centralwidget = QtWidgets.QWidget(Dialog)
         self.centralwidget.setObjectName("centralwidget")
         self.importButton = QtWidgets.QPushButton(self.centralwidget)
@@ -28,9 +28,12 @@ class Ui_Dialog(object):
         self.listWidget = QtWidgets.QListWidget(self.centralwidget)
         self.listWidget.setGeometry(QtCore.QRect(435, 50, 171, 192))
         self.listWidget.setObjectName("listWidget")
+        self.pushButton = QtWidgets.QPushButton(self.centralwidget)
+        self.pushButton.setGeometry(QtCore.QRect(500, 250, 93, 28))
+        self.pushButton.setObjectName("pushButton")
         Dialog.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(Dialog)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 624, 26))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 980, 26))
         self.menubar.setObjectName("menubar")
         Dialog.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(Dialog)
@@ -44,3 +47,4 @@ class Ui_Dialog(object):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "Project Elevate"))
         self.importButton.setText(_translate("Dialog", "Import"))
+        self.pushButton.setText(_translate("Dialog", "Delete Item"))

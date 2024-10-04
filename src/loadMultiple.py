@@ -10,9 +10,18 @@ class Ui(QMainWindow):
 		self.fileNames = {} # maps fileNames to fullFilePaths for when the user will need to load the actual file's date from the path.
 		self.ui = Ui_Dialog()
 		self.ui.setupUi(self)
+
 		self.ui.importButton.clicked.connect(self.import_clicked)
 		self.ui.listWidget.itemClicked.connect(self.item_clicked)
+		self.ui.pushButton.clicked.connect(self.delete_clicked)
+
 		self.ui.label.setText("File chosen: ")
+
+	def delete_clicked(self):
+		row = self.ui.listWidget.currentRow()
+		itm = self.ui.listWidget.currentItem()
+		self.ui.listWidget.takeItem(row)
+		del self.fileNames[itm.text()]
 	
 	def import_clicked(self):
 		file = QFileDialog.getOpenFileName(self, "Add Source", "/~", "Spreadsheets(*.csv *.xlsv *.txt)")
