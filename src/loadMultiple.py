@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QFileDialog, QLabel, QListWidget, QListWidgetItem
+from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QFileDialog, QLabel, QListWidget, QListWidgetItem, QInputDialog
 import sys
 from multipleFiles import Ui_Dialog
 
@@ -26,11 +26,24 @@ class Ui(QMainWindow):
 	
 	def import_clicked(self):
 		file = QFileDialog.getOpenFileName(self, "Add Source", "/~", "Spreadsheets(*.csv *.xlsv *.txt)")
-		if file:
+		system = self.get_system()
+
+		if file and system:
+			print(system)
 			fileFullPath = file[0]
 			fileName = file[0].rsplit('/', 1)[-1]
 			self.ui.label.setText("File chosen: " + fileName)
 			self.add_to_list(fileName, fileFullPath)
+
+	def get_system(self):
+		systems = ["System 1", "System 2", "System 3", "System 4", "System 5", "System 6"]
+		system, ok_pressed = QInputDialog.getItem(self, "System Selection", "Select System:", systems, 0, False)
+		
+		if ok_pressed:
+			return system
+		
+		#User clicked cancel
+		return None
 
 	def item_clicked(self, item):
 		self.ui.label.setText(self.fileNames[item.text()])
