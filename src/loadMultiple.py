@@ -18,10 +18,11 @@ class Ui(QMainWindow):
 		self.ui.label.setText("File chosen: ")
 
 	def delete_clicked(self):
-		row = self.ui.listWidget.currentRow()
-		itm = self.ui.listWidget.currentItem()
-		self.ui.listWidget.takeItem(row)
-		del self.fileNames[itm.text()]
+		if self.fileNames:
+			row = self.ui.listWidget.currentRow()
+			itm = self.ui.listWidget.currentItem()
+			self.ui.listWidget.takeItem(row)
+			del self.fileNames[itm.text()]
 	
 	def import_clicked(self):
 		file = QFileDialog.getOpenFileName(self, "Add Source", "/~", "Spreadsheets(*.csv *.xlsv *.txt)")
