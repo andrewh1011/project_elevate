@@ -6,22 +6,22 @@ sourceFileName = "sources.csv"
 
 def addSourceToFile(name, nCol,dCol,iCol):
 
-	df = None
+	df = pd.DataFrame()
 
 	try:
 		df = pd.read_csv(sourceFileName)
 	except pd.errors.EmptyDataError:
-		df = None
+		df = pd.DataFrame()
 
-	if df:
-		if(df.loc[name]):
+	if not df.empty:
+		if name in df["name"]:
 			#source already exists
 			return False
 		else:
 			df.loc[name] = [name,nCol,dCol,iCol]
 			df.to_csv(sourceFileName)
 	else:
-		dfNew = pd.DataFrame({"nameCol":[nCol], "dateCol" : [dCol], "idCol" :[iCol]})
+		dfNew = pd.DataFrame({"name":[name],"nameCol":[nCol], "dateCol" : [dCol], "idCol" :[iCol]})
 		dfNew.index = [name]
 		dfNew.to_csv(sourceFileName)
 

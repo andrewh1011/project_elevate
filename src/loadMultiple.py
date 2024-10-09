@@ -10,7 +10,7 @@ class Ui(QMainWindow):
 
 		
 		self.fileNames = {} # maps fileNames to (fullFilePath, system) -> a tuple with important information about the file
-		self.sources = buildSourceDataFromFile() # this is a pandas dataframe. Each row's index is the source name. call the buildSourceDataFromFile() anytime an update to the source storage file is made.
+		self.sources = None # this is a pandas dataframe. Each row's index is the source name. call the buildSourceDataFromFile() anytime an update to the source storage file is made.
 		
 		self.ui = Ui_Dialog()
 		self.ui.setupUi(self)
@@ -25,9 +25,10 @@ class Ui(QMainWindow):
 	def refresh_sources(self):
 		self.ui.sourceList.clear()
 		self.sources = buildSourceDataFromFile()
-		for source in self.sources.index.values:
-			itm = QListWidgetItem(source)
-			self.ui.sourceList.addItem(itm)
+		if not self.sources.empty:
+			for source in self.sources["name"]:
+				itm = QListWidgetItem(source)
+				self.ui.sourceList.addItem(itm)
 
 	def delete_source_clicked(self):
 		if self.sources:
