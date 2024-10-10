@@ -2,6 +2,10 @@ import pandas as pd
 
 #it is expected this file will be in the current working directory.
 sourceFileName = "sources.csv"
+sourceName = "sourceName"
+nameCol = "nameCol"
+dateCol = "dateCol"
+idCol = "idCol"
 
 
 def addSourceToFile(name, nCol,dCol,iCol):
@@ -9,19 +13,19 @@ def addSourceToFile(name, nCol,dCol,iCol):
 	df = pd.DataFrame()
 
 	try:
-		df = pd.read_csv(sourceFileName)
+		df = pd.read_csv(sourceFileName, index_col = 0)
 	except pd.errors.EmptyDataError:
 		df = pd.DataFrame()
 
 	if not df.empty:
-		if name in df["name"]:
+		if name in df[sourceName].to_list():
 			#source already exists
 			return False
 		else:
 			df.loc[name] = [name,nCol,dCol,iCol]
 			df.to_csv(sourceFileName)
 	else:
-		dfNew = pd.DataFrame({"name":[name],"nameCol":[nCol], "dateCol" : [dCol], "idCol" :[iCol]})
+		dfNew = pd.DataFrame([{sourceName:name,nameCol: nCol, dateCol : dCol, idCol : iCol}])
 		dfNew.index = [name]
 		dfNew.to_csv(sourceFileName)
 
@@ -29,11 +33,11 @@ def addSourceToFile(name, nCol,dCol,iCol):
 	
 
 def deleteSourceFromFile(name):
-	df = pd.read_csv(sourceFileName, header = None)
+	df = pd.read_csv(sourceFileName, index_col = 0)
 
-	if df:
-		if(df.loc[name]):
-			df.drop(name, inplace =true)
+	if not df.empty:
+		if name in df[sourceName].to_list():
+			df.drop(name, inplace =True)
 			df.to_csv(sourceFileName)
 		else:
 			return False
@@ -43,7 +47,8 @@ def deleteSourceFromFile(name):
 	return True
 
 def buildSourceDataFromFile():
-
+	#if file doesnt exist yet, make sure its created
+	#if it already exists, this does nothing
 	f = open(sourceFileName, "a+")
 	f.close() 
 

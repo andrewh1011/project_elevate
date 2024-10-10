@@ -26,17 +26,20 @@ class Ui(QMainWindow):
 		self.ui.sourceList.clear()
 		self.sources = buildSourceDataFromFile()
 		if not self.sources.empty:
-			for source in self.sources["name"]:
+			for source in self.sources[sourceName].to_list():
 				itm = QListWidgetItem(source)
 				self.ui.sourceList.addItem(itm)
 
 	def delete_source_clicked(self):
-		if self.sources:
+		if not self.sources.empty:
 			row = self.ui.sourceList.currentRow()
 			itm = self.ui.sourceList.currentItem()
-			self.ui.sourceList.takeItem(row)
-			self.ui.actionLabel.setText("Deleted source" + itm.text())
-			del self.sources[itm.text()]
+			ret = deleteSourceFromFile(itm.text())
+			if ret:
+				self.ui.actionLabel.setText("Deleted source" + itm.text())
+				self.refresh_sources()
+			else:
+				self.ui.actionLabel.setText("Could not delete source" + itm.text())
 
 	def source_clicked(self, item):
 		self.ui.actionLabel.setText(item.text())
@@ -50,9 +53,12 @@ class Ui(QMainWindow):
 			if not self.sources.empty and name in self.sources.index.values:
 				self.ui.actionLabel.setText("DUPLICATE SOURCE")
 			else:
-				self.ui.actionLabel.setText("source " + name + " saved")
-				addSourceToFile(name, nameCol,dateCol,idCol)
-				self.refresh_sources()
+				ret = addSourceToFile(name, nameCol,dateCol,idCol)
+				if ret:
+					self.ui.actionLabel.setText("source " + name + " saved")
+					self.refresh_sources()
+				else:
+					self.ui.actionLabel.setText("source " + name + " could not be saved")
 		else:
 			self.ui.actionLabel.setText("SOURCE NEEDS NAME, NAME_COL, and DATE_COL")
 
@@ -75,11 +81,11 @@ class Ui(QMainWindow):
 			self.add_to_file_list(fileName, fileFullPath, system)
 
 	def get_source(self):
-		if self.sources:
-			system, ok_pressed = QInputDialog.getItem(self, "System Selection", "Select System:", self.sources, 0, False)
+		if not self.sources.empty:
+			source, ok_pressed = QInputDialog.getItem(self, "System Selection", "Select System:", self.sources[sourceName].to_list(), 0, False)
 		
 			if ok_pressed:
-				return system
+				return source
 		
 			#User clicked cancel
 			return None
