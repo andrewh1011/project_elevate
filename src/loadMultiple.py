@@ -73,12 +73,13 @@ class Ui(QMainWindow):
 	
 	def import_clicked(self):
 		file = QFileDialog.getOpenFileName(self, "Add Source", "/~", "Spreadsheets(*.csv *.xlsx *.txt)")
-		system = self.get_source()
 
-		if file and system:
-			fileFullPath = file[0]
-			fileName = file[0].rsplit('/', 1)[-1]
-			self.add_to_file_list(fileName, fileFullPath, system)
+		if file[0]:
+			system = self.get_source()
+			if system:
+				fileFullPath = file[0]
+				fileName = file[0].rsplit('/', 1)[-1]
+				self.add_to_file_list(fileName, fileFullPath, system)
 
 	def get_source(self):
 		if not self.sources.empty:
