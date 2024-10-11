@@ -98,12 +98,12 @@ class Ui(QMainWindow):
 	def add_to_file_list(self, name, path, system):
 		
 		if name in self.fileNames:
-			self.ui.actionLabel.setText("DUPLICATE")
+			self.ui.actionLabel.setText("Duplicate file")
 		else:
 			self.fileNames[name] = (path, system)
 			itm = QListWidgetItem(name)
 			self.ui.fileList.addItem(itm)
-			self.ui.actionLabel.setText("ADDED FILE" + itm.text())
+			self.ui.actionLabel.setText("Added file: " + itm.text())
 
 if __name__ == '__main__':
 	app = QApplication(sys.argv)
