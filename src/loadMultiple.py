@@ -72,7 +72,7 @@ class Ui(QMainWindow):
 
 	
 	def import_clicked(self):
-		file = QFileDialog.getOpenFileName(self, "Add Source", "/~", "Spreadsheets(*.csv *.xlsv *.txt)")
+		file = QFileDialog.getOpenFileName(self, "Add Source", "/~", "Spreadsheets(*.csv *.xlsx *.txt)")
 		system = self.get_source()
 
 		if file and system:
