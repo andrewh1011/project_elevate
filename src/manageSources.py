@@ -36,7 +36,7 @@ def deleteSourceFromFile(name):
 	df = pd.read_csv(sourceFileName, index_col = 0)
 
 	if not df.empty:
-		if name in df[sourceName].to_list():
+		if name in df.index.values.tolist():
 			df.drop(name, inplace =True)
 			df.to_csv(sourceFileName)
 		else:
