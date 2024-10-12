@@ -31,9 +31,8 @@ class Ui(QMainWindow):
 				self.ui.sourceList.addItem(itm)
 
 	def delete_source_clicked(self):
-		if not self.sources.empty:
-			row = self.ui.sourceList.currentRow()
-			itm = self.ui.sourceList.currentItem()
+		itm = self.ui.sourceList.currentItem()
+		if (not self.sources.empty) and itm:
 			ret = deleteSourceFromFile(itm.text())
 			if ret:
 				self.ui.actionLabel.setText("Deleted source" + itm.text())
