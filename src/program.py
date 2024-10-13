@@ -1,5 +1,6 @@
-from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QFileDialog, QLabel, QListWidget, QListWidgetItem, QInputDialog
+from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QFileDialog, QLabel, QListWidget, QListWidgetItem, QInputDialog,QMessageBox
 import sys
+from PyQt5 import Qt
 from multipleFiles import Ui_Dialog
 from manageSources import *
 
@@ -22,6 +23,23 @@ class Ui(QMainWindow):
 		self.ui.saveSourceBtn.clicked.connect(self.save_source_clicked)
 		self.refresh_sources()
 
+	def deleteAllFilesWithSource(self, sName):
+		fileDict = self.fileNames
+		fileListWidget = self.ui.fileList
+		remFiles = []
+		for fName in fileDict.keys():
+			source = (fileDict[fName])[1]
+			if source == sName:
+				itm = fileListWidget.findItems(fName,Qt.Qt.MatchExactly)[0]
+				fileListWidget.takeItem(fileListWidget.row(itm))
+				remFiles.append(fName)
+		for file in remFiles:
+			del fileDict[file]
+
+	def confirmDeleteFilesFromSource(self, sName):
+		choice = QMessageBox.question(self, 'Confirmation', "Deleting a source will delete all the files currently mapped to this source in the current session. Are you sure?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+		return choice
+
 	def refresh_sources(self):
 		self.ui.sourceList.clear()
 		self.sources = buildSourceDataFromFile()
@@ -33,12 +51,16 @@ class Ui(QMainWindow):
 	def delete_source_clicked(self):
 		itm = self.ui.sourceList.currentItem()
 		if (not self.sources.empty) and itm:
-			ret = deleteSourceFromFile(itm.text())
-			if ret:
-				self.ui.actionLabel.setText("Deleted source" + itm.text())
-				self.refresh_sources()
-			else:
-				self.ui.actionLabel.setText("Could not delete source" + itm.text())
+			sName = itm.text()
+			choice = self.confirmDeleteFilesFromSource(sName)
+			if choice == QMessageBox.Yes:
+				ret = deleteSourceFromFile(sName)
+				if ret:
+					self.ui.actionLabel.setText("Deleted source" + sName)
+					self.refresh_sources()
+					self.deleteAllFilesWithSource(sName)
+				else:
+					self.ui.actionLabel.setText("Could not delete source" + sName)
 
 	def source_clicked(self, item):
 		self.ui.actionLabel.setText(item.text())

@@ -1,3 +1,1 @@
-fix source delete when none is selected
-fix source delete when files mapped to that source.
 add firstname/last name, startdate/enddate columns to form.
