@@ -1,4 +1,5 @@
-import pandas as pd  
+import pandas as pd
+from datetime import datetime
 
 JKOdf = pd.read_excel("./testData/fileFromJKO.xlsx")
 
@@ -16,8 +17,24 @@ for idCols in grouped:
     ids[edipi]["EDIPI"] = edipi
     ids[edipi]["Name"] = group_cols["First Name"].iloc[0] + " " + group_cols["Last Name"].iloc[0]
     ids[edipi]["Category"] = group_cols["Category"].iloc[0]
-    ids[edipi]["Course Names"] = list(group_cols["Course Name"])
-    ids[edipi]["Completed Dts"] = list(group_cols["Completed Dt"])
+
+    course_names = list(group_cols["Course Name"])
+    course_dates = list(group_cols["Completed Dt"])
+
+    ids[edipi]["Completed Courses"] = []
+    ids[edipi]["Uncompleted Courses"] = []
+
+
+    for i in range(len(course_dates)):
+        date = course_dates[i]
+
+        #Completed date is before current date (completed course)
+        if date < pd.Timestamp(datetime.now()):
+            ids[edipi]["Completed Courses"].append(course_names[i])
+            
+        #Date is empty or after current date
+        else:
+            ids[edipi]["Uncompleted Courses"].append(course_names[i])
 
 def pretty_print(d, indent=0):
    for key, value in d.items():
@@ -26,6 +43,8 @@ def pretty_print(d, indent=0):
          pretty_print(value, indent+1)
       else:
          print('\t' * (indent+1) + str(value))
+
+pretty_print(ids)
 
 output = pd.DataFrame(ids.values())
 
