@@ -2,7 +2,7 @@ import pandas as pd
 
 JKOdf = pd.read_excel("./testData/fileFromJKO.xlsx")
 
-#Dictionary that stores unique IDS to another dictionary with important information about that person
+#Dictionary with unique IDS as keys and another dictionary with important information as values
 ids = dict()
 
 grouped = JKOdf.groupby('EDIPI')
