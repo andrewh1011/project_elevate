@@ -1,4 +1,5 @@
 import pandas as pd
+from datetime import datetime
 
 JKOdf = pd.read_excel("./testData/fileFromJKO.xlsx")
 
@@ -14,7 +15,8 @@ for idCols in grouped:
     ids[edipi] = dict()
 
     ids[edipi]["EDIPI"] = edipi
-    ids[edipi]["Name"] = group_cols["First Name"].iloc[0] + " " + group_cols["Last Name"].iloc[0]
+    ids[edipi]["First Name"] = group_cols["First Name"].iloc[0]
+    ids[edipi]["Last Name"] = group_cols["Last Name"].iloc[0]
     ids[edipi]["Category"] = group_cols["Category"].iloc[0]
 
     course_names = list(group_cols["Course Name"])
