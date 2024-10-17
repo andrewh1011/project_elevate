@@ -1,5 +1,4 @@
 import pandas as pd
-from datetime import datetime
 
 JKOdf = pd.read_excel("./testData/fileFromJKO.xlsx")
 
@@ -31,7 +30,7 @@ for idCols in grouped:
         #Completed date is before current date (completed course)
         if date < pd.Timestamp(datetime.now()):
             ids[edipi]["Completed Courses"].append(course_names[i])
-            
+
         #Date is empty or after current date
         else:
             ids[edipi]["Uncompleted Courses"].append(course_names[i])
