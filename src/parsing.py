@@ -6,9 +6,9 @@ JKOdf = pd.read_excel("./testData/fileFromJKO.xlsx")
 #Dictionary with unique IDS as keys and another dictionary with important information as values
 ids = dict()
 
-grouped = JKOdf.groupby('EDIPI')
+group_by_id = JKOdf.groupby('EDIPI')
 
-for idCols in grouped:
+for idCols in group_by_id:
     edipi = idCols[0]
     group_cols = idCols[1]
 
@@ -22,20 +22,18 @@ for idCols in grouped:
     course_names = list(group_cols["Course Name"])
     course_dates = list(group_cols["Completed Dt"])
 
-    ids[edipi]["Completed Courses"] = []
-    ids[edipi]["Uncompleted Courses"] = []
-
 
     for i in range(len(course_dates)):
-        date = course_dates[i]
+        course_date = course_dates[i]
+        course_name = course_names[i]
 
         #Completed date is before current date (completed course)
-        if date < pd.Timestamp(datetime.now()):
-            ids[edipi]["Completed Courses"].append(course_names[i])
+        if course_date < pd.Timestamp(datetime.now()):
+            ids[edipi][course_name] = "Completed"
 
         #Date is empty or after current date
         else:
-            ids[edipi]["Uncompleted Courses"].append(course_names[i])
+            ids[edipi][course_name] = "NOT Completed"
 
 def pretty_print(d, indent=0):
    for key, value in d.items():
