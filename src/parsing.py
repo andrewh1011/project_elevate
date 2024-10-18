@@ -25,8 +25,11 @@ for idCols in group_by_id:
 
     #Loops through this person's courses
     for i in range(len(course_names)):
+        #Pandas Timestamps
         course_completed_date = course_completed_dates[i]
         course_due_date = course_due_dates[i]
+
+        #String
         course_name = course_names[i]
 
         #Course was not completed
