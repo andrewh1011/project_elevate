@@ -2,6 +2,17 @@ import pandas as pd
 from datetime import datetime
 
 JKOdf = pd.read_excel("./testData/fileFromJKO.xlsx")
+source_name = "JKO"
+
+sources = pd.read_csv('sources.csv')
+
+for i in range(len(sources["sourceName"])):
+    name = sources["sourceName"][i]
+    if name == source_name:
+        source_row = i
+
+print("COLUMN DATA FOR SOURCE:")
+print(sources.iloc[source_row])
 
 #Dictionary with unique IDS as keys and another dictionary with important information as values
 ids = dict()
@@ -45,15 +56,15 @@ for idCols in group_by_id:
         else:
             ids[edipi][course_name] = "LATE (completed)"
 
-def pretty_print_dict(d, indent=0):
-   for key, value in d.items():
-      print('\t' * indent + str(key))
-      if isinstance(value, dict):
-         pretty_print_dict(value, indent+1)
-      else:
-         print('\t' * (indent+1) + str(value))
+# def pretty_print_dict(d, indent=0):
+#    for key, value in d.items():
+#       print('\t' * indent + str(key))
+#       if isinstance(value, dict):
+#          pretty_print_dict(value, indent+1)
+#       else:
+#          print('\t' * (indent+1) + str(value))
 
-pretty_print_dict(ids)
+# pretty_print_dict(ids)
 
 output = pd.DataFrame(ids.values())
 
