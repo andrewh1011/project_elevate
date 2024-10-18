@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QFileDialog, QLabel, QListWidget, QListWidgetItem, QInputDialog,QMessageBox
 import sys
 from PyQt5 import Qt
-from multipleFiles import Ui_Dialog
+from uiFile import Ui_Dialog
 from manageSources import *
 
 class Ui(QMainWindow):
