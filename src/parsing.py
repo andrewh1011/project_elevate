@@ -13,26 +13,31 @@ for i in range(len(sources["sourceName"])):
 
 print("COLUMN DATA FOR SOURCE:")
 print(sources.iloc[source_row])
+#TODO: Use the source data in place of hardcoded file names
 
 #Dictionary with unique IDS as keys and another dictionary with important information as values
 ids = dict()
 
+#Groups rows by ID
 group_by_id = JKOdf.groupby('EDIPI')
 
-for idCols in group_by_id:
-    edipi = idCols[0]
-    group_cols = idCols[1]
+#Loops through the rows for each person
+for idRows in group_by_id:
+    edipi = idRows[0]
+    grouped_rows = idRows[1]
 
+    #Create a dictionary for this person with informatin about them
     ids[edipi] = dict()
 
+    #Store ERIPI, name, and category
     ids[edipi]["EDIPI"] = edipi
-    ids[edipi]["First Name"] = group_cols["First Name"].iloc[0]
-    ids[edipi]["Last Name"] = group_cols["Last Name"].iloc[0]
-    ids[edipi]["Category"] = group_cols["Category"].iloc[0]
+    ids[edipi]["First Name"] = grouped_rows["First Name"].iloc[0]
+    ids[edipi]["Last Name"] = grouped_rows["Last Name"].iloc[0]
+    ids[edipi]["Category"] = grouped_rows["Category"].iloc[0]
 
-    course_names = list(group_cols["Course Name"])
-    course_completed_dates = list(group_cols["Completed Dt"])
-    course_due_dates = list(group_cols["Due Dt"])
+    course_names = list(grouped_rows["Course Name"])
+    course_completed_dates = list(grouped_rows["Completed Dt"])
+    course_due_dates = list(grouped_rows["Due Dt"])
 
     #Loops through this person's courses
     for i in range(len(course_names)):
