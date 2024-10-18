@@ -20,20 +20,27 @@ for idCols in group_by_id:
     ids[edipi]["Category"] = group_cols["Category"].iloc[0]
 
     course_names = list(group_cols["Course Name"])
-    course_dates = list(group_cols["Completed Dt"])
+    course_completed_dates = list(group_cols["Completed Dt"])
+    course_due_dates = list(group_cols["Due Dt"])
 
     #Loops through this person's courses
-    for i in range(len(course_dates)):
-        course_date = course_dates[i]
+    for i in range(len(course_names)):
+        course_completed_date = course_completed_dates[i]
+        course_due_date = course_due_dates[i]
         course_name = course_names[i]
 
+        #Course was not completed
+        if pd.isna(course_completed_date):
+            ids[edipi][course_name] = "NOT Completed"
+            continue
+
         #Completed date is before current date (completed course)
-        if course_date < pd.Timestamp(datetime.now()):
+        if course_completed_date <= course_due_date:
             ids[edipi][course_name] = "Completed"
 
-        #Date is empty or after current date
+        #Completed after due date
         else:
-            ids[edipi][course_name] = "NOT Completed"
+            ids[edipi][course_name] = "LATE (completed)"
 
 def pretty_print_dict(d, indent=0):
    for key, value in d.items():
