@@ -100,7 +100,7 @@ class Ui_Dialog(object):
         self.saveSourceBtn.setText(_translate("Dialog", "Save"))
         self.label_2.setText(_translate("Dialog", "Source Name:"))
         self.label_5.setText(_translate("Dialog", "Add a data source:"))
-        self.label_4.setText(_translate("Dialog", "ID Column:"))
+        self.label_4.setText(_translate("Dialog", "DOD ID Column:"))
         self.label_6.setText(_translate("Dialog", "Name Column:"))
         self.deleteSourceBtn.setText(_translate("Dialog", "Delete Source"))
         self.label_7.setText(_translate("Dialog", "Sources"))
