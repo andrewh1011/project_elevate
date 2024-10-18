@@ -22,7 +22,7 @@ for idCols in group_by_id:
     course_names = list(group_cols["Course Name"])
     course_dates = list(group_cols["Completed Dt"])
 
-
+    #Loops through this person's courses
     for i in range(len(course_dates)):
         course_date = course_dates[i]
         course_name = course_names[i]
@@ -35,15 +35,15 @@ for idCols in group_by_id:
         else:
             ids[edipi][course_name] = "NOT Completed"
 
-# def pretty_print_dict(d, indent=0):
-#    for key, value in d.items():
-#       print('\t' * indent + str(key))
-#       if isinstance(value, dict):
-#          pretty_print_dict(value, indent+1)
-#       else:
-#          print('\t' * (indent+1) + str(value))
+def pretty_print_dict(d, indent=0):
+   for key, value in d.items():
+      print('\t' * indent + str(key))
+      if isinstance(value, dict):
+         pretty_print_dict(value, indent+1)
+      else:
+         print('\t' * (indent+1) + str(value))
 
-# pretty_print_dict(ids)
+pretty_print_dict(ids)
 
 output = pd.DataFrame(ids.values())
 
