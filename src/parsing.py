@@ -22,7 +22,7 @@ for idCols in group_by_id:
     course_names = list(group_cols["Course Name"])
     course_dates = list(group_cols["Completed Dt"])
 
-
+    #Loops through this person's courses
     for i in range(len(course_dates)):
         course_date = course_dates[i]
         course_name = course_names[i]
