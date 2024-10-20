@@ -1,0 +1,14 @@
+October 18th Meeting
+
+Gave a demo of the app so far(file upload and assignment)
+
+Questions:
+- Feedback on the demo? Particularly do they agree with the source assignment system.
+- What is the current status of the test data?
+
+Notes:
+ - Asked to add a column to the source form for AFSC Column(role description).
+ - Fuzzywuzzy python library for name similarity matching when names dont exactly match across files.
+ - Asked to change id field to DODID field so its more clear.
+ - TSgt West will be reminded about test data.
+ - Asked about optional columns in schema(ie some files dont have a DODID column). Will need to determine rules for this when we have test data.
