@@ -50,7 +50,7 @@
      <string>Delete File</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="idEdit">
+   <widget class="QLineEdit" name="dodid">
     <property name="geometry">
      <rect>
       <x>190</x>
@@ -89,7 +89,7 @@
      <string>Save</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="sourceNameEdit">
+   <widget class="QLineEdit" name="sourceName">
     <property name="geometry">
      <rect>
       <x>190</x>
@@ -102,7 +102,7 @@
      <string/>
     </property>
    </widget>
-   <widget class="QLineEdit" name="dueDateEdit">
+   <widget class="QLineEdit" name="dueDate">
     <property name="geometry">
      <rect>
       <x>190</x>
@@ -144,7 +144,7 @@
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="QLineEdit" name="firstNameEdit">
+   <widget class="QLineEdit" name="firstName">
     <property name="geometry">
      <rect>
       <x>190</x>
@@ -251,7 +251,7 @@
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="QLineEdit" name="lastNameEdit">
+   <widget class="QLineEdit" name="lastName">
     <property name="geometry">
      <rect>
       <x>190</x>
@@ -290,7 +290,7 @@
      <string>Date Completed:</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="compDateEdit">
+   <widget class="QLineEdit" name="compDate">
     <property name="geometry">
      <rect>
       <x>190</x>

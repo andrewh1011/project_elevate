@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QFileDialog, QLabel, QListWidget, QListWidgetItem, QInputDialog,QMessageBox
+from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QFileDialog, QLabel, QListWidget, QListWidgetItem, QInputDialog,QMessageBox, QLineEdit
 import sys
 from PyQt5 import Qt
 from uiFile import Ui_Dialog
@@ -11,7 +11,7 @@ class Ui(QMainWindow):
 
 		
 		self.fileNames = {} # maps fileNames to (fullFilePath, system) -> a tuple with important information about the file
-		self.sources = None # this is a pandas dataframe. Each row's index is the source name. call the buildSourceDataFromFile() anytime an update to the source storage file is made.
+		self.sources = None # this is a pandas dataframe. Each row's index is the source name. call the refresh_sources() anytime an update to the source storage file is made.
 		
 		self.ui = Ui_Dialog()
 		self.ui.setupUi(self)
@@ -22,6 +22,16 @@ class Ui(QMainWindow):
 		self.ui.deleteSourceBtn.clicked.connect(self.delete_source_clicked)
 		self.ui.saveSourceBtn.clicked.connect(self.save_source_clicked)
 		self.refresh_sources()
+
+	def packageSourceForm(self):
+		dict = {}
+		for sourceColumn in SourceFileColumns:
+			inputField = self.findChild(QLineEdit, sourceColumn.value)
+			if inputField:
+				if not sourceColumn in dict.keys():
+					dict[sourceColumn.value] = inputField.text()
+		return dict
+				
 
 	def deleteAllFilesWithSource(self, sName):
 		fileDict = self.fileNames
@@ -44,7 +54,7 @@ class Ui(QMainWindow):
 		self.ui.sourceList.clear()
 		self.sources = buildSourceDataFromFile()
 		if not self.sources.empty:
-			for source in self.sources[sourceName].to_list():
+			for source in self.sources[SourceFileColumns.sourceName.value].to_list():
 				itm = QListWidgetItem(source)
 				self.ui.sourceList.addItem(itm)
 
@@ -63,25 +73,32 @@ class Ui(QMainWindow):
 					self.ui.actionLabel.setText("Could not delete source" + sName)
 
 	def source_clicked(self, item):
-		self.ui.actionLabel.setText(item.text())
+		sourceName = item.text()
+		self.refresh_sources()
+		cols = list(self.sources.columns)
+		for column in cols:
+			val = self.sources.loc[sourceName, column]
+			inputField = self.findChild(QLineEdit, column)
+			if inputField:
+				inputField.setText(str(val))
+			
 
 	def save_source_clicked(self):
-		name = self.ui.sourceNameEdit.text()
-		nameCol = self.ui.nameColEdit.text()
-		dateCol = self.ui.dateColEdit.text()
-		idCol = self.ui.idColEdit.text()
-		if name != "" and nameCol != "" and dateCol != "":
-			if not self.sources.empty and name in self.sources.index.values:
-				self.ui.actionLabel.setText("DUPLICATE SOURCE")
-			else:
-				ret = addSourceToFile(name, nameCol,dateCol,idCol)
-				if ret:
-					self.ui.actionLabel.setText("source " + name + " saved")
-					self.refresh_sources()
-				else:
-					self.ui.actionLabel.setText("source " + name + " could not be saved")
+		for sourceColumn in RequiredSourceFileColumns:
+			inputField = self.findChild(QLineEdit, sourceColumn.value)
+			if inputField:
+				if inputField.text() == "":
+					self.ui.actionLabel.setText("REQUIRED COLUMN " + inputField.objectName() + " NEEDS NON-EMPTY INPUT")
+					return False
+		formData = self.packageSourceForm()
+		ret = addSourceToFile(formData)
+		if ret:
+			self.ui.actionLabel.setText("source updated")
+			self.refresh_sources()
+			return True
 		else:
-			self.ui.actionLabel.setText("SOURCE NEEDS NAME, NAME_COL, and DATE_COL")
+			self.ui.actionLabel.setText("source could not be updated")
+			return False
 
 	def delete_file_clicked(self):
 		if self.fileNames:
@@ -104,7 +121,7 @@ class Ui(QMainWindow):
 
 	def get_source(self):
 		if not self.sources.empty:
-			source, ok_pressed = QInputDialog.getItem(self, "System Selection", "Select System:", self.sources[sourceName].to_list(), 0, False)
+			source, ok_pressed = QInputDialog.getItem(self, "System Selection", "Select System:", self.sources[SourceFileColumns.sourceName.value].to_list(), 0, False)
 		
 			if ok_pressed:
 				return source

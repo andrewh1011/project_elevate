@@ -1,16 +1,33 @@
 import pandas as pd
+from enum import Enum
 
-#it is expected this file will be in the current working directory.
 sourceFileName = "sources.csv"
-sourceName = "sourceName"
-nameCol = "nameCol"
-dateCol = "dateCol"
-idCol = "idCol"
 
+#make sure these enum values of column names match the form input field names.
+class SourceFileColumns(Enum):
+	sourceName = "sourceName"
+	firstName = "firstName"
+	lastName = "lastName"
+	dueDate = "dueDate"
+	compDate = "compDate"
+	dodid = "dodid"
 
-def addSourceToFile(name, nCol,dCol,iCol):
+#These are the columns in the source form which should not be left blank
+class RequiredSourceFileColumns(Enum):
+	name = "sourceName"
+	firstName = "firstName"
+	dueDate = "dueDate"
+	compDate = "compDate"
+		
+#sourceFieldDict is a dict that maps source field names of the form to their filled values
+def addSourceToFile(sourceFieldDict):
 
 	df = pd.DataFrame()
+	sourceName = ""
+	if SourceFileColumns.sourceName.value in sourceFieldDict.keys():
+		sourceName = sourceFieldDict[SourceFileColumns.sourceName.value]
+	else:
+		return False	
 
 	try:
 		df = pd.read_csv(sourceFileName, index_col = 0)
@@ -18,15 +35,12 @@ def addSourceToFile(name, nCol,dCol,iCol):
 		df = pd.DataFrame()
 
 	if not df.empty:
-		if name in df[sourceName].to_list():
-			#source already exists
-			return False
-		else:
-			df.loc[name] = [name,nCol,dCol,iCol]
-			df.to_csv(sourceFileName)
+		#if sourceName is already there, this is basically edit functionality.
+		df.loc[sourceName] = sourceFieldDict.values()
+		df.to_csv(sourceFileName)
 	else:
-		dfNew = pd.DataFrame([{sourceName:name,nameCol: nCol, dateCol : dCol, idCol : iCol}])
-		dfNew.index = [name]
+		dfNew = pd.DataFrame([sourceFieldDict])
+		dfNew.index = [sourceName]
 		dfNew.to_csv(sourceFileName)
 
 	return True
@@ -53,7 +67,7 @@ def buildSourceDataFromFile():
 	f.close() 
 
 	try:
-		df = pd.read_csv(sourceFileName)
+		df = pd.read_csv(sourceFileName, index_col = 0)
 		return df
 	except pd.errors.EmptyDataError:
 		return pd.DataFrame()
