@@ -23,13 +23,16 @@ class Ui(QMainWindow):
 		self.ui.saveSourceBtn.clicked.connect(self.save_source_clicked)
 		self.refresh_sources()
 
+	#assumes all number columns have already been verified
 	def packageSourceForm(self):
 		dict = {}
 		for sourceColumn in SourceFileColumns:
 			inputField = self.findChild(QLineEdit, sourceColumn.value)
-			if inputField:
-				if not sourceColumn in dict.keys():
+			if not sourceColumn in dict.keys():
+				if sourceColumn.value == SourceFileColumns.sourceName.value:
 					dict[sourceColumn.value] = inputField.text()
+				else:
+					dict[sourceColumn.value] = notUsedNumber if inputField.text() == "" else int(inputField.text())
 		return dict
 				
 
@@ -74,13 +77,15 @@ class Ui(QMainWindow):
 
 	def source_clicked(self, item):
 		sourceName = item.text()
-		self.refresh_sources()
 		cols = list(self.sources.columns)
 		for column in cols:
 			val = self.sources.loc[sourceName, column]
 			inputField = self.findChild(QLineEdit, column)
 			if inputField:
-				inputField.setText(str(val))
+				if val != notUsedNumber:
+					inputField.setText(str(val))
+				else:
+					inputField.setText("")
 			
 
 	def save_source_clicked(self):
@@ -90,6 +95,23 @@ class Ui(QMainWindow):
 				if inputField.text() == "":
 					self.ui.actionLabel.setText("REQUIRED COLUMN " + inputField.objectName() + " NEEDS NON-EMPTY INPUT")
 					return False
+		
+		#all columns besides sourceName should be a number(index).
+		for sourceColumn in SourceFileColumns:
+			inputField = self.findChild(QLineEdit, sourceColumn.value)
+			if inputField:
+				if inputField.text() != "" and sourceColumn.value != SourceFileColumns.sourceName.value:
+
+					try:
+						converted = int(inputField.text())
+						if converted < 0:
+							self.ui.actionLabel.setText("INPUT COLUMN " + inputField.objectName() + " HAS INVALID NUMBER")
+							return False
+
+					except ValueError:
+						self.ui.actionLabel.setText("INPUT COLUMN " + inputField.objectName() + " NEEDS A NUMBER")
+						return False
+	
 		formData = self.packageSourceForm()
 		ret = addSourceToFile(formData)
 		if ret:
