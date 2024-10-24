@@ -2,18 +2,23 @@ import pandas as pd
 from datetime import datetime
 
 JKOdf = pd.read_excel("./testData/fileFromJKO.xlsx")
-source_name = "JKO"
 
 sources = pd.read_csv('sources.csv')
 
-for i in range(len(sources["sourceName"])):
-    name = sources["sourceName"][i]
-    if name == source_name:
-        source_row = i
+sources['sourceName'] = sources['sourceName'].str.lower()
 
-print("COLUMN DATA FOR SOURCE:")
-print(sources.iloc[source_row])
-#TODO: Use the source data in place of hardcoded file names
+source_name = "jKo".lower()
+#Find the row of this source in sources.csv
+source_row = sources.loc[sources["sourceName"] == source_name]
+if source_row.empty:
+    print("SOURCE NOT FOUND")
+    exit()
+
+first_name = source_row["firstName"][1]-1
+last_name = source_row["lastName"][1]-1
+due_date = source_row["dueDate"][1]-1
+comp_date = source_row["compDate"][1]-1
+dodid = source_row["dodid"][1]-1
 
 #Dictionary with unique IDS as keys and another dictionary with important information as values
 ids = dict()
