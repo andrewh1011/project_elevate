@@ -27,7 +27,8 @@ indices_dict = {
 ids = dict()
 
 #Groups rows by ID
-group_by_id = JKOdf.groupby('EDIPI')
+idColName = JKOdf.columns[indices_dict["dodid"]]
+group_by_id = JKOdf.groupby(idColName)
 
 #Loops through the rows for each person
 for idRows in group_by_id:
