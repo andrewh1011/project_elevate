@@ -38,9 +38,9 @@ for idRows in group_by_id:
     ids[edipi] = dict()
 
     #Store ERIPI, name, and category
-    ids[edipi]["EDIPI"] = grouped_rows.iloc[:,indices_dict["dodid"]].iloc[0]
-    ids[edipi]["First Name"] = grouped_rows.iloc[:,indices_dict["firstName"]].iloc[0]
-    ids[edipi]["Last Name"] = grouped_rows.iloc[:,indices_dict["lastName"]].iloc[0]
+    ids[edipi]["EDIPI"] = grouped_rows.iloc[0,indices_dict["dodid"]]
+    ids[edipi]["First Name"] = grouped_rows.iloc[0,indices_dict["firstName"]]
+    ids[edipi]["Last Name"] = grouped_rows.iloc[0,indices_dict["lastName"]]
     # ids[edipi]["Category"] = grouped_rows["Category"].iloc[0]
 
     course_names = list(grouped_rows["Course Name"])
