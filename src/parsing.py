@@ -2,10 +2,9 @@ import pandas as pd
 from datetime import datetime
 
 JKOdf = pd.read_excel("./testData/fileFromJKO.xlsx")
-
 sources = pd.read_csv('sources.csv')
 
-#Name sourceName column and source_name lowercase to ignore case
+#Make source names lowercase to ignore case
 sources['sourceName'] = sources['sourceName'].str.lower()
 source_name = "JKO".lower()
 
