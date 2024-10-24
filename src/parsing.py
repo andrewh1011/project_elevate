@@ -5,14 +5,14 @@ JKOdf = pd.read_excel("./testData/fileFromJKO.xlsx")
 
 sources = pd.read_csv('sources.csv')
 
+#Name sourceName column and source_name lowercase to ignore case
 sources['sourceName'] = sources['sourceName'].str.lower()
+source_name = "JKO".lower()
 
-source_name = "jKo".lower()
 #Find the row of this source in sources.csv
 source_row = sources.loc[sources["sourceName"] == source_name]
 if source_row.empty:
-    print("SOURCE NOT FOUND")
-    exit()
+    raise Exception("SOURCE NOT FOUND")
 
 #Store column indices in dictionary
 indices = {
@@ -38,14 +38,14 @@ for idRows in group_by_id:
     ids[edipi] = dict()
 
     #Store ERIPI, name, and category
-    ids[edipi]["EDIPI"] = edipi
-    ids[edipi]["First Name"] = grouped_rows["First Name"].iloc[0]
-    ids[edipi]["Last Name"] = grouped_rows["Last Name"].iloc[0]
-    ids[edipi]["Category"] = grouped_rows["Category"].iloc[0]
+    ids[edipi]["EDIPI"] = grouped_rows.iloc[:,indices["dodid"]].iloc[0]
+    ids[edipi]["First Name"] = grouped_rows.iloc[:,indices["firstName"]].iloc[0]
+    ids[edipi]["Last Name"] = grouped_rows.iloc[:,indices["lastName"]].iloc[0]
+    # ids[edipi]["Category"] = grouped_rows["Category"].iloc[0]
 
     course_names = list(grouped_rows["Course Name"])
-    course_completed_dates = list(grouped_rows["Completed Dt"])
-    course_due_dates = list(grouped_rows["Due Dt"])
+    course_completed_dates = list(grouped_rows.iloc[:,indices["compDate"]])
+    course_due_dates = list(grouped_rows.iloc[:,indices["dueDate"]])
 
     #Loops through this person's courses
     for i in range(len(course_names)):
@@ -68,16 +68,6 @@ for idRows in group_by_id:
         #Completed after due date
         else:
             ids[edipi][course_name] = "LATE (completed)"
-
-# def pretty_print_dict(d, indent=0):
-#    for key, value in d.items():
-#       print('\t' * indent + str(key))
-#       if isinstance(value, dict):
-#          pretty_print_dict(value, indent+1)
-#       else:
-#          print('\t' * (indent+1) + str(value))
-
-# pretty_print_dict(indices)
 
 output = pd.DataFrame(ids.values())
 
