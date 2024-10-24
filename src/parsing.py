@@ -14,11 +14,14 @@ if source_row.empty:
     print("SOURCE NOT FOUND")
     exit()
 
-first_name = source_row["firstName"][1]-1
-last_name = source_row["lastName"][1]-1
-due_date = source_row["dueDate"][1]-1
-comp_date = source_row["compDate"][1]-1
-dodid = source_row["dodid"][1]-1
+#Store column indices in dictionary
+indices = {
+    "firstName": source_row["firstName"][1]-1,
+    "lastName": source_row["lastName"][1]-1,
+    "dueDate": source_row["dueDate"][1]-1,
+    "compDate": source_row["compDate"][1]-1,
+    "dodid": source_row["dodid"][1]-1
+}
 
 #Dictionary with unique IDS as keys and another dictionary with important information as values
 ids = dict()
@@ -74,7 +77,7 @@ for idRows in group_by_id:
 #       else:
 #          print('\t' * (indent+1) + str(value))
 
-# pretty_print_dict(ids)
+# pretty_print_dict(indices)
 
 output = pd.DataFrame(ids.values())
 
