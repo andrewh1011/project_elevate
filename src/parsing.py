@@ -10,17 +10,17 @@ sources['sourceName'] = sources['sourceName'].str.lower()
 source_name = "JKO".lower()
 
 #Find the row of this source in sources.csv
-source_row = sources.loc[sources["sourceName"] == source_name]
-if source_row.empty:
+source_indeces = sources.loc[sources["sourceName"] == source_name]
+if source_indeces.empty:
     raise Exception("SOURCE NOT FOUND")
 
 #Store column indices in dictionary
-indices = {
-    "firstName": source_row["firstName"][1]-1,
-    "lastName": source_row["lastName"][1]-1,
-    "dueDate": source_row["dueDate"][1]-1,
-    "compDate": source_row["compDate"][1]-1,
-    "dodid": source_row["dodid"][1]-1
+indices_dict = {
+    "firstName": source_indeces["firstName"][1]-1,
+    "lastName": source_indeces["lastName"][1]-1,
+    "dueDate": source_indeces["dueDate"][1]-1,
+    "compDate": source_indeces["compDate"][1]-1,
+    "dodid": source_indeces["dodid"][1]-1
 }
 
 #Dictionary with unique IDS as keys and another dictionary with important information as values
@@ -38,14 +38,14 @@ for idRows in group_by_id:
     ids[edipi] = dict()
 
     #Store ERIPI, name, and category
-    ids[edipi]["EDIPI"] = grouped_rows.iloc[:,indices["dodid"]].iloc[0]
-    ids[edipi]["First Name"] = grouped_rows.iloc[:,indices["firstName"]].iloc[0]
-    ids[edipi]["Last Name"] = grouped_rows.iloc[:,indices["lastName"]].iloc[0]
+    ids[edipi]["EDIPI"] = grouped_rows.iloc[:,indices_dict["dodid"]].iloc[0]
+    ids[edipi]["First Name"] = grouped_rows.iloc[:,indices_dict["firstName"]].iloc[0]
+    ids[edipi]["Last Name"] = grouped_rows.iloc[:,indices_dict["lastName"]].iloc[0]
     # ids[edipi]["Category"] = grouped_rows["Category"].iloc[0]
 
     course_names = list(grouped_rows["Course Name"])
-    course_completed_dates = list(grouped_rows.iloc[:,indices["compDate"]])
-    course_due_dates = list(grouped_rows.iloc[:,indices["dueDate"]])
+    course_completed_dates = list(grouped_rows.iloc[:,indices_dict["compDate"]])
+    course_due_dates = list(grouped_rows.iloc[:,indices_dict["dueDate"]])
 
     #Loops through this person's courses
     for i in range(len(course_names)):
