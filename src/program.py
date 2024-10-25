@@ -1,6 +1,6 @@
+from PyQt5 import Qt, QtCore
 from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QFileDialog, QLabel, QListWidget, QListWidgetItem, QInputDialog,QMessageBox, QLineEdit
 import sys
-from PyQt5 import Qt
 from uiFile import Ui_Dialog
 from manageSources import *
 from parsing import *
@@ -70,6 +70,7 @@ class Ui(QMainWindow):
 		if not self.sources.empty:
 			for source in self.sources[SourceFileColumns.sourceName.value].to_list():
 				itm = QListWidgetItem(source)
+				itm.setTextAlignment(QtCore.Qt.AlignCenter)
 				self.ui.sourceList.addItem(itm)
 
 	def delete_source_clicked(self):
@@ -174,6 +175,7 @@ class Ui(QMainWindow):
 		else:
 			self.fileNames[name] = (path, system)
 			itm = QListWidgetItem(name)
+			itm.setTextAlignment(QtCore.Qt.AlignCenter)
 			self.ui.fileList.addItem(itm)
 			self.ui.actionLabel.setText("Added file: " + itm.text())
 

@@ -330,7 +330,13 @@
         </widget>
        </item>
        <item>
-        <widget class="QListWidget" name="sourceList"/>
+        <widget class="QListWidget" name="sourceList">
+         <property name="font">
+          <font>
+           <pointsize>15</pointsize>
+          </font>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QPushButton" name="deleteSourceBtn">
@@ -364,7 +370,13 @@
         </widget>
        </item>
        <item>
-        <widget class="QListWidget" name="fileList"/>
+        <widget class="QListWidget" name="fileList">
+         <property name="font">
+          <font>
+           <pointsize>15</pointsize>
+          </font>
+         </property>
+        </widget>
        </item>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout">
