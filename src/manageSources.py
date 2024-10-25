@@ -15,13 +15,16 @@ class SourceFileColumns(Enum):
 	dueDate = "dueDate"
 	compDate = "compDate"
 	dodid = "dodid"
-
+	email = "email"
+	courseName = "courseName"
+	
 #These are the columns in the source form which should not be left blank
 class RequiredSourceFileColumns(Enum):
 	name = "sourceName"
 	firstName = "firstName"
 	dueDate = "dueDate"
 	compDate = "compDate"
+	courseName = "courseName"
 		
 #sourceFieldDict is a dict that maps source field names of the form to their filled values
 def addSourceToFile(sourceFieldDict):

@@ -4,13 +4,16 @@ from manageSources import *
 
 reportFileName = "output.xlsx"
 
+def buildIdDict(filePaths):
+	return
+	#pandas dataframe that has columns dodid, email, name
+	#ids = pd.DataFrame(columns = [SourceFileColumns.dodid, SourceFileColumns.])
+	
 
 def parseFile(filePath, sourceName):
 	fileDf = pd.read_excel(filePath)	
 	sources = pd.read_csv(sourceFileName, index_col = 0)
 	
-	if not sourceName in sources.index.values:
-		return False
 	source_indices = sources.loc[sourceName]
 	
 	#make sure no column indices entered by user fall outside possible columns index range for this file
