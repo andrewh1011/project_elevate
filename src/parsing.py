@@ -1,76 +1,69 @@
 import pandas as pd
 from datetime import datetime
+from manageSources import *
 
-JKOdf = pd.read_excel("./testData/fileFromJKO.xlsx")
-sources = pd.read_csv('sources.csv')
+reportFileName = "output.xlsx"
 
-#Make source names lowercase to ignore case
-sources['sourceName'] = sources['sourceName'].str.lower()
-source_name = "JKO".lower()
 
-#Find the row of this source in sources.csv
-source_indeces = sources.loc[sources["sourceName"] == source_name]
-if source_indeces.empty:
-    raise Exception("SOURCE NOT FOUND")
+def parseFile(filePath, sourceName):
+	fileDf = pd.read_excel(filePath)	
+	sources = pd.read_csv(sourceFileName, index_col = 0)
 
-#Store column indices in dictionary
-indices_dict = {
-    "firstName": source_indeces["firstName"][1]-1,
-    "lastName": source_indeces["lastName"][1]-1,
-    "dueDate": source_indeces["dueDate"][1]-1,
-    "compDate": source_indeces["compDate"][1]-1,
-    "dodid": source_indeces["dodid"][1]-1
-}
+	if not sourceName in sources.index.values:
+		return False
+	source_indices = sources.loc[sourceName]
+	print(source_indices)
 
-#Dictionary with unique IDS as keys and another dictionary with important information as values
-ids = dict()
+	#Dictionary with unique IDS as keys and another dictionary with important information as values
+	ids = dict()
 
-#Groups rows by ID
-id_col_name = JKOdf.columns[indices_dict["dodid"]]
-group_by_id = JKOdf.groupby(id_col_name)
+	#Groups rows by ID
+	print(source_indices.keys())
+	id_col_name = fileDf.columns[source_indices.loc[SourceFileColumns.dodid]]
+	group_by_id = fileDf.groupby(id_col_name)
 
-#Loops through the rows for each person
-for idRows in group_by_id:
-    edipi = idRows[0]
-    grouped_rows = idRows[1]
+	#Loops through the rows for each person
+	for idRows in group_by_id:
+		edipi = idRows[0]
+		grouped_rows = idRows[1]
 
-    #Create a dictionary for this person with informatin about them
-    ids[edipi] = dict()
+		#Create a dictionary for this person with informatin about them
+		ids[edipi] = dict()
 
-    #Store ERIPI, name, and category
-    ids[edipi]["EDIPI"] = grouped_rows.iloc[0,indices_dict["dodid"]]
-    ids[edipi]["First Name"] = grouped_rows.iloc[0,indices_dict["firstName"]]
-    ids[edipi]["Last Name"] = grouped_rows.iloc[0,indices_dict["lastName"]]
-    # ids[edipi]["Category"] = grouped_rows["Category"].iloc[0]
+		#Store ERIPI, name, and category
+		ids[edipi]["EDIPI"] = grouped_rows.iloc[0,source_indices[SourceFileColumns.dodid]]
+		ids[edipi]["First Name"] = grouped_rows.iloc[0,source_indices[SourceFileColumns.firstName]]
 
-    course_names = list(grouped_rows["Course Name"])
-    course_completed_dates = list(grouped_rows.iloc[:,indices_dict["compDate"]])
-    course_due_dates = list(grouped_rows.iloc[:,indices_dict["dueDate"]])
+		if source_indices[SourceFileColumns.lastName] != -1:
+			ids[edipi]["Last Name"] = grouped_rows.iloc[0,source_indices[SourceFileColumns.lastName]]
+		
+		course_names = list(grouped_rows["Course Name"])
 
-    #Loops through this person's courses
-    for i in range(len(course_names)):
-        #Pandas Timestamps
-        course_completed_date = course_completed_dates[i]
-        course_due_date = course_due_dates[i]
+		course_completed_dates = list(grouped_rows.iloc[:,source_indices[SourceFileColumns.compDate]])
+		course_due_dates = list(grouped_rows.iloc[:,source_indices[SourceFileColumns.dueDate]])
 
-        #String
-        course_name = course_names[i]
+		#Loops through this person's courses
+		for i in range(len(course_names)):
+			#Pandas Timestamps
+			course_completed_date = course_completed_dates[i]
+			course_due_date = course_due_dates[i]
+			#String
+			course_name = course_names[i]
 
-        #Course was not completed
-        if pd.isna(course_completed_date):
-            ids[edipi][course_name] = "NOT Completed"
-            continue
+			#Course was not completed
+			if pd.isna(course_completed_date):
+				ids[edipi][course_name] = "NOT Completed"
+				continue
 
-        #Completed date is before current date (completed course)
-        if course_completed_date <= course_due_date:
-            ids[edipi][course_name] = "Completed"
+			#Completed date is before current date (completed course)
+			if course_completed_date <= course_due_date:
+				ids[edipi][course_name] = "Completed"
 
-        #Completed after due date
-        else:
-            ids[edipi][course_name] = "LATE (completed)"
+			#Completed after due date
+			else:
+				ids[edipi][course_name] = "LATE (completed)"
 
-output = pd.DataFrame(ids.values())
+	output = pd.DataFrame(ids.values())
 
-with pd.ExcelWriter('output.xlsx') as writer:
-    output.to_excel(writer)
-    
+	with pd.ExcelWriter(reportFileName) as writer:
+		output.to_excel(writer)

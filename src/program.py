@@ -3,6 +3,7 @@ import sys
 from PyQt5 import Qt
 from uiFile import Ui_Dialog
 from manageSources import *
+from parsing import *
 
 class Ui(QMainWindow):
 	
@@ -21,7 +22,17 @@ class Ui(QMainWindow):
 		self.ui.deleteFileBtn.clicked.connect(self.delete_file_clicked)
 		self.ui.deleteSourceBtn.clicked.connect(self.delete_source_clicked)
 		self.ui.saveSourceBtn.clicked.connect(self.save_source_clicked)
+		self.ui.startBtn.clicked.connect(self.start_btn_clicked)
 		self.refresh_sources()
+
+	def start_btn_clicked(self):
+		keys = self.fileNames.keys()
+		if len(keys) >	0:
+			for key in keys:
+				fileInfo = self.fileNames[key]
+				parseFile(fileInfo[0], fileInfo[1])
+		else:
+			self.ui.actionLabel.setText("Please provide at least one file for the report generation.")	
 
 	#assumes all number columns have already been verified
 	def packageSourceForm(self):
