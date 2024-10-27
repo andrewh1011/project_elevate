@@ -4,6 +4,7 @@ from manageSources import *
 from thefuzz import fuzz
 
 reportFileName = "output.xlsx"
+personNameColumn = "cleanName"
 
 
 def cleanEmail(email):
@@ -12,9 +13,9 @@ def cleanName(name):
 	return name.replace(" ", "").replace("-", "").lower()
 
 #fileInfos is a list of pairs (filePath,sourceName)
-def buildIdDict(fileInfos):
+def buildIds(fileInfos):
 	#pandas dataframe that has columns dodid, email, name
-	ids = pd.DataFrame(columns = [SourceFileColumns.dodid, SourceFileColumns.email, "cleanName"])
+	ids = pd.DataFrame(columns = [SourceFileColumns.dodid, SourceFileColumns.email, personNameColumn])
 	sources = pd.read_csv(sourceFileName, index_col = 0)
 
 	for fileInfo in fileInfos:
@@ -24,7 +25,8 @@ def buildIdDict(fileInfos):
 		fileDf = pd.read_excel(filePath)
 		source_indices = sources.loc[sourceName]
 		
-		for row in fileDf.iloc[:]:
+		for ind, row in fileDf.iterrows():
+			print(row)
 			dodidText = ""
 			dodidNum = -1
 			email = ""
@@ -46,7 +48,6 @@ def buildIdDict(fileInfos):
 			except ValueError:
 				dodid = -1
 
-
 			matchIndex = -1
 
 			if dodidNum != -1:
@@ -55,29 +56,31 @@ def buildIdDict(fileInfos):
 					matchIndex = dodidMatchIndices[0]
 			if email != "" and matchIndex == -1:	
 				emailMatchIndices = ids.index[ids[SourceFileColumns.email.value] == email]
-					if emailMatchIndices:
-						matchIndex = dodidMatchIndices[0]
+				if emailMatchIndices:
+					matchIndex = emailMatchIndices[0]
 			if matchIndex == -1:
-				nameMatchIndices = ids.index[fuzz.partial_ratio(ids["cleanName"],name) > 95]
-						maxIndex = -1
-						maxVal = -1
-						for nameMatchIndex in nameMatchIndices:
-							score = fuzz.partial_ratio(ids.iloc[nameMatchIndex, "cleanName"], name)
-							if score > maxVal:
-								maxVal = score
-								maxIndex = nameMatchIndex
+				nameMatchIndices = ids.index[fuzz.partial_ratio(ids[personNameColumn],name) > 95]
+				maxIndex = -1
+				maxVal = -1
+				for nameMatchIndex in nameMatchIndices:
+					score = fuzz.partial_ratio(ids.iloc[nameMatchIndex, personNameColumn], name)
+					if score > maxVal:
+						maxVal = score
+						maxIndex = nameMatchIndex
 						
-						matchIndex = maxIndex		
+				matchIndex = maxIndex		
 				
 			if matchIndex != -1:
-				matchRow = ids.loc[matchRow]
-				if matchRow.loc[SourceFileColumns.dodid.value] == -1 and dodidNum != -1
+				matchRow = ids.loc[matchIndex]
+				if matchRow.loc[SourceFileColumns.dodid.value] == -1 and dodidNum != -1:
 					ids.loc[matchRow,SourceFileColumns.dodid.value] = dodidNum
-				if matchRow.loc[SourceFileColumns.email.value] == -1 and email != ""
+				if matchRow.loc[SourceFileColumns.email.value] == "" and email != "":
 					ids.loc[matchRow,SourceFileColumns.email.value] = email
 
 			else:
 				ids = pd.concat([pd.DataFrame([[dodidNum,email,name]], columns= ids.columns), ids], ignore_index=True)
+
+	print(ids)
 				
 		
 		
