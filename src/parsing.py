@@ -5,6 +5,7 @@ from thefuzz import fuzz
 
 reportFileName = "output.xlsx"
 personNameColumn = "cleanName"
+nameMatchThreshold = 78
 
 
 def cleanEmail(email):
@@ -15,7 +16,7 @@ def cleanName(name):
 #fileInfos is a list of pairs (filePath,sourceName)
 def buildIds(fileInfos):
 	#pandas dataframe that has columns dodid, email, name
-	ids = pd.DataFrame(columns = [SourceFileColumns.dodid, SourceFileColumns.email, personNameColumn])
+	ids = pd.DataFrame(columns = [SourceFileColumns.dodid.value, SourceFileColumns.email.value, personNameColumn])
 	sources = pd.read_csv(sourceFileName, index_col = 0)
 
 	for fileInfo in fileInfos:
@@ -23,7 +24,12 @@ def buildIds(fileInfos):
 		sourceName = fileInfo[1]
 
 		fileDf = pd.read_excel(filePath)
+		fileDf[
 		source_indices = sources.loc[sourceName]
+		emailIndex = source_indices.loc[SourceFileColumns.email.value]
+		dodIndex = source_indices.loc[SourceFileColumns.dodid.value]
+		firstNameIndex = source_indices.loc[SourceFileColumns.firstName.value]
+		lastNameIndex = source_indices.loc[SourceFileColumns.lastName.value]
 		
 		for ind, row in fileDf.iterrows():
 			print(row)
@@ -32,14 +38,18 @@ def buildIds(fileInfos):
 			email = ""
 			name = ""
 
-			if source_indices.loc[SourceFileColumns.dodid.value] != -1:
-				dodidText = row.loc[SourceFileColumns.dodid.value]
-			if source_indices.loc[SourceFileColumns.email.value] != -1:
-				email = cleanEmail(row.loc[SourceFileColumns.email.value])
-
-			name = row.loc[SourceFileColumns.firstName.value]
-			if source_indices.loc[SourceFileColumns.lastName.value] != -1:
-				name = name + row.loc[SourceFileColumns.lastName.value]
+			
+			if dodIndex != -1:
+				dodidText = row.iloc[dodIndex]
+			
+			if emailIndex != -1:
+				email = cleanEmail(row.iloc[emailIndex])
+		
+			
+			name = row.iloc[firstNameIndex]
+			
+			if lastNameIndex != -1:
+				name = name + row.iloc[lastNameIndex]
 
 			name = cleanName(name)
 
@@ -52,32 +62,32 @@ def buildIds(fileInfos):
 
 			if dodidNum != -1:
 				dodidMatchIndices = ids.index[ids[SourceFileColumns.dodid.value] == dodidNum]
-				if dodidMatchIndices:
+				if not dodidMatchIndices.empty:
+					print("matched dodid")
 					matchIndex = dodidMatchIndices[0]
+					
 			if email != "" and matchIndex == -1:	
 				emailMatchIndices = ids.index[ids[SourceFileColumns.email.value] == email]
-				if emailMatchIndices:
+				if not emailMatchIndices.empty:
+					print("matched email")
 					matchIndex = emailMatchIndices[0]
 			if matchIndex == -1:
-				nameMatchIndices = ids.index[fuzz.partial_ratio(ids[personNameColumn],name) > 95]
-				maxIndex = -1
-				maxVal = -1
-				for nameMatchIndex in nameMatchIndices:
-					score = fuzz.partial_ratio(ids.iloc[nameMatchIndex, personNameColumn], name)
-					if score > maxVal:
-						maxVal = score
-						maxIndex = nameMatchIndex
-						
-				matchIndex = maxIndex		
-				
+				transformed = ids[personNameColumn].map(lambda otherName: fuzz.partial_ratio(otherName,name))
+				if not transformed.empty:
+					maxInd = transformed.idxmax()
+					if transformed.iloc[maxInd] > nameMatchThreshold:
+						matchIndex = maxInd
+						print("matched name ")
+						print(ids.iloc[maxInd])
 			if matchIndex != -1:
 				matchRow = ids.loc[matchIndex]
 				if matchRow.loc[SourceFileColumns.dodid.value] == -1 and dodidNum != -1:
-					ids.loc[matchRow,SourceFileColumns.dodid.value] = dodidNum
+					ids.loc[matchIndex,SourceFileColumns.dodid.value] = dodidNum
 				if matchRow.loc[SourceFileColumns.email.value] == "" and email != "":
-					ids.loc[matchRow,SourceFileColumns.email.value] = email
+					ids.loc[matchIndex,SourceFileColumns.email.value] = email
 
 			else:
+				print("new row")
 				ids = pd.concat([pd.DataFrame([[dodidNum,email,name]], columns= ids.columns), ids], ignore_index=True)
 
 	print(ids)
