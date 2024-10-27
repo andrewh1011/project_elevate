@@ -24,12 +24,18 @@ def buildIds(fileInfos):
 		sourceName = fileInfo[1]
 
 		fileDf = pd.read_excel(filePath)
-		fileDf[
+		
 		source_indices = sources.loc[sourceName]
 		emailIndex = source_indices.loc[SourceFileColumns.email.value]
 		dodIndex = source_indices.loc[SourceFileColumns.dodid.value]
 		firstNameIndex = source_indices.loc[SourceFileColumns.firstName.value]
 		lastNameIndex = source_indices.loc[SourceFileColumns.lastName.value]
+
+		if emailIndex != -1:
+			fileDf.iloc[:,emailIndex].fillna("", inplace=True)
+		fileDf.iloc[:,firstNameIndex].fillna("", inplace=True)
+		if lastNameIndex != -1:
+			fileDf.iloc[:,lastNameIndex].fillna("", inplace=True)
 		
 		for ind, row in fileDf.iterrows():
 			print(row)
@@ -45,12 +51,9 @@ def buildIds(fileInfos):
 			if emailIndex != -1:
 				email = cleanEmail(row.iloc[emailIndex])
 		
-			
-			name = row.iloc[firstNameIndex]
-			
+			name = row.iloc[firstNameIndex]	
 			if lastNameIndex != -1:
 				name = name + row.iloc[lastNameIndex]
-
 			name = cleanName(name)
 
 			try:
