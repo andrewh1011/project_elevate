@@ -95,12 +95,23 @@
     </property>
     <property name="font">
      <font>
-      <family>Arial</family>
-      <pointsize>15</pointsize>
+      <pointsize>-1</pointsize>
+      <underline>false</underline>
+      <strikeout>false</strikeout>
      </font>
     </property>
     <property name="styleSheet">
-     <string notr="true"/>
+     <string notr="true">background-color: #33b249;
+border: none;
+color: #FFFFFF;
+border-radius: 4px;
+box-shadow: rgba(0, 0, 0, 0.1) 0 2px 4px;
+padding: 20px;
+text-align: center;
+text-decoration: none;
+display: inline-block;
+font-size: 16px;
+margin: 4px 2px;</string>
     </property>
     <property name="text">
      <string>Create output</string>
