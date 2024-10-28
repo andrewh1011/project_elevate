@@ -35,7 +35,7 @@ class Ui_Dialog(object):
         self.label_5.setAlignment(QtCore.Qt.AlignCenter)
         self.label_5.setObjectName("label_5")
         self.actionLabel = QtWidgets.QLabel(self.centralwidget)
-        self.actionLabel.setGeometry(QtCore.QRect(360, 410, 521, 16))
+        self.actionLabel.setGeometry(QtCore.QRect(320, 410, 601, 20))
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(15)

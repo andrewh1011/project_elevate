@@ -62,10 +62,10 @@
    <widget class="QLabel" name="actionLabel">
     <property name="geometry">
      <rect>
-      <x>360</x>
+      <x>320</x>
       <y>410</y>
-      <width>521</width>
-      <height>16</height>
+      <width>601</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="font">
