@@ -4,7 +4,9 @@ from manageSources import *
 from thefuzz import fuzz
 
 reportFileName = "output.xlsx"
-personNameColumn = "cleanName"
+cleanNameColumn = "cleanName"
+fullNameColumn = "fullName"
+
 nameMatchThreshold = 78
 
 
@@ -18,7 +20,7 @@ def cleanName(name):
 def buildIds(fileInfos, nameMatchCallBack):
 
 	#pandas dataframe that has columns dodid, email, name
-	ids = pd.DataFrame(columns = [SourceFileColumns.dodid.value, SourceFileColumns.email.value, personNameColumn])
+	ids = pd.DataFrame(columns = [SourceFileColumns.dodid.value, SourceFileColumns.email.value, cleanNameColumn, fullNameColumn])
 	sources = pd.read_csv(sourceFileName, index_col = 0)
 
 	for fileInfo in fileInfos:
@@ -43,7 +45,8 @@ def buildIds(fileInfos, nameMatchCallBack):
 			dodidText = ""
 			dodidNum = -1
 			email = ""
-			name = ""
+			fullName = ""
+			clnName = ""
 
 			
 			if dodIndex != -1:
@@ -52,10 +55,10 @@ def buildIds(fileInfos, nameMatchCallBack):
 			if emailIndex != -1:
 				email = cleanEmail(row.iloc[emailIndex])
 		
-			name = row.iloc[firstNameIndex]	
+			fullName = row.iloc[firstNameIndex]	
 			if lastNameIndex != -1:
-				name = name + row.iloc[lastNameIndex]
-			name = cleanName(name)
+				fullName = fullName + " " + row.iloc[lastNameIndex]
+			clnName = cleanName(fullName)
 
 			try:
 				dodidNum = int(dodidText)
@@ -76,11 +79,11 @@ def buildIds(fileInfos, nameMatchCallBack):
 					print("matched email")
 					matchIndex = emailMatchIndices[0]
 			if matchIndex == -1:
-				transformed = ids[personNameColumn].map(lambda otherName: fuzz.partial_ratio(otherName,name))
+				transformed = ids[cleanNameColumn].map(lambda otherName: fuzz.partial_ratio(otherName,clnName))
 				if not transformed.empty:
 					maxInd = transformed.idxmax()
 					if transformed.iloc[maxInd] > nameMatchThreshold:
-						proceed = nameMatchCallBack(name,ids.iloc[maxInd].loc[personNameColumn])
+						proceed = nameMatchCallBack(fullName,ids.iloc[maxInd].loc[fullNameColumn])
 						if proceed:
 							matchIndex = maxInd
 							print("matched name ")
@@ -94,7 +97,7 @@ def buildIds(fileInfos, nameMatchCallBack):
 
 			else:
 				print("new row")
-				ids = pd.concat([pd.DataFrame([[dodidNum,email,name]], columns= ids.columns), ids], ignore_index=True)
+				ids = pd.concat([pd.DataFrame([[dodidNum,email,clnName, fullName]], columns= ids.columns), ids], ignore_index=True)
 
 	print(ids)
 				
