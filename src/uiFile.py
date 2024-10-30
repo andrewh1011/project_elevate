@@ -47,20 +47,17 @@ class Ui_Dialog(object):
         self.startBtn = QtWidgets.QPushButton(self.centralwidget)
         self.startBtn.setGeometry(QtCore.QRect(540, 320, 161, 71))
         font = QtGui.QFont()
-        font.setPointSize(-1)
-        font.setUnderline(False)
-        font.setStrikeOut(False)
+        font.setPointSize(16)
+        font.setBold(False)
+        font.setWeight(50)
         self.startBtn.setFont(font)
         self.startBtn.setStyleSheet("background-color: #33b249;\n"
 "border: none;\n"
 "color: #FFFFFF;\n"
 "border-radius: 4px;\n"
-"box-shadow: rgba(0, 0, 0, 0.1) 0 2px 4px;\n"
 "padding: 20px;\n"
 "text-align: center;\n"
 "text-decoration: none;\n"
-"display: inline-block;\n"
-"font-size: 16px;\n"
 "margin: 4px 2px;")
         self.startBtn.setObjectName("startBtn")
         self.layoutWidget = QtWidgets.QWidget(self.centralwidget)

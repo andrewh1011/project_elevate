@@ -95,9 +95,9 @@
     </property>
     <property name="font">
      <font>
-      <pointsize>-1</pointsize>
-      <underline>false</underline>
-      <strikeout>false</strikeout>
+      <pointsize>16</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
     <property name="styleSheet">
@@ -105,12 +105,9 @@
 border: none;
 color: #FFFFFF;
 border-radius: 4px;
-box-shadow: rgba(0, 0, 0, 0.1) 0 2px 4px;
 padding: 20px;
 text-align: center;
 text-decoration: none;
-display: inline-block;
-font-size: 16px;
 margin: 4px 2px;</string>
     </property>
     <property name="text">
