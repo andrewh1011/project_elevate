@@ -139,7 +139,7 @@ def parseFile(filePath, sourceName):
 		if source_indices.loc[SourceFileColumns.lastName.value] != -1:
 			ids[edipi][source_indices.loc[SourceFileColumns.lastName.value]] = grouped_rows.iloc[0,source_indices.loc[SourceFileColumns.lastName.value]]
 		
-		course_names = list(grouped_rows[SourceFileColumns.courseName.value])
+		course_names = list(grouped_rows.iloc[:,source_indices.loc[SourceFileColumns.courseName.value]])
 
 		course_completed_dates = list(grouped_rows.iloc[:,source_indices.loc[SourceFileColumns.compDate.value]])
 		course_due_dates = list(grouped_rows.iloc[:,source_indices.loc[SourceFileColumns.dueDate.value]])
