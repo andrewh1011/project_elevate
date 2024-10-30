@@ -172,5 +172,3 @@ def parseFile(filePath, sourceName):
 
 	with pd.ExcelWriter(reportFileName) as writer:
 		output.to_excel(writer)
-
-parseFile("./testData/fileFromJKO.xlsx", "JKO")
