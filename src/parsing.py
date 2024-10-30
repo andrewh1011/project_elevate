@@ -14,7 +14,9 @@ def cleanName(name):
 	return name.replace(" ", "").replace("-", "").lower()
 
 #fileInfos is a list of pairs (filePath,sourceName)
-def buildIds(fileInfos):
+#nameMatchCallback is a function that takes two names(the two that matched), returns true/false
+def buildIds(fileInfos, nameMatchCallBack):
+
 	#pandas dataframe that has columns dodid, email, name
 	ids = pd.DataFrame(columns = [SourceFileColumns.dodid.value, SourceFileColumns.email.value, personNameColumn])
 	sources = pd.read_csv(sourceFileName, index_col = 0)
@@ -32,13 +34,12 @@ def buildIds(fileInfos):
 		lastNameIndex = source_indices.loc[SourceFileColumns.lastName.value]
 
 		if emailIndex != -1:
-			fileDf.iloc[:,emailIndex].fillna("", inplace=True)
-		fileDf.iloc[:,firstNameIndex].fillna("", inplace=True)
+			fileDf.iloc[:,emailIndex] = fileDf.iloc[:,emailIndex].fillna("")
+		fileDf.iloc[:,firstNameIndex] = fileDf.iloc[:,firstNameIndex].fillna("")
 		if lastNameIndex != -1:
-			fileDf.iloc[:,lastNameIndex].fillna("", inplace=True)
+			fileDf.iloc[:,lastNameIndex]= fileDf.iloc[:,lastNameIndex].fillna("")
 		
 		for ind, row in fileDf.iterrows():
-			print(row)
 			dodidText = ""
 			dodidNum = -1
 			email = ""
@@ -79,9 +80,11 @@ def buildIds(fileInfos):
 				if not transformed.empty:
 					maxInd = transformed.idxmax()
 					if transformed.iloc[maxInd] > nameMatchThreshold:
-						matchIndex = maxInd
-						print("matched name ")
-						print(ids.iloc[maxInd])
+						proceed = nameMatchCallBack(name,ids.iloc[maxInd].loc[personNameColumn])
+						if proceed:
+							matchIndex = maxInd
+							print("matched name ")
+							print(ids.iloc[maxInd])
 			if matchIndex != -1:
 				matchRow = ids.loc[matchIndex]
 				if matchRow.loc[SourceFileColumns.dodid.value] == -1 and dodidNum != -1:

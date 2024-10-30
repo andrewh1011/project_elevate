@@ -25,13 +25,22 @@ class Ui(QMainWindow):
 		self.ui.startBtn.clicked.connect(self.start_btn_clicked)
 		self.refresh_sources()
 
+	def nameMatchConfirmOuter(self):
+		def nameMatchConfirmInner(name1, name2):
+			choice = QMessageBox.question(self, 'Name Match Detected', name1 + " appears to match " + name2 + ". Proceed to combine these into one person record?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+			if choice == QMessageBox.Yes:
+				return True
+			else:
+				return False
+		return nameMatchConfirmInner
+
 	def start_btn_clicked(self):
 		keys = self.fileNames.keys()
 		if len(keys) >	0:
 			#for key in keys:
 				#fileInfo = self.fileNames[key]
 				#parseFile(fileInfo[0], fileInfo[1])
-			buildIds(self.fileNames.values())
+			buildIds(self.fileNames.values(), self.nameMatchConfirmOuter())
 		else:
 			self.ui.actionLabel.setText("Please provide at least one file for the report generation.")	
 
