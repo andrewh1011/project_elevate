@@ -120,7 +120,7 @@ def parseFile(filePath, sourceName):
 	#Dictionary with unique IDS as keys and another dictionary with important information as values
 	ids = dict()
 
-	#Groups rows by ID
+	#Groups rows by ID if present, if not group by email
 	if source_indices.dodid >= 0:
 		identifier_col_name = fileDf.columns[source_indices.loc[SourceFileColumns.dodid.value]]
 	elif source_indices.email >= 0:
