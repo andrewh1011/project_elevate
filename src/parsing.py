@@ -121,23 +121,26 @@ def parseFile(filePath, sourceName):
 	ids = dict()
 
 	#Groups rows by ID
-	id_col_name = fileDf.columns[source_indices.loc[SourceFileColumns.dodid.value]]
-	group_by_id = fileDf.groupby(id_col_name)
+	if source_indices.dodid >= 0:
+		identifier_col_name = fileDf.columns[source_indices.loc[SourceFileColumns.dodid.value]]
+	elif source_indices.email >= 0:
+		identifier_col_name = fileDf.columns[source_indices.loc[SourceFileColumns.email.value]]
+	group_by = fileDf.groupby(identifier_col_name)
 
 	#Loops through the rows for each person
-	for idRows in group_by_id:
-		edipi = idRows[0]
-		grouped_rows = idRows[1]
+	for person in group_by:
+		identifier = person[0]
+		grouped_rows = person[1]
 
 		#Create a dictionary for this person with informatin about them
-		ids[edipi] = dict()
+		ids[identifier] = dict()
 
 		#Store ERIPI, name, and category
-		ids[edipi][source_indices.loc[SourceFileColumns.dodid.value]] = grouped_rows.iloc[0,source_indices.loc[SourceFileColumns.dodid.value]]
-		ids[edipi][source_indices.loc[SourceFileColumns.firstName.value]] = grouped_rows.iloc[0,source_indices.loc[SourceFileColumns.firstName.value]]
+		ids[identifier][source_indices.loc[SourceFileColumns.dodid.value]] = grouped_rows.iloc[0,source_indices.loc[SourceFileColumns.dodid.value]]
+		ids[identifier][source_indices.loc[SourceFileColumns.firstName.value]] = grouped_rows.iloc[0,source_indices.loc[SourceFileColumns.firstName.value]]
 
 		if source_indices.loc[SourceFileColumns.lastName.value] != -1:
-			ids[edipi][source_indices.loc[SourceFileColumns.lastName.value]] = grouped_rows.iloc[0,source_indices.loc[SourceFileColumns.lastName.value]]
+			ids[identifier][source_indices.loc[SourceFileColumns.lastName.value]] = grouped_rows.iloc[0,source_indices.loc[SourceFileColumns.lastName.value]]
 		
 		course_names = list(grouped_rows.iloc[:,source_indices.loc[SourceFileColumns.courseName.value]])
 
@@ -154,20 +157,20 @@ def parseFile(filePath, sourceName):
 
 			#Course was not completed
 			if pd.isna(course_completed_date):
-				ids[edipi][course_name] = "NOT Completed"
+				ids[identifier][course_name] = "NOT Completed"
 				continue
 
 			#Completed date is before current date (completed course)
 			if course_completed_date <= course_due_date:
-				ids[edipi][course_name] = "Completed"
+				ids[identifier][course_name] = "Completed"
 
 			#Completed after due date
 			else:
-				ids[edipi][course_name] = "LATE (completed)"
+				ids[identifier][course_name] = "LATE (completed)"
 
 	output = pd.DataFrame(ids.values())
 
 	with pd.ExcelWriter(reportFileName) as writer:
 		output.to_excel(writer)
 
-parseFile("./testData/fileWithoutID.xlsx", "JKO")
+parseFile("./testData/fileFromJKO.xlsx", "JKO")
