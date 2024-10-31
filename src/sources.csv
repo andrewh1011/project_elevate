@@ -1,5 +1,4 @@
 ,sourceName,firstName,lastName,dueDate,compDate,dodid,email,courseName
 JKO,JKO,1,0,6,5,2,-1,4
-TestSource,TestSource,1,2,3,4,5,6,7
 myLearning,myLearning,2,3,8,10,0,6,7
 missingID,missingID,1,0,6,5,-1,2,4

@@ -37,10 +37,7 @@ class Ui(QMainWindow):
 	def start_btn_clicked(self):
 		keys = self.fileNames.keys()
 		if len(keys) >	0:
-			#for key in keys:
-				#fileInfo = self.fileNames[key]
-				#parseFile(fileInfo[0], fileInfo[1])
-			buildIds(self.fileNames.values(), self.nameMatchConfirmOuter())
+			buildOutput(self.fileNames.values(), self.nameMatchConfirmOuter())
 			self.ui.actionLabel.setText("Output generated in 'output.xlsx' file.")	
 		else:
 			self.ui.actionLabel.setText("Please provide at least one file for the report generation.")	

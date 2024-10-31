@@ -6,21 +6,23 @@ from thefuzz import fuzz
 reportFileName = "output.xlsx"
 cleanNameColumn = "cleanName"
 fullNameColumn = "fullName"
-
 nameMatchThreshold = 78
-
 
 def cleanEmail(email):
 	return email.replace(" ", "").lower()
 def cleanName(name):
 	return name.replace(" ", "").replace("-", "").lower()
+def buildCourseName(courseName, sourceName):
+	return courseName + "-" + sourceName
 
 #fileInfos is a list of pairs (filePath,sourceName)
 #nameMatchCallback is a function that takes two names(the two that matched), returns true/false
-def buildIds(fileInfos, nameMatchCallBack):
+def buildOutput(fileInfos, nameMatchCallBack):
 
-	#pandas dataframe that has columns dodid, email, name
+	#pandas dataframe that originally has columns dodid, email, name
+	#when a new coursename is encounter, this course will be added as a column
 	ids = pd.DataFrame(columns = [SourceFileColumns.dodid.value, SourceFileColumns.email.value, cleanNameColumn, fullNameColumn])
+	
 	sources = pd.read_csv(sourceFileName, index_col = 0)
 
 	for fileInfo in fileInfos:
@@ -30,10 +32,13 @@ def buildIds(fileInfos, nameMatchCallBack):
 		fileDf = pd.read_excel(filePath)
 		
 		source_indices = sources.loc[sourceName]
+
 		emailIndex = source_indices.loc[SourceFileColumns.email.value]
 		dodIndex = source_indices.loc[SourceFileColumns.dodid.value]
 		firstNameIndex = source_indices.loc[SourceFileColumns.firstName.value]
 		lastNameIndex = source_indices.loc[SourceFileColumns.lastName.value]
+		courseNameIndex = source_indices.loc[SourceFileColumns.courseName.value]
+		dueDateIndex = source_indices.loc[SourceFileColumns.dueDate.value]
 
 		if emailIndex != -1:
 			fileDf.iloc[:,emailIndex] = fileDf.iloc[:,emailIndex].fillna("")
@@ -97,9 +102,20 @@ def buildIds(fileInfos, nameMatchCallBack):
 
 			else:
 				print("new row")
-				ids = pd.concat([pd.DataFrame([[dodidNum,email,clnName, fullName]], columns= ids.columns), ids], ignore_index=True)
+				ids = ids._append({SourceFileColumns.dodid.value : dodidNum,SourceFileColumns.email.value: email, cleanNameColumn: clnName, fullNameColumn: fullName}, ignore_index=True)
+				inds = ids.index.values.tolist()
+				matchIndex = inds[len(inds)-1]
+
+			
+			courseName = buildCourseName(row.iloc[courseNameIndex],sourceName)
+			dueDate = row.iloc[dueDateIndex]
+			
+			if not courseName in ids.columns.values.tolist():
+				ids = ids.assign(courseName="")
+			ids.loc[matchIndex, courseName] = dueDate
 
 	print(ids)
+	ids.to_excel(reportFileName)
 				
 		
 		
