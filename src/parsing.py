@@ -75,13 +75,11 @@ def buildOutput(fileInfos, nameMatchCallBack):
 			if dodidNum != -1:
 				dodidMatchIndices = ids.index[ids[SourceFileColumns.dodid.value] == dodidNum]
 				if not dodidMatchIndices.empty:
-					print("matched dodid")
 					matchIndex = dodidMatchIndices[0]
 					
 			if email != "" and matchIndex == -1:	
 				emailMatchIndices = ids.index[ids[SourceFileColumns.email.value] == email]
 				if not emailMatchIndices.empty:
-					print("matched email")
 					matchIndex = emailMatchIndices[0]
 			if matchIndex == -1:
 				transformed = ids[cleanNameColumn].map(lambda otherName: fuzz.partial_ratio(otherName,clnName))
@@ -91,8 +89,6 @@ def buildOutput(fileInfos, nameMatchCallBack):
 						proceed = nameMatchCallBack(fullName,ids.iloc[maxInd].loc[fullNameColumn])
 						if proceed:
 							matchIndex = maxInd
-							print("matched name ")
-							print(ids.iloc[maxInd])
 			if matchIndex != -1:
 				matchRow = ids.loc[matchIndex]
 				if matchRow.loc[SourceFileColumns.dodid.value] == -1 and dodidNum != -1:
@@ -101,7 +97,6 @@ def buildOutput(fileInfos, nameMatchCallBack):
 					ids.loc[matchIndex,SourceFileColumns.email.value] = email
 
 			else:
-				print("new row")
 				ids = ids._append({SourceFileColumns.dodid.value : dodidNum,SourceFileColumns.email.value: email, cleanNameColumn: clnName, fullNameColumn: fullName}, ignore_index=True)
 				inds = ids.index.values.tolist()
 				matchIndex = inds[len(inds)-1]
@@ -109,13 +104,13 @@ def buildOutput(fileInfos, nameMatchCallBack):
 			
 			courseName = buildCourseName(row.iloc[courseNameIndex],sourceName)
 			dueDate = row.iloc[dueDateIndex]
-			
 			if not courseName in ids.columns.values.tolist():
-				ids = ids.assign(courseName="")
+				colInfo = {courseName: ""}
+				ids = ids.assign(**colInfo)
 			ids.loc[matchIndex, courseName] = dueDate
 
 	print(ids)
-	ids.to_excel(reportFileName)
+	ids.to_excel(reportFileName, index = False)
 				
 		
 		
