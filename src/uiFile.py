@@ -30,7 +30,7 @@ class Ui_Dialog(object):
         self.label_5.setGeometry(QtCore.QRect(10, 10, 321, 41))
         font = QtGui.QFont()
         font.setFamily("Arial")
-        font.setPointSize(24)
+        font.setPointSize(22)
         self.label_5.setFont(font)
         self.label_5.setAlignment(QtCore.Qt.AlignCenter)
         self.label_5.setObjectName("label_5")
@@ -47,7 +47,7 @@ class Ui_Dialog(object):
         self.startBtn = QtWidgets.QPushButton(self.centralwidget)
         self.startBtn.setGeometry(QtCore.QRect(540, 320, 161, 71))
         font = QtGui.QFont()
-        font.setPointSize(14)
+        font.setPointSize(10)
         font.setBold(True)
         font.setWeight(75)
         self.startBtn.setFont(font)
@@ -55,7 +55,6 @@ class Ui_Dialog(object):
 "border: none;\n"
 "color: #FFFFFF;\n"
 "border-radius: 4px;\n"
-"padding: 20px;\n"
 "text-align: center;\n"
 "text-decoration: none;\n"
 "margin: 4px 2px;")
