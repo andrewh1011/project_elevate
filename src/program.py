@@ -2,6 +2,7 @@ from PyQt5 import Qt, QtCore
 from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QFileDialog, QLabel, QListWidget, QListWidgetItem, QInputDialog, QMessageBox, QLineEdit
 import sys
 from uiFile import Ui_Dialog
+from addSource import Ui_AddWindow
 from manageSources import *
 from parsing import *
 
@@ -18,11 +19,9 @@ class Ui(QMainWindow):
 		self.ui.setupUi(self)
 		self.ui.importButton.clicked.connect(self.import_clicked)
 		self.ui.fileList.itemClicked.connect(self.file_clicked)
-		self.ui.sourceList.itemClicked.connect(self.source_clicked)
 		self.ui.deleteFileBtn.clicked.connect(self.delete_file_clicked)
 		self.ui.deleteSourceBtn.clicked.connect(self.delete_source_clicked)
-		self.ui.saveSourceBtn.clicked.connect(self.save_source_clicked)
-		self.ui.tutorialBtn.clicked.connect(self.open_tutorial)
+		self.ui.addSourceBtn.clicked.connect(self.open_add_source_window)
 		self.ui.startBtn.clicked.connect(self.start_btn_clicked)
 		self.refresh_sources()
 
@@ -42,19 +41,6 @@ class Ui(QMainWindow):
 			self.ui.actionLabel.setText("Output generated in 'output.xlsx' file.")	
 		else:
 			self.ui.actionLabel.setText("Please provide at least one file for the report generation.")	
-
-	#assumes all number columns have already been verified
-	def packageSourceForm(self):
-		dict = {}
-		for sourceColumn in SourceFileColumns:
-			inputField = self.findChild(QLineEdit, sourceColumn.value)
-			if not sourceColumn in dict.keys():
-				if sourceColumn.value == SourceFileColumns.sourceName.value:
-					dict[sourceColumn.value] = inputField.text()
-				else:
-					dict[sourceColumn.value] = notUsedNumber if inputField.text() == "" else int(inputField.text())
-		return dict
-				
 
 	def deleteAllFilesWithSource(self, sName):
 		fileDict = self.fileNames
@@ -96,59 +82,9 @@ class Ui(QMainWindow):
 				else:
 					self.ui.actionLabel.setText("Could not delete source" + sName)
 
-	def source_clicked(self, item):
-		sourceName = item.text()
-		cols = list(self.sources.columns)
-		for column in cols:
-			val = self.sources.loc[sourceName, column]
-			inputField = self.findChild(QLineEdit, column)
-			if inputField:
-				if val != notUsedNumber:
-					inputField.setText(str(val))
-				else:
-					inputField.setText("")
-			
-	def open_tutorial(self):
-		instructions = QMessageBox(self)
-		instructions.setIcon(QMessageBox.Information)
-		instructions.setWindowTitle("Tutorial")
-		instructions_text = "This portion of the application allows for adding a new data source. Enter the index (starting from 0) of the important columns in the new data source so the application knows where to find them. \n \nFor example, let's say there is a data source with the following columns in the order:\n \nLast Name, First Name, EDIPI, Category, Course Name, Completed Dt, Due Dt\n \n“Last Name” is in column 0, “First Name” is in column 1, DODID is in column 2 and so on.\n \nThe required entries are the name of the source, first name, due date, completed date, and course name. If the first name and last name columns are combined into one name column, enter the index of the name column in the “First Name” column."
-		instructions.setText(instructions_text)
-		instructions.exec_()
-
-	def save_source_clicked(self):
-		for sourceColumn in RequiredSourceFileColumns:
-			inputField = self.findChild(QLineEdit, sourceColumn.value)
-			if inputField:
-				if inputField.text() == "":
-					self.ui.actionLabel.setText("REQUIRED COLUMN " + inputField.objectName() + " NEEDS NON-EMPTY INPUT")
-					return False
-		
-		#all columns besides sourceName should be a number(index).
-		for sourceColumn in SourceFileColumns:
-			inputField = self.findChild(QLineEdit, sourceColumn.value)
-			if inputField:
-				if inputField.text() != "" and sourceColumn.value != SourceFileColumns.sourceName.value:
-
-					try:
-						converted = int(inputField.text())
-						if converted < 0:
-							self.ui.actionLabel.setText("INPUT COLUMN " + inputField.objectName() + " HAS INVALID NUMBER")
-							return False
-
-					except ValueError:
-						self.ui.actionLabel.setText("INPUT COLUMN " + inputField.objectName() + " NEEDS A NUMBER")
-						return False
-	
-		formData = self.packageSourceForm()
-		ret = addSourceToFile(formData)
-		if ret:
-			self.ui.actionLabel.setText("source updated")
-			self.refresh_sources()
-			return True
-		else:
-			self.ui.actionLabel.setText("source could not be updated")
-			return False
+	def open_add_source_window(self):
+		self.window = addSourceUI(self)
+		self.window.show()
 
 	def delete_file_clicked(self):
 		if self.fileNames:
@@ -194,6 +130,78 @@ class Ui(QMainWindow):
 			itm.setTextAlignment(QtCore.Qt.AlignCenter)
 			self.ui.fileList.addItem(itm)
 			self.ui.actionLabel.setText("Added file: " + itm.text())
+
+class addSourceUI(QMainWindow):
+	def __init__(self, mainWindow):
+		super(addSourceUI, self).__init__()
+
+		self.mainWindow = mainWindow
+		self.ui = Ui_AddWindow()
+		self.ui.setupUi(self)
+
+		self.sources = None # this is a pandas dataframe. Each row's index is the source name. call the refresh_sources() anytime an update to the source storage file is made.
+
+		self.ui.saveSourceBtn.clicked.connect(self.save_source_clicked)
+		self.ui.tutorialBtn.clicked.connect(self.open_tutorial)
+
+	def return_to_main_window(self):
+		self.mainWindow.refresh_sources()
+		self.close()
+
+	def open_tutorial(self):
+		instructions = QMessageBox(self)
+		instructions.setIcon(QMessageBox.Information)
+		instructions.setWindowTitle("Tutorial")
+		instructions_text = "This portion of the application allows for adding a new data source. Enter the index (starting from 0) of the important columns in the new data source so the application knows where to find them. \n \nFor example, let's say there is a data source with the following columns in the order:\n \nLast Name, First Name, EDIPI, Category, Course Name, Completed Dt, Due Dt\n \n“Last Name” is in column 0, “First Name” is in column 1, DODID is in column 2 and so on.\n \nThe required entries are the name of the source, first name, due date, completed date, and course name. If the first name and last name columns are combined into one name column, enter the index of the name column in the “First Name” column."
+		instructions.setText(instructions_text)
+		instructions.exec_()
+
+	#assumes all number columns have already been verified
+	def packageSourceForm(self):
+		dict = {}
+		for sourceColumn in SourceFileColumns:
+			inputField = self.findChild(QLineEdit, sourceColumn.value)
+			if not sourceColumn in dict.keys():
+				if sourceColumn.value == SourceFileColumns.sourceName.value:
+					dict[sourceColumn.value] = inputField.text()
+				else:
+					dict[sourceColumn.value] = notUsedNumber if inputField.text() == "" else int(inputField.text())
+		return dict
+
+	def save_source_clicked(self):
+		for sourceColumn in RequiredSourceFileColumns:
+			inputField = self.findChild(QLineEdit, sourceColumn.value)
+			if inputField:
+				if inputField.text() == "":
+					self.ui.actionLabel.setText("REQUIRED COLUMN " + inputField.objectName() + " NEEDS NON-EMPTY INPUT")
+					return False
+		
+		#all columns besides sourceName should be a number(index).
+		for sourceColumn in SourceFileColumns:
+			inputField = self.findChild(QLineEdit, sourceColumn.value)
+			if inputField:
+				if inputField.text() != "" and sourceColumn.value != SourceFileColumns.sourceName.value:
+
+					try:
+						converted = int(inputField.text())
+						if converted < 0:
+							self.ui.actionLabel.setText("INPUT COLUMN " + inputField.objectName() + " HAS INVALID NUMBER")
+							return False
+
+					except ValueError:
+						self.ui.actionLabel.setText("INPUT COLUMN " + inputField.objectName() + " NEEDS A NUMBER")
+						return False
+	
+		formData = self.packageSourceForm()
+		ret = addSourceToFile(formData)
+		if ret:
+			self.mainWindow.ui.actionLabel.setText("source added")
+			self.return_to_main_window()
+			return True
+		else:
+			self.mainWindow.ui.actionLabel.setText("source could not be added")
+			self.return_to_main_window()
+			return False
 
 if __name__ == '__main__':
 	app = QApplication(sys.argv)
