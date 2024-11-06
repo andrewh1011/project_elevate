@@ -112,7 +112,8 @@ class Ui(QMainWindow):
 		instructions = QMessageBox(self)
 		instructions.setIcon(QMessageBox.Information)
 		instructions.setWindowTitle("Tutorial")
-		instructions.setText("This is a paragraph on how to use the app. This is a paragraph on how to use the app. This is a paragraph on how to use the app. This is a paragraph on how to use the app. This is a paragraph on how to use the app. ")
+		instructions_text = "This portion of the application allows for adding a new data source. Enter the index (starting from 0) of the important columns in the new data source so the application knows where to find them. \n \nFor example, let's say there is a data source with the following columns in the order:\n \nLast Name, First Name, EDIPI, Category, Course Name, Completed Dt, Due Dt\n \n“Last Name” is in column 0, “First Name” is in column 1, DODID is in column 2 and so on.\n \nThe required entries are the name of the source, first name, due date, completed date, and course name. If the first name and last name columns are combined into one name column, enter the index of the name column in the “First Name” column."
+		instructions.setText(instructions_text)
 		instructions.exec_()
 
 	def save_source_clicked(self):
