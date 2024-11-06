@@ -1,5 +1,5 @@
 from PyQt5 import Qt, QtCore
-from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QFileDialog, QLabel, QListWidget, QListWidgetItem, QInputDialog,QMessageBox, QLineEdit
+from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QFileDialog, QLabel, QListWidget, QListWidgetItem, QInputDialog, QMessageBox, QLineEdit
 import sys
 from uiFile import Ui_Dialog
 from manageSources import *
@@ -22,6 +22,7 @@ class Ui(QMainWindow):
 		self.ui.deleteFileBtn.clicked.connect(self.delete_file_clicked)
 		self.ui.deleteSourceBtn.clicked.connect(self.delete_source_clicked)
 		self.ui.saveSourceBtn.clicked.connect(self.save_source_clicked)
+		self.ui.tutorialBtn.clicked.connect(self.open_tutorial)
 		self.ui.startBtn.clicked.connect(self.start_btn_clicked)
 		self.refresh_sources()
 
@@ -107,6 +108,12 @@ class Ui(QMainWindow):
 				else:
 					inputField.setText("")
 			
+	def open_tutorial(self):
+		instructions = QMessageBox(self)
+		instructions.setIcon(QMessageBox.Information)
+		instructions.setWindowTitle("Tutorial")
+		instructions.setText("This is a paragraph on how to use the app. This is a paragraph on how to use the app. This is a paragraph on how to use the app. This is a paragraph on how to use the app. This is a paragraph on how to use the app. ")
+		instructions.exec_()
 
 	def save_source_clicked(self):
 		for sourceColumn in RequiredSourceFileColumns:
