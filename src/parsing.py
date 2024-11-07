@@ -1,4 +1,6 @@
 import pandas as pd
+import xlsxwriter
+
 from datetime import datetime
 from manageSources import *
 from thefuzz import fuzz
@@ -25,7 +27,24 @@ def calculateMatchRow(cleanName,matchEmail,matchId, row):
 	if (email == "" or email != matchEmail) and (dodid == -1 or dodid != matchId):
 		return fuzz.partial_ratio(cleanName,otherName)
 	else:
-		return -1		
+		return -1	
+
+def formatOutput(data):
+
+	writer = pd.ExcelWriter(reportFileName)
+	data.to_excel(writer, index = False, sheet_name = "Report")
+	rowCount = len(data.index.values.tolist())
+
+	book  = writer.book
+	sheet = writer.sheets['Report']
+	overDueColor = book.add_format({'bg_color':'red'})
+	onTimeColor = book.add_format({'bg_color':'green'})
+	emptyColor = book.add_format({'bg_color':'grey'})
+	infoColor = book.add_format({'bg_color':'#0066CC'})
+	
+
+	sheet.conditional_format(0,0,rowCount,3,infoColor)
+	writer.save()	
 
 #fileInfos is a list of pairs (filePath,sourceName)
 #nameMatchCallback is a function that takes two names(the two that matched), returns true/false
@@ -122,7 +141,8 @@ def buildOutput(fileInfos, nameMatchCallBack):
 			ids.loc[matchIndex, courseName] = dueDate
 
 	print(ids)
-	ids.to_excel(reportFileName, index = False)
+	formatOutput(ids)
+	
 				
 		
 		
