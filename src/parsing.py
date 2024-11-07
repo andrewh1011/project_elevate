@@ -15,6 +15,18 @@ def cleanName(name):
 def buildCourseName(courseName, sourceName):
 	return courseName + "-" + sourceName
 
+#this makes sure we only name match rows that dont have a mismatch with dodids or emails
+#dont want to give a name match on two people who have two different values for an id value.
+def calculateMatchRow(cleanName,matchEmail,matchId, row):
+	email = row[SourceFileColumns.email.value]
+	dodid = row[SourceFileColumns.dodid.value]
+	otherName = row[cleanNameColumn]
+
+	if (email == "" or email != matchEmail) and (dodid == -1 or dodid != matchId):
+		return fuzz.partial_ratio(cleanName,otherName)
+	else:
+		return -1		
+
 #fileInfos is a list of pairs (filePath,sourceName)
 #nameMatchCallback is a function that takes two names(the two that matched), returns true/false
 def buildOutput(fileInfos, nameMatchCallBack):
@@ -71,7 +83,7 @@ def buildOutput(fileInfos, nameMatchCallBack):
 				dodid = -1
 
 			matchIndex = -1
-
+			
 			if dodidNum != -1:
 				dodidMatchIndices = ids.index[ids[SourceFileColumns.dodid.value] == dodidNum]
 				if not dodidMatchIndices.empty:
@@ -82,7 +94,7 @@ def buildOutput(fileInfos, nameMatchCallBack):
 				if not emailMatchIndices.empty:
 					matchIndex = emailMatchIndices[0]
 			if matchIndex == -1:
-				transformed = ids[cleanNameColumn].map(lambda otherName: fuzz.partial_ratio(otherName,clnName))
+				transformed = ids.apply(lambda row: calculateMatchRow(clnName,email,dodidNum, row), axis =1)
 				if not transformed.empty:
 					maxInd = transformed.idxmax()
 					if transformed.iloc[maxInd] > nameMatchThreshold:
