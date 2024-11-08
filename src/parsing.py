@@ -1,5 +1,4 @@
 import pandas as pd
-import xlsxwriter
 
 from datetime import datetime
 from manageSources import *
@@ -32,19 +31,24 @@ def calculateMatchRow(cleanName,matchEmail,matchId, row):
 def formatOutput(data):
 
 	writer = pd.ExcelWriter(reportFileName)
-	data.to_excel(writer, index = False, sheet_name = "Report")
+	data.to_excel(writer, index = False, sheet_name = "Report", engine='xlsxwriter')
 	rowCount = len(data.index.values.tolist())
+	colCount = len(data.columns.tolist())
 
 	book  = writer.book
 	sheet = writer.sheets['Report']
 	overDueColor = book.add_format({'bg_color':'red'})
 	onTimeColor = book.add_format({'bg_color':'green'})
-	emptyColor = book.add_format({'bg_color':'grey'})
+	emptyColor = book.add_format({'bg_color':'#C0C0C0'})
 	infoColor = book.add_format({'bg_color':'#0066CC'})
+	borderColor = book.add_format({'bg_color':'#000000'})
 	
-
-	sheet.conditional_format(0,0,rowCount,3,infoColor)
-	writer.save()	
+	#sheet.conditional_format(rowCount+1,0,sheet.dim_rowmax,sheet.dim_colmax,{'type':'blanks','format':borderColor})
+	sheet.set_column(0,3,15,infoColor)
+	sheet.set_column(4,colCount,30)
+	sheet.conditional_format(1,4,rowCount-1,colCount-1,{'type':'blanks','format':emptyColor})
+	
+	writer._save()	
 
 #fileInfos is a list of pairs (filePath,sourceName)
 #nameMatchCallback is a function that takes two names(the two that matched), returns true/false
