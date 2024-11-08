@@ -17,12 +17,16 @@ class MainUI(QMainWindow):
 		
 		self.ui = Ui_Dialog()
 		self.ui.setupUi(self)
-		self.ui.importButton.clicked.connect(self.import_clicked)
+
+		self.ui.sourceList.itemClicked.connect(self.source_clicked)
 		self.ui.fileList.itemClicked.connect(self.file_clicked)
+
+		self.ui.importButton.clicked.connect(self.import_clicked)
 		self.ui.deleteFileBtn.clicked.connect(self.delete_file_clicked)
 		self.ui.deleteSourceBtn.clicked.connect(self.delete_source_clicked)
 		self.ui.addSourceBtn.clicked.connect(self.open_add_source_window)
 		self.ui.startBtn.clicked.connect(self.start_btn_clicked)
+		
 		self.refresh_sources()
 
 		self.ui.tutorialBtn.clicked.connect(self.open_tutorial)
@@ -45,6 +49,11 @@ class MainUI(QMainWindow):
 			self.ui.actionLabel.setText("Output generated in 'output.xlsx' file.")	
 		else:
 			self.ui.actionLabel.setText("Please provide at least one file for the report generation.")	
+
+	def source_clicked(self, item):
+		sourceName = item.text()
+		print(sourceName)
+		#TODO: pop up add source window with column values filled out
 
 	def deleteAllFilesWithSource(self, sName):
 		fileDict = self.fileNames
