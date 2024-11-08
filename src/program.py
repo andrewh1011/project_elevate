@@ -143,8 +143,6 @@ class addSourceUI(QMainWindow):
 		self.ui = Ui_AddWindow()
 		self.ui.setupUi(self)
 
-		self.sources = None # this is a pandas dataframe. Each row's index is the source name. call the refresh_sources() anytime an update to the source storage file is made.
-
 		self.ui.saveSourceBtn.clicked.connect(self.save_source_clicked)
 		self.ui.tutorialBtn.clicked.connect(self.open_tutorial)
 
@@ -199,11 +197,11 @@ class addSourceUI(QMainWindow):
 		formData = self.packageSourceForm()
 		ret = addSourceToFile(formData)
 		if ret:
-			self.mainWindow.ui.actionLabel.setText("source added")
+			self.mainWindow.ui.actionLabel.setText("Source added")
 			self.return_to_main_window()
 			return True
 		else:
-			self.mainWindow.ui.actionLabel.setText("source could not be added")
+			self.mainWindow.ui.actionLabel.setText("Source could not be added")
 			self.return_to_main_window()
 			return False
 
