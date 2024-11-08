@@ -131,6 +131,10 @@ class Ui(QMainWindow):
 			self.ui.fileList.addItem(itm)
 			self.ui.actionLabel.setText("Added file: " + itm.text())
 
+	def closeEvent(self, event): 
+		for window in QApplication.topLevelWidgets(): 
+			window.close()
+
 class addSourceUI(QMainWindow):
 	def __init__(self, mainWindow):
 		super(addSourceUI, self).__init__()
