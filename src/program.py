@@ -6,10 +6,10 @@ from addSource import Ui_AddWindow
 from manageSources import *
 from parsing import *
 
-class mainUI(QMainWindow):
+class MainUI(QMainWindow):
 	
 	def __init__(self):
-		super(mainUI, self).__init__()
+		super(MainUI, self).__init__()
 
 		
 		self.fileNames = {} # maps fileNames to (fullFilePath, system) -> a tuple with important information about the file
@@ -87,7 +87,7 @@ class mainUI(QMainWindow):
 					self.ui.actionLabel.setText("Could not delete source" + sName)
 
 	def open_add_source_window(self):
-		self.window = addSourceUI(self)
+		self.window = AddSourceUI(self)
 		self.window.show()
 
 	def delete_file_clicked(self):
@@ -146,9 +146,9 @@ class mainUI(QMainWindow):
 		for window in QApplication.topLevelWidgets(): 
 			window.close()
 
-class addSourceUI(QMainWindow):
+class AddSourceUI(QMainWindow):
 	def __init__(self, mainWindow):
-		super(addSourceUI, self).__init__()
+		super(AddSourceUI, self).__init__()
 
 		self.mainWindow = mainWindow
 		self.ui = Ui_AddWindow()
@@ -220,6 +220,6 @@ class addSourceUI(QMainWindow):
 
 if __name__ == '__main__':
 	app = QApplication(sys.argv)
-	window = mainUI()
+	window = MainUI()
 	window.show()
 	sys.exit(app.exec_())
