@@ -26,7 +26,7 @@ class Ui(QMainWindow):
 		self.refresh_sources()
 
 		self.ui.tutorialBtn.clicked.connect(self.open_tutorial)
-		with open('tutorial/generalAppInstructions.txt', 'r') as file:
+		with open("tutorial/generalAppInstructions.txt", "r") as file:
 			self.tutorial_text = file.read()
 
 	def nameMatchConfirmOuter(self):
@@ -111,7 +111,7 @@ class Ui(QMainWindow):
 
 	def get_source(self):
 		if not self.sources.empty:
-			source, ok_pressed = QInputDialog.getItem(self, "System Selection", "Select System:", self.sources[SourceFileColumns.sourceName.value].to_list(), 0, False)
+			source, ok_pressed = QInputDialog.getItem(self, "Source Selection", "Select Source:", self.sources[SourceFileColumns.sourceName.value].to_list(), 0, False)
 		
 			if ok_pressed:
 				return source
@@ -157,7 +157,7 @@ class addSourceUI(QMainWindow):
 		self.ui.saveSourceBtn.clicked.connect(self.save_source_clicked)
 		
 		self.ui.tutorialBtn.clicked.connect(self.open_tutorial)
-		with open('tutorial/addSourceInstructions.txt', 'r') as file:
+		with open("tutorial/addSourceInstructions.txt", "r") as file:
 			self.add_tutorial_text = file.read()
 
 	def return_to_main_window(self):
