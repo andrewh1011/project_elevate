@@ -6,10 +6,10 @@ from addSource import Ui_AddWindow
 from manageSources import *
 from parsing import *
 
-class Ui(QMainWindow):
+class mainUI(QMainWindow):
 	
 	def __init__(self):
-		super(Ui, self).__init__()
+		super(mainUI, self).__init__()
 
 		
 		self.fileNames = {} # maps fileNames to (fullFilePath, system) -> a tuple with important information about the file
@@ -220,6 +220,6 @@ class addSourceUI(QMainWindow):
 
 if __name__ == '__main__':
 	app = QApplication(sys.argv)
-	window = Ui()
+	window = mainUI()
 	window.show()
 	sys.exit(app.exec_())
