@@ -117,6 +117,14 @@ class Ui_Dialog(object):
         self.horizontalLayout.addWidget(self.importButton)
         self.verticalLayout_4.addLayout(self.horizontalLayout)
         self.horizontalLayout_2.addLayout(self.verticalLayout_4)
+        self.tutorialBtn = QtWidgets.QPushButton(self.centralwidget)
+        self.tutorialBtn.setGeometry(QtCore.QRect(620, 10, 31, 32))
+        self.tutorialBtn.setStyleSheet("border-style: outset;\n"
+"border-width: 2px;\n"
+"border-radius: 15px;\n"
+"border-color: black;\n"
+"padding: 4px;")
+        self.tutorialBtn.setObjectName("tutorialBtn")
         Dialog.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(Dialog)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 661, 37))
@@ -139,3 +147,4 @@ class Ui_Dialog(object):
         self.label_8.setText(_translate("Dialog", "Files"))
         self.deleteFileBtn.setText(_translate("Dialog", "Delete File"))
         self.importButton.setText(_translate("Dialog", "Import"))
+        self.tutorialBtn.setText(_translate("Dialog", "?"))

@@ -25,6 +25,10 @@ class Ui(QMainWindow):
 		self.ui.startBtn.clicked.connect(self.start_btn_clicked)
 		self.refresh_sources()
 
+		self.ui.tutorialBtn.clicked.connect(self.open_tutorial)
+		with open('tutorial/generalAppInstructions.txt', 'r') as file:
+			self.tutorial_text = file.read()
+
 	def nameMatchConfirmOuter(self):
 		def nameMatchConfirmInner(name1, name2):
 			choice = QMessageBox.question(self, 'Name Match Detected', name1 + " appears to match " + name2 + ". Proceed to combine these into one person record?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
@@ -131,6 +135,13 @@ class Ui(QMainWindow):
 			self.ui.fileList.addItem(itm)
 			self.ui.actionLabel.setText("Added file: " + itm.text())
 
+	def open_tutorial(self):
+		instructions = QMessageBox(self)
+		instructions.setIcon(QMessageBox.Information)
+		instructions.setWindowTitle("Tutorial")
+		instructions.setText(self.tutorial_text)
+		instructions.exec_()
+
 	def closeEvent(self, event): 
 		for window in QApplication.topLevelWidgets(): 
 			window.close()
@@ -144,8 +155,8 @@ class addSourceUI(QMainWindow):
 		self.ui.setupUi(self)
 
 		self.ui.saveSourceBtn.clicked.connect(self.save_source_clicked)
+		
 		self.ui.tutorialBtn.clicked.connect(self.open_tutorial)
-
 		with open('tutorial/addSourceInstructions.txt', 'r') as file:
 			self.add_tutorial_text = file.read()
 
