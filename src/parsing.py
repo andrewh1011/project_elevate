@@ -4,6 +4,12 @@ from datetime import datetime
 from manageSources import *
 from thefuzz import fuzz
 
+class DateStatus(Enum):
+	overdue = "IND_OVERDUE", #this person has been assigned the course, and they either completed it(after the due date) or havent completed it and its past the due date.
+	ontime = "IND_ONTIME", #this person has been assigned the course, and they completed it before the due date.
+	assigned = "IND_ASSIGNED", #this person has been assigned the course, and they have not completed it but it is still before the due date.
+	notAssigned = "IND_NOTASSIGNED" #this person has not been assigned the course
+
 reportFileName = "output.xlsx"
 cleanNameColumn = "cleanName"
 fullNameColumn = "fullName"
@@ -15,6 +21,22 @@ def cleanName(name):
 	return name.replace(" ", "").replace("-", "").lower()
 def buildCourseName(courseName, sourceName):
 	return courseName + "-" + sourceName
+
+def chooseDateIndicator(dueDate,compDate):
+	if pd.isna(dueDate):
+		return DateStatus.notAssigned.value
+
+	today = datetime.today()
+	if pd.isna(compDate):
+		if today > dueDate:
+			return DateStatus.overdue.value
+		else:
+			return DateStatus.assigned.value
+	else:
+		if compDate > dueDate:
+			return DateStatus.overdue.value
+		else:
+			return DateStatus.ontime.value
 
 #this makes sure we only name match rows that dont have a mismatch with dodids or emails
 #dont want to give a name match on two people who have two different values for an id value.
@@ -37,16 +59,21 @@ def formatOutput(data):
 
 	book  = writer.book
 	sheet = writer.sheets['Report']
-	overDueColor = book.add_format({'bg_color':'red'})
-	onTimeColor = book.add_format({'bg_color':'green'})
-	emptyColor = book.add_format({'bg_color':'#C0C0C0'})
+	overDueColor = book.add_format({'bg_color':'#FF0000'})
+	onTimeColor = book.add_format({'bg_color':'#00FF00'})
+	notAssignedColor = book.add_format({'bg_color':'#C0C0C0'})
+	assignedColor = book.add_format({'bg_color':'#FFFF00'})
 	infoColor = book.add_format({'bg_color':'#0066CC'})
 	borderColor = book.add_format({'bg_color':'#000000'})
 	
 	#sheet.conditional_format(rowCount+1,0,sheet.dim_rowmax,sheet.dim_colmax,{'type':'blanks','format':borderColor})
+	
 	sheet.set_column(0,3,15,infoColor)
 	sheet.set_column(4,colCount,30)
-	sheet.conditional_format(1,4,rowCount-1,colCount-1,{'type':'blanks','format':emptyColor})
+	sheet.conditional_format(1,4,rowCount-1,colCount-1,{'type':'formula','criteria': "=ISNUMBER(SEARCH(\"{}\", _xlfn.FORMULATEXT(E2)))".format(DateStatus.overdue.value),'format': overDueColor})
+	sheet.conditional_format(1,4,rowCount-1,colCount-1,{'type':'formula','criteria':"=ISNUMBER(SEARCH(\"{}\", _xlfn.FORMULATEXT(E2)))".format(DateStatus.ontime.value),'format': onTimeColor})
+	sheet.conditional_format(1,4,rowCount-1,colCount-1,{'type':'formula','criteria':"=ISNUMBER(SEARCH(\"{}\", _xlfn.FORMULATEXT(E2)))".format(DateStatus.notAssigned.value),'format': notAssignedColor})
+	sheet.conditional_format(1,4,rowCount-1,colCount-1,{'type':'formula','criteria':"=ISNUMBER(SEARCH(\"{}\", _xlfn.FORMULATEXT(E2)))".format(DateStatus.assigned.value),'format': assignedColor})
 	
 	writer._save()	
 
@@ -74,6 +101,7 @@ def buildOutput(fileInfos, nameMatchCallBack):
 		lastNameIndex = source_indices.loc[SourceFileColumns.lastName.value]
 		courseNameIndex = source_indices.loc[SourceFileColumns.courseName.value]
 		dueDateIndex = source_indices.loc[SourceFileColumns.dueDate.value]
+		compDateIndex = source_indices.loc[SourceFileColumns.compDate.value]
 
 		if emailIndex != -1:
 			fileDf.iloc[:,emailIndex] = fileDf.iloc[:,emailIndex].fillna("")
@@ -139,12 +167,12 @@ def buildOutput(fileInfos, nameMatchCallBack):
 			
 			courseName = buildCourseName(row.iloc[courseNameIndex],sourceName)
 			dueDate = row.iloc[dueDateIndex]
+			compDate = row.iloc[compDateIndex]
 			if not courseName in ids.columns.values.tolist():
-				colInfo = {courseName: ""}
+				colInfo = {courseName: "=CHOOSE(1,\"\",\"{}\")".format(DateStatus.notAssigned.value)}
 				ids = ids.assign(**colInfo)
-			ids.loc[matchIndex, courseName] = dueDate
+			ids.loc[matchIndex, courseName] = "=CHOOSE(1,\"" + str(dueDate) + "\",\"{}\")".format(chooseDateIndicator(dueDate,compDate))
 
-	print(ids)
 	formatOutput(ids)
 	
 				
