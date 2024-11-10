@@ -10,10 +10,21 @@ class DateStatus(Enum):
 	assigned = "IND_ASSIGNED" #this person has been assigned the course, and they have not completed it but it is still before the due date.
 	notAssigned = "IND_NOTASSIGNED"
 
-reportFileName = "output.xlsx"
-cleanNameColumn = "cleanName"
-fullNameColumn = "fullName"
+#for all the columns needed in the report/log building that arent already in the source storage file.
+class ReportExtraColumns(Enum):
+	cleanName = "cleanName"
+	fullName = "fullName"
+	logType = "logType"
+	desc = "description"
+	rowData = "rowData"
+
+class LogTypes(Enum):
+	error = "ERROR"
+	action = "action"
+
 nameMatchThreshold = 78
+reportFileName = "output.xlsx"
+logFileName = "log.xlsx"
 
 def cleanEmail(email):
 	return email.replace(" ", "").lower()
@@ -43,7 +54,7 @@ def chooseDateIndicator(dueDate,compDate):
 def calculateMatchRow(cleanName,matchEmail,matchId, row):
 	email = row[SourceFileColumns.email.value]
 	dodid = row[SourceFileColumns.dodid.value]
-	otherName = row[cleanNameColumn]
+	otherName = row[ReportExtraColumns.cleanName.value]
 
 	if (email == "" or email != matchEmail) and (dodid == -1 or dodid != matchId):
 		return fuzz.partial_ratio(cleanName,otherName)
@@ -78,14 +89,20 @@ def formatOutput(data):
 	
 	writer._save()	
 
+def writeLogRow(source, rowStr, logType, desc):
+	
+
 #fileInfos is a list of pairs (filePath,sourceName)
 #nameMatchCallback is a function that takes two names(the two that matched), returns true/false
 def buildOutput(fileInfos, nameMatchCallBack):
 
+	logHdr = pd.DataFrame(columns = [SourceFileColumns.sourceName.value, ReportsExtraColumns.rowData.value, ReportExtraColumns.logType.value, ReportExtraColumns.desc.value])
+	logHdr.to_excel(logFileName, index = False)
+
 	#pandas dataframe that originally has columns dodid, email, name
 	#when a new coursename is encounter, this course will be added as a column
-	ids = pd.DataFrame(columns = [SourceFileColumns.dodid.value, SourceFileColumns.email.value, cleanNameColumn, fullNameColumn])
-	
+	ids = pd.DataFrame(columns = [SourceFileColumns.dodid.value, SourceFileColumns.email.value, ReportExtraColumns.cleanName.value, ReportExtraColumns.fullName.value])
+
 	sources = pd.read_csv(sourceFileName, index_col = 0)
 
 	for fileInfo in fileInfos:
@@ -130,9 +147,10 @@ def buildOutput(fileInfos, nameMatchCallBack):
 			clnName = cleanName(fullName)
 
 			try:
-				dodidNum = int(dodidText)
+				dodidNum = int(dodidText) if dodidText != "" else -1
 			except ValueError:
-				dodid = -1
+				dodidNum = -1
+				writeLogRow(sourceName, str(row), LogTypes.error, "dodid not a number")
 
 			matchIndex = -1
 			
@@ -140,19 +158,22 @@ def buildOutput(fileInfos, nameMatchCallBack):
 				dodidMatchIndices = ids.index[ids[SourceFileColumns.dodid.value] == dodidNum]
 				if not dodidMatchIndices.empty:
 					matchIndex = dodidMatchIndices[0]
+					writeLogRow(sourceName, str(row), LogTypes.action, "automatically matched by id to " + str(ids.iloc[matchIndex]))
 					
 			if email != "" and matchIndex == -1:	
 				emailMatchIndices = ids.index[ids[SourceFileColumns.email.value] == email]
 				if not emailMatchIndices.empty:
 					matchIndex = emailMatchIndices[0]
+					writeLogRow(sourceName, str(row), LogTypes.action, "automatically matched by email to " + str(ids.iloc[matchIndex]))
 			if matchIndex == -1:
 				transformed = ids.apply(lambda row: calculateMatchRow(clnName,email,dodidNum, row), axis =1)
 				if not transformed.empty:
 					maxInd = transformed.idxmax()
 					if transformed.iloc[maxInd] > nameMatchThreshold:
-						proceed = nameMatchCallBack(fullName,ids.iloc[maxInd].loc[fullNameColumn])
+						proceed = nameMatchCallBack(fullName,ids.iloc[maxInd].loc[ReportExtraColumns.fullName.value])
 						if proceed:
 							matchIndex = maxInd
+							writeLogRow(sourceName, str(row), LogTypes.action, "user matched by name to " + str(ids.iloc[matchIndex]))
 			if matchIndex != -1:
 				matchRow = ids.loc[matchIndex]
 				if matchRow.loc[SourceFileColumns.dodid.value] == -1 and dodidNum != -1:
@@ -161,7 +182,7 @@ def buildOutput(fileInfos, nameMatchCallBack):
 					ids.loc[matchIndex,SourceFileColumns.email.value] = email
 
 			else:
-				ids = ids._append({SourceFileColumns.dodid.value : dodidNum,SourceFileColumns.email.value: email, cleanNameColumn: clnName, fullNameColumn: fullName}, ignore_index=True)
+				ids = ids._append({SourceFileColumns.dodid.value : dodidNum,SourceFileColumns.email.value: email, ReportExtraColumns.cleanName.value: clnName, ReportExtraColumns.fullName.value: fullName}, ignore_index=True)
 				inds = ids.index.values.tolist()
 				matchIndex = inds[len(inds)-1]
 				ids.iloc[matchIndex, 4:] = "=CHOOSE(1,\"\",\"{0}\")".format(DateStatus.notAssigned.value)
@@ -173,6 +194,7 @@ def buildOutput(fileInfos, nameMatchCallBack):
 			if not courseName in ids.columns.values.tolist():
 				colInfo = {courseName: "=CHOOSE(1,\"\",\"{0}\")".format(DateStatus.notAssigned.value)}
 				ids = ids.assign(**colInfo)
+
 			ids.loc[matchIndex, courseName] = "=CHOOSE(1,\"{0}\",\"{1}\")".format(str(compDate.date()) if not pd.isna(compDate) else "",chooseDateIndicator(dueDate,compDate))
 
 	formatOutput(ids)

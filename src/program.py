@@ -45,8 +45,12 @@ class MainUI(QMainWindow):
 	def start_btn_clicked(self):
 		keys = self.fileNames.keys()
 		if len(keys) >	0:
-			buildOutput(self.fileNames.values(), self.nameMatchConfirmOuter())
-			self.ui.actionLabel.setText("Output generated in 'output.xlsx' file.")	
+			try:
+				buildOutput(self.fileNames.values(), self.nameMatchConfirmOuter())
+				self.ui.actionLabel.setText("Output generated in 'output.xlsx' file.")	
+			except Exception as e:
+				self.ui.actionLabel.setText("Parsing/Generation Error: " + str(e))
+				print(str(e))
 		else:
 			self.ui.actionLabel.setText("Please provide at least one file for the report generation.")	
 
