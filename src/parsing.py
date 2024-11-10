@@ -5,10 +5,10 @@ from manageSources import *
 from thefuzz import fuzz
 
 class DateStatus(Enum):
-	overdue = "IND_OVERDUE", #this person has been assigned the course, and they either completed it(after the due date) or havent completed it and its past the due date.
-	ontime = "IND_ONTIME", #this person has been assigned the course, and they completed it before the due date.
-	assigned = "IND_ASSIGNED", #this person has been assigned the course, and they have not completed it but it is still before the due date.
-	notAssigned = "IND_NOTASSIGNED" #this person has not been assigned the course
+	overdue = "IND_OVERDUE" #this person has been assigned the course, and they either completed it(after the due date) or havent completed it and its past the due date.
+	ontime = "IND_ONTIME" #this person has been assigned the course, and they completed it before the due date.
+	assigned = "IND_ASSIGNED" #this person has been assigned the course, and they have not completed it but it is still before the due date.
+	notAssigned = "IND_NOTASSIGNED"
 
 reportFileName = "output.xlsx"
 cleanNameColumn = "cleanName"
@@ -52,6 +52,7 @@ def calculateMatchRow(cleanName,matchEmail,matchId, row):
 
 def formatOutput(data):
 
+	lastInfoColumnIndex = 4
 	writer = pd.ExcelWriter(reportFileName)
 	data.to_excel(writer, index = False, sheet_name = "Report", engine='xlsxwriter')
 	rowCount = len(data.index.values.tolist())
@@ -59,6 +60,7 @@ def formatOutput(data):
 
 	book  = writer.book
 	sheet = writer.sheets['Report']
+
 	overDueColor = book.add_format({'bg_color':'#FF0000'})
 	onTimeColor = book.add_format({'bg_color':'#00FF00'})
 	notAssignedColor = book.add_format({'bg_color':'#C0C0C0'})
@@ -66,14 +68,13 @@ def formatOutput(data):
 	infoColor = book.add_format({'bg_color':'#0066CC'})
 	borderColor = book.add_format({'bg_color':'#000000'})
 	
-	#sheet.conditional_format(rowCount+1,0,sheet.dim_rowmax,sheet.dim_colmax,{'type':'blanks','format':borderColor})
-	
-	sheet.set_column(0,3,15,infoColor)
-	sheet.set_column(4,colCount,30)
-	sheet.conditional_format(1,4,rowCount-1,colCount-1,{'type':'formula','criteria': "=ISNUMBER(SEARCH(\"{}\", _xlfn.FORMULATEXT(E2)))".format(DateStatus.overdue.value),'format': overDueColor})
-	sheet.conditional_format(1,4,rowCount-1,colCount-1,{'type':'formula','criteria':"=ISNUMBER(SEARCH(\"{}\", _xlfn.FORMULATEXT(E2)))".format(DateStatus.ontime.value),'format': onTimeColor})
-	sheet.conditional_format(1,4,rowCount-1,colCount-1,{'type':'formula','criteria':"=ISNUMBER(SEARCH(\"{}\", _xlfn.FORMULATEXT(E2)))".format(DateStatus.notAssigned.value),'format': notAssignedColor})
-	sheet.conditional_format(1,4,rowCount-1,colCount-1,{'type':'formula','criteria':"=ISNUMBER(SEARCH(\"{}\", _xlfn.FORMULATEXT(E2)))".format(DateStatus.assigned.value),'format': assignedColor})
+	sheet.set_column(0,lastInfoColumnIndex - 1,15)
+	sheet.set_column(lastInfoColumnIndex,colCount,30)
+	sheet.conditional_format(1,lastInfoColumnIndex,rowCount,colCount-1,{'type':'formula','criteria': "=ISNUMBER(SEARCH(\"{0}\", _xlfn.FORMULATEXT(E2)))".format(DateStatus.overdue.value),'format': overDueColor})
+	sheet.conditional_format(1,lastInfoColumnIndex,rowCount,colCount-1,{'type':'formula','criteria':"=ISNUMBER(SEARCH(\"{0}\", _xlfn.FORMULATEXT(E2)))".format(DateStatus.ontime.value),'format': onTimeColor})
+	sheet.conditional_format(1,lastInfoColumnIndex,rowCount,colCount-1,{'type':'formula','criteria':"=ISNUMBER(SEARCH(\"{0}\", _xlfn.FORMULATEXT(E2)))".format(DateStatus.notAssigned.value),'format': notAssignedColor})
+	sheet.conditional_format(1,lastInfoColumnIndex,rowCount,colCount-1,{'type':'formula','criteria':"=ISNUMBER(SEARCH(\"{0}\", _xlfn.FORMULATEXT(E2)))".format(DateStatus.assigned.value),'format': assignedColor})
+	sheet.conditional_format(1,0,rowCount,lastInfoColumnIndex,{'type':'formula','criteria':"=AND(COLUMN(A2) < {0}, ROW(A2) < {1})".format(lastInfoColumnIndex + 1, rowCount + 2),'format': infoColor})
 	
 	writer._save()	
 
@@ -163,87 +164,15 @@ def buildOutput(fileInfos, nameMatchCallBack):
 				ids = ids._append({SourceFileColumns.dodid.value : dodidNum,SourceFileColumns.email.value: email, cleanNameColumn: clnName, fullNameColumn: fullName}, ignore_index=True)
 				inds = ids.index.values.tolist()
 				matchIndex = inds[len(inds)-1]
+				ids.iloc[matchIndex, 4:] = "=CHOOSE(1,\"\",\"{0}\")".format(DateStatus.notAssigned.value)
 
 			
 			courseName = buildCourseName(row.iloc[courseNameIndex],sourceName)
 			dueDate = row.iloc[dueDateIndex]
 			compDate = row.iloc[compDateIndex]
 			if not courseName in ids.columns.values.tolist():
-				colInfo = {courseName: "=CHOOSE(1,\"\",\"{}\")".format(DateStatus.notAssigned.value)}
+				colInfo = {courseName: "=CHOOSE(1,\"\",\"{0}\")".format(DateStatus.notAssigned.value)}
 				ids = ids.assign(**colInfo)
-			ids.loc[matchIndex, courseName] = "=CHOOSE(1,\"" + str(dueDate) + "\",\"{}\")".format(chooseDateIndicator(dueDate,compDate))
+			ids.loc[matchIndex, courseName] = "=CHOOSE(1,\"{0}\",\"{1}\")".format(str(compDate.date()) if not pd.isna(compDate) else "",chooseDateIndicator(dueDate,compDate))
 
 	formatOutput(ids)
-	
-				
-		
-		
-def parseFile(filePath, sourceName):
-	fileDf = pd.read_excel(filePath)	
-	sources = pd.read_csv(sourceFileName, index_col = 0)
-	
-	source_indices = sources.loc[sourceName]
-	
-	#make sure no column indices entered by user fall outside possible columns index range for this file
-	largestIndexPoss = len(fileDf.columns) -1
-	for sourceColumn in SourceFileColumns:
-		if sourceColumn != SourceFileColumns.sourceName:
-			colIndex = source_indices.loc[sourceColumn.value]
-			if source_indices.loc[sourceColumn.value] != -1 and colIndex > largestIndexPoss:
-				return False
-
-	#Dictionary with unique IDS as keys and another dictionary with important information as values
-	ids = dict()
-
-	#Groups rows by ID if present, if not group by email
-	if source_indices.dodid >= 0:
-		identifier_col_name = fileDf.columns[source_indices.loc[SourceFileColumns.dodid.value]]
-	elif source_indices.email >= 0:
-		identifier_col_name = fileDf.columns[source_indices.loc[SourceFileColumns.email.value]]
-	group_by = fileDf.groupby(identifier_col_name)
-
-	#Loops through the rows for each person
-	for person in group_by:
-		identifier = person[0]
-		grouped_rows = person[1]
-
-		#Create a dictionary for this person with informatin about them
-		ids[identifier] = dict()
-
-		#Store ERIPI, name, and category
-		ids[identifier][source_indices.loc[SourceFileColumns.dodid.value]] = grouped_rows.iloc[0,source_indices.loc[SourceFileColumns.dodid.value]]
-		ids[identifier][source_indices.loc[SourceFileColumns.firstName.value]] = grouped_rows.iloc[0,source_indices.loc[SourceFileColumns.firstName.value]]
-
-		if source_indices.loc[SourceFileColumns.lastName.value] != -1:
-			ids[identifier][source_indices.loc[SourceFileColumns.lastName.value]] = grouped_rows.iloc[0,source_indices.loc[SourceFileColumns.lastName.value]]
-		
-		course_names = list(grouped_rows.iloc[:,source_indices.loc[SourceFileColumns.courseName.value]])
-
-		course_completed_dates = list(grouped_rows.iloc[:,source_indices.loc[SourceFileColumns.compDate.value]])
-		course_due_dates = list(grouped_rows.iloc[:,source_indices.loc[SourceFileColumns.dueDate.value]])
-
-		#Loops through this person's courses
-		for i in range(len(course_names)):
-			#Pandas Timestamps
-			course_completed_date = course_completed_dates[i]
-			course_due_date = course_due_dates[i]
-			#String
-			course_name = course_names[i]
-
-			#Course was not completed
-			if pd.isna(course_completed_date):
-				ids[identifier][course_name] = "NOT Completed"
-				continue
-
-			#Completed date is before current date (completed course)
-			if course_completed_date <= course_due_date:
-				ids[identifier][course_name] = "Completed"
-
-			#Completed after due date
-			else:
-				ids[identifier][course_name] = "LATE (completed)"
-
-	output = pd.DataFrame(ids.values())
-
-	with pd.ExcelWriter(reportFileName) as writer:
-		output.to_excel(writer)
