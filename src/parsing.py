@@ -24,7 +24,7 @@ class LogTypes(Enum):
 
 nameMatchThreshold = 78
 reportFileName = "output.xlsx"
-logFileName = "log.xlsx"
+logFileName = "log.csv"
 
 def cleanEmail(email):
 	return email.replace(" ", "").lower()
@@ -89,15 +89,16 @@ def formatOutput(data):
 	
 	writer._save()	
 
-def writeLogRow(source, rowStr, logType, desc):
-	
+def writeLogRow(source, rowStr, logVal, desc):
+	df = pd.DataFrame([{SourceFileColumns.sourceName.value: source, ReportExtraColumns.rowData.value: rowStr, ReportExtraColumns.logType.value: logVal, ReportExtraColumns.desc.value: desc}])
+	df.to_csv(logFileName, index = False, header = False, mode = 'a')
 
 #fileInfos is a list of pairs (filePath,sourceName)
 #nameMatchCallback is a function that takes two names(the two that matched), returns true/false
 def buildOutput(fileInfos, nameMatchCallBack):
 
-	logHdr = pd.DataFrame(columns = [SourceFileColumns.sourceName.value, ReportsExtraColumns.rowData.value, ReportExtraColumns.logType.value, ReportExtraColumns.desc.value])
-	logHdr.to_excel(logFileName, index = False)
+	logHdr = pd.DataFrame(columns = [SourceFileColumns.sourceName.value, ReportExtraColumns.rowData.value, ReportExtraColumns.logType.value, ReportExtraColumns.desc.value])
+	logHdr.to_csv(logFileName, index = False)
 
 	#pandas dataframe that originally has columns dodid, email, name
 	#when a new coursename is encounter, this course will be added as a column
@@ -147,10 +148,10 @@ def buildOutput(fileInfos, nameMatchCallBack):
 			clnName = cleanName(fullName)
 
 			try:
-				dodidNum = int(dodidText) if dodidText != "" else -1
+				dodidNum = int(dodidText) if not (pd.isna(dodidText) or dodidText == "")  else -1
 			except ValueError:
 				dodidNum = -1
-				writeLogRow(sourceName, str(row), LogTypes.error, "dodid not a number")
+				writeLogRow(sourceName, str(row), LogTypes.error.value, "dodid not a number")
 
 			matchIndex = -1
 			
@@ -158,13 +159,13 @@ def buildOutput(fileInfos, nameMatchCallBack):
 				dodidMatchIndices = ids.index[ids[SourceFileColumns.dodid.value] == dodidNum]
 				if not dodidMatchIndices.empty:
 					matchIndex = dodidMatchIndices[0]
-					writeLogRow(sourceName, str(row), LogTypes.action, "automatically matched by id to " + str(ids.iloc[matchIndex]))
+					writeLogRow(sourceName, str(row), LogTypes.action.value, "automatically matched by id to: \n" + str(ids.iloc[matchIndex]))
 					
 			if email != "" and matchIndex == -1:	
 				emailMatchIndices = ids.index[ids[SourceFileColumns.email.value] == email]
 				if not emailMatchIndices.empty:
 					matchIndex = emailMatchIndices[0]
-					writeLogRow(sourceName, str(row), LogTypes.action, "automatically matched by email to " + str(ids.iloc[matchIndex]))
+					writeLogRow(sourceName, str(row), LogTypes.action.value, "automatically matched by email to: \n " + str(ids.iloc[matchIndex]))
 			if matchIndex == -1:
 				transformed = ids.apply(lambda row: calculateMatchRow(clnName,email,dodidNum, row), axis =1)
 				if not transformed.empty:
@@ -173,7 +174,7 @@ def buildOutput(fileInfos, nameMatchCallBack):
 						proceed = nameMatchCallBack(fullName,ids.iloc[maxInd].loc[ReportExtraColumns.fullName.value])
 						if proceed:
 							matchIndex = maxInd
-							writeLogRow(sourceName, str(row), LogTypes.action, "user matched by name to " + str(ids.iloc[matchIndex]))
+							writeLogRow(sourceName, str(row), LogTypes.action.value, "user matched by name to: \n" + str(ids.iloc[matchIndex]))
 			if matchIndex != -1:
 				matchRow = ids.loc[matchIndex]
 				if matchRow.loc[SourceFileColumns.dodid.value] == -1 and dodidNum != -1:
@@ -194,7 +195,13 @@ def buildOutput(fileInfos, nameMatchCallBack):
 			if not courseName in ids.columns.values.tolist():
 				colInfo = {courseName: "=CHOOSE(1,\"\",\"{0}\")".format(DateStatus.notAssigned.value)}
 				ids = ids.assign(**colInfo)
-
-			ids.loc[matchIndex, courseName] = "=CHOOSE(1,\"{0}\",\"{1}\")".format(str(compDate.date()) if not pd.isna(compDate) else "",chooseDateIndicator(dueDate,compDate))
+			try:
+				dStr = str(compDate.date()) if not pd.isna(compDate) else ""
+				ids.loc[matchIndex, courseName] = "=CHOOSE(1,\"{0}\",\"{1}\")".format(dStr, chooseDateIndicator(dueDate,compDate))
+			except:
+				ids.loc[matchIndex, courseName] = "=CHOOSE(1,\"\",\"{0}\")".format(DateStatus.notAssigned.value)
+				writeLogRow(sourceName, str(row), LogTypes.error.value, "invalid complete date")
+				
+			
 
 	formatOutput(ids)

@@ -106,10 +106,11 @@ class MainUI(QMainWindow):
 	def delete_file_clicked(self):
 		if self.fileNames:
 			row = self.ui.fileList.currentRow()
-			itm = self.ui.fileList.currentItem()
-			self.ui.fileList.takeItem(row)
-			self.ui.actionLabel.setText("Deleted" + itm.text())
-			del self.fileNames[itm.text()]
+			if row > -1:
+				itm = self.ui.fileList.currentItem()
+				self.ui.fileList.takeItem(row)
+				self.ui.actionLabel.setText("Deleted" + itm.text())
+				del self.fileNames[itm.text()]
 
 	
 	def import_clicked(self):
