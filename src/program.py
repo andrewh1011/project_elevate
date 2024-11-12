@@ -55,9 +55,19 @@ class MainUI(QMainWindow):
 			self.ui.actionLabel.setText("Please provide at least one file for the report generation.")	
 
 	def source_clicked(self, item):
-		sourceName = item.text()
-		print(sourceName)
-		#TODO: pop up add source window with column values filled out
+		source_name = item.text()
+		cols = list(self.sources.columns)
+		for column in cols:
+			val = self.sources.loc[source_name, column]
+			inputField = self.findChild(QLineEdit, column)
+			if inputField:
+				if val != notUsedNumber:
+					inputField.setText(str(val))
+				else:
+					inputField.setText("")
+		self.window = AddSourceUI(self)
+		self.window.show_source_clicked(source_name, self.sources)
+		self.window.show()
 
 	def deleteAllFilesWithSource(self, sName):
 		fileDict = self.fileNames
@@ -173,6 +183,17 @@ class AddSourceUI(QMainWindow):
 		self.ui.tutorialBtn.clicked.connect(self.open_tutorial)
 		with open("tutorial/addSourceInstructions.txt", "r") as file:
 			self.add_tutorial_text = file.read()
+
+	def show_source_clicked(self, source_name, sources):
+		cols = list(sources.columns)
+		for column in cols:
+			val = sources.loc[source_name, column]
+			inputField = self.findChild(QLineEdit, column)
+			if inputField:
+				if val != notUsedNumber:
+					inputField.setText(str(val))
+				else:
+					inputField.setText("")
 
 	def return_to_main_window(self):
 		self.mainWindow.refresh_sources()
