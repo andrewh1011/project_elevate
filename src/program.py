@@ -56,15 +56,6 @@ class MainUI(QMainWindow):
 
 	def source_clicked(self, item):
 		source_name = item.text()
-		cols = list(self.sources.columns)
-		for column in cols:
-			val = self.sources.loc[source_name, column]
-			inputField = self.findChild(QLineEdit, column)
-			if inputField:
-				if val != notUsedNumber:
-					inputField.setText(str(val))
-				else:
-					inputField.setText("")
 		self.window = AddSourceUI(self)
 		self.window.show_source_clicked(source_name, self.sources)
 		self.window.show()
