@@ -4,6 +4,6 @@ For example, let's say there is a data source with the following columns in the 
 
 Last Name, First Name, EDIPI, Category, Course Name, Completed Dt, Due Dt
 
-“Last Name” is in column 0, “First Name” is in column 1, DODID is in column 2 and so on.
+'Last Name' is in column 0, 'First Name' is in column 1, DODID is in column 2 and so on.
 
-The required entries are the name of the source, first name, due date, completed date, and course name. If the first name and last name columns are combined into one name column, enter the index of the name column in the “First Name” column.
+The required entries are the name of the source, first name, due date, completed date, and course name. If the first name and last name columns are combined into one name column, enter the index of the name column in the 'First Name' column.
