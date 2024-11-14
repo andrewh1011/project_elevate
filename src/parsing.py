@@ -32,12 +32,12 @@ def writeLogRow(source, rowStr, logVal, desc):
 
 def convertToInt(value):
 	try:
-		return int(value)
+		return int(value) if not pd.isnull(value) else -1
 	except Exception:
 		return -1
 def convertToStr(value):
 	try:
-		return str(value)
+		return str(value) if not pd.isnull(value) else ""
 	except Exception:
 		return ""
 def convertToDate(value):
@@ -49,8 +49,7 @@ def convertToDate(value):
 			
 def forceTypeOnColumn(data, columnIndex, typeFunc):
 	if columnIndex != -1:
-		print(data.iloc[:,columnIndex])
-		data.iloc[:,columnIndex] = data.iloc[:,columnIndex].apply(typeFunc)
+		data[data.columns[columnIndex]] = data[data.columns[columnIndex]].apply(typeFunc)
 
 def cleanEmail(email):
 	return email.replace(" ", "").lower()
