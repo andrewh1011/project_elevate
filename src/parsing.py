@@ -1,8 +1,12 @@
 import pandas as pd
-
 from datetime import datetime
 from manageSources import *
 from thefuzz import fuzz
+
+
+nameMatchThreshold = 78
+reportFileName = "output.xlsx"
+logFileName = "log.csv"
 
 class DateStatus(Enum):
 	overdue = "IND_OVERDUE" #this person has been assigned the course, and they either completed it(after the due date) or havent completed it and its past the due date.
@@ -22,9 +26,31 @@ class LogTypes(Enum):
 	error = "ERROR"
 	action = "action"
 
-nameMatchThreshold = 78
-reportFileName = "output.xlsx"
-logFileName = "log.csv"
+def writeLogRow(source, rowStr, logVal, desc):
+	df = pd.DataFrame([{SourceFileColumns.sourceName.value: source, ReportExtraColumns.rowData.value: rowStr, ReportExtraColumns.logType.value: logVal, ReportExtraColumns.desc.value: desc}])
+	df.to_csv(logFileName, index = False, header = False, mode = 'a')
+
+def convertToInt(value):
+	try:
+		return int(value)
+	except Exception:
+		return -1
+def convertToStr(value):
+	try:
+		return str(value)
+	except Exception:
+		return ""
+def convertToDate(value):
+	try:
+		return pd.Timestamp(value)
+	except Exception:
+		return pd.NaT
+		
+			
+def forceTypeOnColumn(data, columnIndex, typeFunc):
+	if columnIndex != -1:
+		print(data.iloc[:,columnIndex])
+		data.iloc[:,columnIndex] = data.iloc[:,columnIndex].apply(typeFunc)
 
 def cleanEmail(email):
 	return email.replace(" ", "").lower()
@@ -34,11 +60,11 @@ def buildCourseName(courseName, sourceName):
 	return courseName + "-" + sourceName
 
 def chooseDateIndicator(dueDate,compDate):
-	if pd.isna(dueDate):
+	if pd.isnull(dueDate):
 		return DateStatus.notAssigned.value
 
 	today = datetime.today()
-	if pd.isna(compDate):
+	if pd.isnull(compDate):
 		if today > dueDate:
 			return DateStatus.overdue.value
 		else:
@@ -89,10 +115,6 @@ def formatOutput(data):
 	
 	writer._save()	
 
-def writeLogRow(source, rowStr, logVal, desc):
-	df = pd.DataFrame([{SourceFileColumns.sourceName.value: source, ReportExtraColumns.rowData.value: rowStr, ReportExtraColumns.logType.value: logVal, ReportExtraColumns.desc.value: desc}])
-	df.to_csv(logFileName, index = False, header = False, mode = 'a')
-
 #fileInfos is a list of pairs (filePath,sourceName)
 #nameMatchCallback is a function that takes two names(the two that matched), returns true/false
 def buildOutput(fileInfos, nameMatchCallBack):
@@ -122,22 +144,26 @@ def buildOutput(fileInfos, nameMatchCallBack):
 		dueDateIndex = source_indices.loc[SourceFileColumns.dueDate.value]
 		compDateIndex = source_indices.loc[SourceFileColumns.compDate.value]
 
-		if emailIndex != -1:
-			fileDf.iloc[:,emailIndex] = fileDf.iloc[:,emailIndex].fillna("")
-		fileDf.iloc[:,firstNameIndex] = fileDf.iloc[:,firstNameIndex].fillna("")
-		if lastNameIndex != -1:
-			fileDf.iloc[:,lastNameIndex]= fileDf.iloc[:,lastNameIndex].fillna("")
+		lc = len(fileDf.columns) - 1
+		if emailIndex > lc or dodIndex > lc or firstNameIndex > lc or lastNameIndex > lc or courseNameIndex > lc or dueDateIndex > lc or compDateIndex > lc:
+			raise Exception("Column Index too large! File: " + filePath + " Source Assigned: " + sourceName)
+
+		forceTypeOnColumn(fileDf,emailIndex, convertToStr)
+		forceTypeOnColumn(fileDf,firstNameIndex, convertToStr)
+		forceTypeOnColumn(fileDf,lastNameIndex, convertToStr)
+		forceTypeOnColumn(fileDf,courseNameIndex, convertToStr)
+		forceTypeOnColumn(fileDf,dodIndex, convertToInt)
+		forceTypeOnColumn(fileDf,dueDateIndex, convertToDate)
+		forceTypeOnColumn(fileDf,compDateIndex, convertToDate)
 		
 		for ind, row in fileDf.iterrows():
-			dodidText = ""
 			dodidNum = -1
 			email = ""
 			fullName = ""
 			clnName = ""
 
-			
 			if dodIndex != -1:
-				dodidText = row.iloc[dodIndex]
+				dodidNum = row.iloc[dodIndex]
 			
 			if emailIndex != -1:
 				email = cleanEmail(row.iloc[emailIndex])
@@ -146,12 +172,6 @@ def buildOutput(fileInfos, nameMatchCallBack):
 			if lastNameIndex != -1:
 				fullName = fullName + " " + row.iloc[lastNameIndex]
 			clnName = cleanName(fullName)
-
-			try:
-				dodidNum = int(dodidText) if not (pd.isna(dodidText) or dodidText == "")  else -1
-			except ValueError:
-				dodidNum = -1
-				writeLogRow(sourceName, str(row), LogTypes.error.value, "dodid not a number")
 
 			matchIndex = -1
 			
@@ -195,13 +215,8 @@ def buildOutput(fileInfos, nameMatchCallBack):
 			if not courseName in ids.columns.values.tolist():
 				colInfo = {courseName: "=CHOOSE(1,\"\",\"{0}\")".format(DateStatus.notAssigned.value)}
 				ids = ids.assign(**colInfo)
-			try:
-				dStr = str(compDate.date()) if not pd.isna(compDate) else ""
-				ids.loc[matchIndex, courseName] = "=CHOOSE(1,\"{0}\",\"{1}\")".format(dStr, chooseDateIndicator(dueDate,compDate))
-			except:
-				ids.loc[matchIndex, courseName] = "=CHOOSE(1,\"\",\"{0}\")".format(DateStatus.notAssigned.value)
-				writeLogRow(sourceName, str(row), LogTypes.error.value, "invalid complete date")
-				
 			
-
+			ids.loc[matchIndex, courseName] = "=CHOOSE(1,\"{0}\",\"{1}\")".format(str(compDate.date()) if not pd.isnull(compDate) else "", chooseDateIndicator(dueDate,compDate))
+			
+				
 	formatOutput(ids)
