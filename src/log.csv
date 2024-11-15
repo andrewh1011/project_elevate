@@ -1,4 +1,277 @@
 sourceName,rowData,logType,description
+JKO,"Last Name                               Doe
+First Name                             John
+EDIPI                            1234567891
+Category                        ACTIVE DUTY
+Course Name     Leadership Training (4 hrs)
+Completed Dt            2024-08-31 00:00:00
+Due Dt                  2024-09-01 00:00:00
+Name: 1, dtype: object",action,"automatically matched by id to: 
+dodid                                             1234567891
+email                                                       
+cleanName                                            johndoe
+fullName                                            John Doe
+DHA Accommodations (1 hr)-JKO    =CHOOSE(1,"""",""IND_OVERDUE"")
+Name: 0, dtype: object"
+JKO,"Last Name                               Doe
+First Name                             John
+EDIPI                            1234567891
+Category                        ACTIVE DUTY
+Course Name     MHS Customer Service (1 hr)
+Completed Dt            2024-08-31 00:00:00
+Due Dt                  2024-09-01 00:00:00
+Name: 2, dtype: object",action,"automatically matched by id to: 
+dodid                                                        1234567891
+email                                                                  
+cleanName                                                       johndoe
+fullName                                                       John Doe
+DHA Accommodations (1 hr)-JKO               =CHOOSE(1,"""",""IND_OVERDUE"")
+Leadership Training (4 hrs)-JKO    =CHOOSE(1,""2024-08-31"",""IND_ONTIME"")
+Name: 0, dtype: object"
+JKO,"Last Name                    Hartmann
+First Name                     Andrew
+EDIPI                              -1
+Category                DOD CIVILLIAN
+Course Name     HIPAA Training (1 hr)
+Completed Dt                      NaT
+Due Dt            2030-09-01 00:00:00
+Name: 4, dtype: object",action,"user matched by name to: 
+dodid                                                   3322111234
+email                                                             
+cleanName                                           andrewhartmann
+fullName                                           Andrew Hartmann
+DHA Accommodations (1 hr)-JKO      =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Leadership Training (4 hrs)-JKO    =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+MHS Customer Service (1 hr)-JKO    =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Counterintelligence (1 hr)-JKO         =CHOOSE(1,"""",""IND_OVERDUE"")
+Name: 1, dtype: object"
+JKO,"Last Name                                 Hartmann
+First Name                                  Andrew
+EDIPI                                   3322111234
+Category                             DOD CIVILLIAN
+Course Name     Supervisor Safety Training (2 hrs)
+Completed Dt                   2024-08-30 00:00:00
+Due Dt                         2024-08-01 00:00:00
+Name: 5, dtype: object",action,"automatically matched by id to: 
+dodid                                                   3322111234
+email                                                             
+cleanName                                           andrewhartmann
+fullName                                           Andrew Hartmann
+DHA Accommodations (1 hr)-JKO      =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Leadership Training (4 hrs)-JKO    =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+MHS Customer Service (1 hr)-JKO    =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Counterintelligence (1 hr)-JKO         =CHOOSE(1,"""",""IND_OVERDUE"")
+HIPAA Training (1 hr)-JKO             =CHOOSE(1,"""",""IND_ASSIGNED"")
+Name: 1, dtype: object"
+JKO,"Last Name                     Hartmann
+First Name                      Andrew
+EDIPI                       3322111234
+Category                 DOD CIVILLIAN
+Course Name     Employee Safety (1 hr)
+Completed Dt       2024-08-29 00:00:00
+Due Dt             2024-08-01 00:00:00
+Name: 6, dtype: object",action,"automatically matched by id to: 
+dodid                                                                3322111234
+email                                                                          
+cleanName                                                        andrewhartmann
+fullName                                                        Andrew Hartmann
+DHA Accommodations (1 hr)-JKO                   =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Leadership Training (4 hrs)-JKO                 =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+MHS Customer Service (1 hr)-JKO                 =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Counterintelligence (1 hr)-JKO                      =CHOOSE(1,"""",""IND_OVERDUE"")
+HIPAA Training (1 hr)-JKO                          =CHOOSE(1,"""",""IND_ASSIGNED"")
+Supervisor Safety Training (2 hrs)-JKO    =CHOOSE(1,""2024-08-30"",""IND_OVERDUE"")
+Name: 1, dtype: object"
+JKO,"Last Name                    Fletcher
+First Name                       Nick
+EDIPI                              -1
+Category                DOD CIVILLIAN
+Course Name     HIPAA Training (1 hr)
+Completed Dt      2024-08-29 00:00:00
+Due Dt            2024-09-01 00:00:00
+Name: 8, dtype: object",action,"user matched by name to: 
+dodid                                                                  -1
+email                                                                    
+cleanName                                                    nickfletcher
+fullName                                                    Nick Fletcher
+DHA Accommodations (1 hr)-JKO             =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Leadership Training (4 hrs)-JKO           =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+MHS Customer Service (1 hr)-JKO           =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Counterintelligence (1 hr)-JKO                =CHOOSE(1,"""",""IND_OVERDUE"")
+HIPAA Training (1 hr)-JKO                 =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Supervisor Safety Training (2 hrs)-JKO    =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Employee Safety (1 hr)-JKO                =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Name: 2, dtype: object"
+JKO,"Last Name                                 Fletcher
+First Name                                    Nick
+EDIPI                                           -1
+Category                             DOD CIVILLIAN
+Course Name     Supervisor Safety Training (2 hrs)
+Completed Dt                   2024-08-29 00:00:00
+Due Dt                         2024-08-01 00:00:00
+Name: 9, dtype: object",action,"user matched by name to: 
+dodid                                                                       -1
+email                                                                         
+cleanName                                                         nickfletcher
+fullName                                                         Nick Fletcher
+DHA Accommodations (1 hr)-JKO                  =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Leadership Training (4 hrs)-JKO                =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+MHS Customer Service (1 hr)-JKO                =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Counterintelligence (1 hr)-JKO                     =CHOOSE(1,"""",""IND_OVERDUE"")
+HIPAA Training (1 hr)-JKO                 =CHOOSE(1,""2024-08-29"",""IND_ONTIME"")
+Supervisor Safety Training (2 hrs)-JKO         =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Employee Safety (1 hr)-JKO                     =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Name: 2, dtype: object"
+JKO,"Last Name                     Fletcher
+First Name                        Nick
+EDIPI                               -1
+Category                 DOD CIVILLIAN
+Course Name     Employee Safety (1 hr)
+Completed Dt       2024-08-28 00:00:00
+Due Dt             2024-08-01 00:00:00
+Name: 10, dtype: object",action,"user matched by name to: 
+dodid                                                                        -1
+email                                                                          
+cleanName                                                          nickfletcher
+fullName                                                          Nick Fletcher
+DHA Accommodations (1 hr)-JKO                   =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Leadership Training (4 hrs)-JKO                 =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+MHS Customer Service (1 hr)-JKO                 =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Counterintelligence (1 hr)-JKO                      =CHOOSE(1,"""",""IND_OVERDUE"")
+HIPAA Training (1 hr)-JKO                  =CHOOSE(1,""2024-08-29"",""IND_ONTIME"")
+Supervisor Safety Training (2 hrs)-JKO    =CHOOSE(1,""2024-08-29"",""IND_OVERDUE"")
+Employee Safety (1 hr)-JKO                      =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Name: 2, dtype: object"
+JKO,"Last Name                              Cena
+First Name                             John
+EDIPI                                    -1
+Category                        ACTIVE DUTY
+Course Name     Leadership Training (4 hrs)
+Completed Dt            2024-08-28 00:00:00
+Due Dt                  2024-09-01 00:00:00
+Name: 12, dtype: object",action,"user matched by name to: 
+dodid                                                                       -1
+email                                                                         
+cleanName                                                             johncena
+fullName                                                             John Cena
+DHA Accommodations (1 hr)-JKO             =CHOOSE(1,""2024-08-28"",""IND_ONTIME"")
+Leadership Training (4 hrs)-JKO                =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+MHS Customer Service (1 hr)-JKO                =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Counterintelligence (1 hr)-JKO                 =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+HIPAA Training (1 hr)-JKO                      =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Supervisor Safety Training (2 hrs)-JKO         =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Employee Safety (1 hr)-JKO                     =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Name: 3, dtype: object"
+JKO,"Last Name                              Cena
+First Name                             John
+EDIPI                                    -1
+Category                        ACTIVE DUTY
+Course Name     MHS Customer Service (1 hr)
+Completed Dt            2024-08-28 00:00:00
+Due Dt                  2024-09-01 00:00:00
+Name: 13, dtype: object",action,"user matched by name to: 
+dodid                                                                       -1
+email                                                                         
+cleanName                                                             johncena
+fullName                                                             John Cena
+DHA Accommodations (1 hr)-JKO             =CHOOSE(1,""2024-08-28"",""IND_ONTIME"")
+Leadership Training (4 hrs)-JKO           =CHOOSE(1,""2024-08-28"",""IND_ONTIME"")
+MHS Customer Service (1 hr)-JKO                =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Counterintelligence (1 hr)-JKO                 =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+HIPAA Training (1 hr)-JKO                      =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Supervisor Safety Training (2 hrs)-JKO         =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Employee Safety (1 hr)-JKO                     =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Name: 3, dtype: object"
+JKO,"Last Name                           Cena
+First Name                          John
+EDIPI                                 -1
+Category                     ACTIVE DUTY
+Course Name     Violence Response (1 hr)
+Completed Dt         2024-08-28 00:00:00
+Due Dt               2024-09-01 00:00:00
+Name: 14, dtype: object",action,"user matched by name to: 
+dodid                                                                       -1
+email                                                                         
+cleanName                                                             johncena
+fullName                                                             John Cena
+DHA Accommodations (1 hr)-JKO             =CHOOSE(1,""2024-08-28"",""IND_ONTIME"")
+Leadership Training (4 hrs)-JKO           =CHOOSE(1,""2024-08-28"",""IND_ONTIME"")
+MHS Customer Service (1 hr)-JKO           =CHOOSE(1,""2024-08-28"",""IND_ONTIME"")
+Counterintelligence (1 hr)-JKO                 =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+HIPAA Training (1 hr)-JKO                      =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Supervisor Safety Training (2 hrs)-JKO         =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Employee Safety (1 hr)-JKO                     =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Name: 3, dtype: object"
+JKO,"Last Name                  Fletcher
+First Name                 Nicholas
+EDIPI                    4453245321
+Category                ACTIVE DUTY
+Course Name            RandomCourse
+Completed Dt    2000-01-01 00:00:00
+Due Dt          2000-01-02 00:00:00
+Name: 15, dtype: object",action,"user matched by name to: 
+dodid                                                                        -1
+email                                                                          
+cleanName                                                          nickfletcher
+fullName                                                          Nick Fletcher
+DHA Accommodations (1 hr)-JKO                   =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Leadership Training (4 hrs)-JKO                 =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+MHS Customer Service (1 hr)-JKO                 =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Counterintelligence (1 hr)-JKO                      =CHOOSE(1,"""",""IND_OVERDUE"")
+HIPAA Training (1 hr)-JKO                  =CHOOSE(1,""2024-08-29"",""IND_ONTIME"")
+Supervisor Safety Training (2 hrs)-JKO    =CHOOSE(1,""2024-08-29"",""IND_OVERDUE"")
+Employee Safety (1 hr)-JKO                =CHOOSE(1,""2024-08-28"",""IND_OVERDUE"")
+Violence Response (1 hr)-JKO                    =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Name: 2, dtype: object"
+JKO,"Last Name                      Cena
+First Name                        J
+EDIPI                    5555555555
+Category                ACTIVE DUTY
+Course Name            RandomCourse
+Completed Dt    2000-01-01 00:00:00
+Due Dt          1999-01-01 00:00:00
+Name: 16, dtype: object",action,"user matched by name to: 
+dodid                                                                       -1
+email                                                                         
+cleanName                                                             johncena
+fullName                                                             John Cena
+DHA Accommodations (1 hr)-JKO             =CHOOSE(1,""2024-08-28"",""IND_ONTIME"")
+Leadership Training (4 hrs)-JKO           =CHOOSE(1,""2024-08-28"",""IND_ONTIME"")
+MHS Customer Service (1 hr)-JKO           =CHOOSE(1,""2024-08-28"",""IND_ONTIME"")
+Counterintelligence (1 hr)-JKO                 =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+HIPAA Training (1 hr)-JKO                      =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Supervisor Safety Training (2 hrs)-JKO         =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Employee Safety (1 hr)-JKO                     =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Violence Response (1 hr)-JKO              =CHOOSE(1,""2024-08-28"",""IND_ONTIME"")
+RandomCourse-JKO                               =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Name: 3, dtype: object"
+myLearning,"Edipi                       4453245321
+Rank                               NaN
+First Name                    Nicholas
+Last Name                     Fletcher
+Majcont                            NaN
+Unit                               NaN
+Email                      n@gmail.com
+Course Name                   Survival
+Enrollment Date    2022-10-02 00:00:00
+Grade                              NaN
+Date Completed     2022-10-30 00:00:00
+Complete                           NaN
+Name: 0, dtype: object",action,"automatically matched by id to: 
+dodid                                                                4453245321
+email                                                                          
+cleanName                                                          nickfletcher
+fullName                                                          Nick Fletcher
+DHA Accommodations (1 hr)-JKO                   =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Leadership Training (4 hrs)-JKO                 =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+MHS Customer Service (1 hr)-JKO                 =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Counterintelligence (1 hr)-JKO                      =CHOOSE(1,"""",""IND_OVERDUE"")
+HIPAA Training (1 hr)-JKO                  =CHOOSE(1,""2024-08-29"",""IND_ONTIME"")
+Supervisor Safety Training (2 hrs)-JKO    =CHOOSE(1,""2024-08-29"",""IND_OVERDUE"")
+Employee Safety (1 hr)-JKO                =CHOOSE(1,""2024-08-28"",""IND_OVERDUE"")
+Violence Response (1 hr)-JKO                    =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+RandomCourse-JKO                           =CHOOSE(1,""2000-01-01"",""IND_ONTIME"")
+Name: 2, dtype: object"
 myLearning,"Edipi                                1
 Rank                               NaN
 First Name                       Sally
@@ -12,18 +285,27 @@ Grade                              NaN
 Date Completed                     NaT
 Complete                           NaN
 Name: 10, dtype: object",action,"automatically matched by id to: 
-dodid                                                        1
-email                                                         
-cleanName                                           sallysmith
-fullName                                           Sally Smith
-Survival-myLearning            =CHOOSE(1,"""",""IND_NOTASSIGNED"")
-Swimming-myLearning                =CHOOSE(1,"""",""IND_OVERDUE"")
-Flying-myLearning              =CHOOSE(1,"""",""IND_NOTASSIGNED"")
-Electronics-myLearning         =CHOOSE(1,"""",""IND_NOTASSIGNED"")
-RandomCourseName-myLearning    =CHOOSE(1,"""",""IND_NOTASSIGNED"")
-Cooking-myLearning             =CHOOSE(1,"""",""IND_NOTASSIGNED"")
-Navigation-myLearning          =CHOOSE(1,"""",""IND_NOTASSIGNED"")
-Name: 1, dtype: object"
+dodid                                                                   1
+email                                                                    
+cleanName                                                      sallysmith
+fullName                                                      Sally Smith
+DHA Accommodations (1 hr)-JKO             =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Leadership Training (4 hrs)-JKO           =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+MHS Customer Service (1 hr)-JKO           =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Counterintelligence (1 hr)-JKO            =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+HIPAA Training (1 hr)-JKO                 =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Supervisor Safety Training (2 hrs)-JKO    =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Employee Safety (1 hr)-JKO                =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Violence Response (1 hr)-JKO              =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+RandomCourse-JKO                          =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Survival-myLearning                       =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Swimming-myLearning                           =CHOOSE(1,"""",""IND_OVERDUE"")
+Flying-myLearning                         =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Electronics-myLearning                    =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+RandomCourseName-myLearning               =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Cooking-myLearning                        =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Navigation-myLearning                     =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Name: 4, dtype: object"
 myLearning,"Edipi                                1
 Rank                               NaN
 First Name                       Sally
@@ -37,18 +319,27 @@ Grade                              NaN
 Date Completed     2020-09-01 00:00:00
 Complete                           NaN
 Name: 11, dtype: object",action,"automatically matched by id to: 
-dodid                                                        1
-email                                                         
-cleanName                                           sallysmith
-fullName                                           Sally Smith
-Survival-myLearning            =CHOOSE(1,"""",""IND_NOTASSIGNED"")
-Swimming-myLearning                =CHOOSE(1,"""",""IND_OVERDUE"")
-Flying-myLearning                  =CHOOSE(1,"""",""IND_OVERDUE"")
-Electronics-myLearning         =CHOOSE(1,"""",""IND_NOTASSIGNED"")
-RandomCourseName-myLearning    =CHOOSE(1,"""",""IND_NOTASSIGNED"")
-Cooking-myLearning             =CHOOSE(1,"""",""IND_NOTASSIGNED"")
-Navigation-myLearning          =CHOOSE(1,"""",""IND_NOTASSIGNED"")
-Name: 1, dtype: object"
+dodid                                                                   1
+email                                                                    
+cleanName                                                      sallysmith
+fullName                                                      Sally Smith
+DHA Accommodations (1 hr)-JKO             =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Leadership Training (4 hrs)-JKO           =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+MHS Customer Service (1 hr)-JKO           =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Counterintelligence (1 hr)-JKO            =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+HIPAA Training (1 hr)-JKO                 =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Supervisor Safety Training (2 hrs)-JKO    =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Employee Safety (1 hr)-JKO                =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Violence Response (1 hr)-JKO              =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+RandomCourse-JKO                          =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Survival-myLearning                       =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Swimming-myLearning                           =CHOOSE(1,"""",""IND_OVERDUE"")
+Flying-myLearning                             =CHOOSE(1,"""",""IND_OVERDUE"")
+Electronics-myLearning                    =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+RandomCourseName-myLearning               =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Cooking-myLearning                        =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Navigation-myLearning                     =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Name: 4, dtype: object"
 myLearning,"Edipi                                1
 Rank                               NaN
 First Name                       Sally
@@ -62,18 +353,27 @@ Grade                              NaN
 Date Completed     2024-10-15 00:00:00
 Complete                           NaN
 Name: 12, dtype: object",action,"automatically matched by id to: 
-dodid                                                              1
-email                                                               
-cleanName                                                 sallysmith
-fullName                                                 Sally Smith
-Survival-myLearning            =CHOOSE(1,""2020-09-01"",""IND_OVERDUE"")
-Swimming-myLearning                      =CHOOSE(1,"""",""IND_OVERDUE"")
-Flying-myLearning                        =CHOOSE(1,"""",""IND_OVERDUE"")
-Electronics-myLearning               =CHOOSE(1,"""",""IND_NOTASSIGNED"")
-RandomCourseName-myLearning          =CHOOSE(1,"""",""IND_NOTASSIGNED"")
-Cooking-myLearning                   =CHOOSE(1,"""",""IND_NOTASSIGNED"")
-Navigation-myLearning                =CHOOSE(1,"""",""IND_NOTASSIGNED"")
-Name: 1, dtype: object"
+dodid                                                                         1
+email                                                                          
+cleanName                                                            sallysmith
+fullName                                                            Sally Smith
+DHA Accommodations (1 hr)-JKO                   =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Leadership Training (4 hrs)-JKO                 =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+MHS Customer Service (1 hr)-JKO                 =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Counterintelligence (1 hr)-JKO                  =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+HIPAA Training (1 hr)-JKO                       =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Supervisor Safety Training (2 hrs)-JKO          =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Employee Safety (1 hr)-JKO                      =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Violence Response (1 hr)-JKO                    =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+RandomCourse-JKO                                =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Survival-myLearning                       =CHOOSE(1,""2020-09-01"",""IND_OVERDUE"")
+Swimming-myLearning                                 =CHOOSE(1,"""",""IND_OVERDUE"")
+Flying-myLearning                                   =CHOOSE(1,"""",""IND_OVERDUE"")
+Electronics-myLearning                          =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+RandomCourseName-myLearning                     =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Cooking-myLearning                              =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Navigation-myLearning                           =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Name: 4, dtype: object"
 myLearning,"Edipi                                2
 Rank                               NaN
 First Name                         Bob
@@ -87,15 +387,24 @@ Grade                              NaN
 Date Completed     2020-08-20 00:00:00
 Complete                           NaN
 Name: 13, dtype: object",action,"automatically matched by id to: 
-dodid                                                              2
-email                                                               
-cleanName                                                    bobcole
-fullName                                                    Bob Cole
-Survival-myLearning                  =CHOOSE(1,"""",""IND_NOTASSIGNED"")
-Swimming-myLearning                  =CHOOSE(1,"""",""IND_NOTASSIGNED"")
-Flying-myLearning              =CHOOSE(1,""2023-09-17"",""IND_OVERDUE"")
-Electronics-myLearning               =CHOOSE(1,"""",""IND_NOTASSIGNED"")
-RandomCourseName-myLearning          =CHOOSE(1,"""",""IND_NOTASSIGNED"")
-Cooking-myLearning                   =CHOOSE(1,"""",""IND_NOTASSIGNED"")
-Navigation-myLearning                =CHOOSE(1,"""",""IND_NOTASSIGNED"")
-Name: 2, dtype: object"
+dodid                                                                         2
+email                                                                          
+cleanName                                                               bobcole
+fullName                                                               Bob Cole
+DHA Accommodations (1 hr)-JKO                   =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Leadership Training (4 hrs)-JKO                 =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+MHS Customer Service (1 hr)-JKO                 =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Counterintelligence (1 hr)-JKO                  =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+HIPAA Training (1 hr)-JKO                       =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Supervisor Safety Training (2 hrs)-JKO          =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Employee Safety (1 hr)-JKO                      =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Violence Response (1 hr)-JKO                    =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+RandomCourse-JKO                                =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Survival-myLearning                             =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Swimming-myLearning                             =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Flying-myLearning                         =CHOOSE(1,""2023-09-17"",""IND_OVERDUE"")
+Electronics-myLearning                          =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+RandomCourseName-myLearning                     =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Cooking-myLearning                              =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Navigation-myLearning                           =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Name: 5, dtype: object"
