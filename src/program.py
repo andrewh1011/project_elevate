@@ -33,7 +33,7 @@ class MainUI(QMainWindow):
 		with open("tutorial/generalAppInstructions.txt", "r") as file:
 			self.tutorial_text = file.read()
 
-	def nameMatchConfirmOuter(self):
+	def name_match_confirmer(self):
 		def nameMatchConfirmInner(name1, name2):
 			choice = QMessageBox.question(self, 'Name Match Detected', name1 + " appears to match " + name2 + ". Proceed to combine these into one person record?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 			if choice == QMessageBox.Yes:
@@ -46,7 +46,7 @@ class MainUI(QMainWindow):
 		keys = self.fileNames.keys()
 		if len(keys) >	0:
 			try:
-				buildOutput(self.fileNames.values(), self.nameMatchConfirmOuter())
+				buildOutput(self.fileNames.values(), self.name_match_confirmer())
 				self.ui.actionLabel.setText("Output generated in 'output.xlsx' file.")	
 			except Exception as e:
 				self.ui.actionLabel.setText("Parsing/Generation Error: " + str(e))
@@ -60,7 +60,7 @@ class MainUI(QMainWindow):
 		self.window.show_source_clicked(source_name, self.sources)
 		self.window.show()
 
-	def deleteAllFilesWithSource(self, sName):
+	def delete_all_files_with_source(self, sName):
 		fileDict = self.fileNames
 		fileListWidget = self.ui.fileList
 		remFiles = []
@@ -73,7 +73,7 @@ class MainUI(QMainWindow):
 		for file in remFiles:
 			del fileDict[file]
 
-	def confirmDeleteFilesFromSource(self, sName):
+	def confirm_delete_files_from_source(self, sName):
 		choice = QMessageBox.question(self, 'Confirmation', "Deleting a source will delete all the files currently mapped to this source in the current session. Are you sure?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 		return choice
 
@@ -90,13 +90,13 @@ class MainUI(QMainWindow):
 		itm = self.ui.sourceList.currentItem()
 		if (not self.sources.empty) and itm:
 			sName = itm.text()
-			choice = self.confirmDeleteFilesFromSource(sName)
+			choice = self.confirm_delete_files_from_source(sName)
 			if choice == QMessageBox.Yes:
 				ret = deleteSourceFromFile(sName)
 				if ret:
 					self.ui.actionLabel.setText("Deleted source" + sName)
 					self.refresh_sources()
-					self.deleteAllFilesWithSource(sName)
+					self.delete_all_files_with_source(sName)
 				else:
 					self.ui.actionLabel.setText("Could not delete source" + sName)
 
@@ -198,7 +198,7 @@ class AddSourceUI(QMainWindow):
 		instructions.exec_()
 
 	#assumes all number columns have already been verified
-	def packageSourceForm(self):
+	def package_source_form(self):
 		dict = {}
 		for sourceColumn in SourceFileColumns:
 			inputField = self.findChild(QLineEdit, sourceColumn.value)
@@ -233,7 +233,7 @@ class AddSourceUI(QMainWindow):
 						self.ui.actionLabel.setText("INPUT COLUMN " + inputField.objectName() + " NEEDS A NUMBER")
 						return False
 	
-		formData = self.packageSourceForm()
+		formData = self.package_source_form()
 		ret = addSourceToFile(formData)
 		if ret:
 			self.mainWindow.ui.actionLabel.setText("Source added")
