@@ -1,0 +1,67 @@
+sourceName,rowData,logType,description
+JKO,"Last Name                               Doe
+First Name                             John
+EDIPI                            1234567891
+Category                        ACTIVE DUTY
+Course Name     Leadership Training (4 hrs)
+Completed Dt            2024-08-31 00:00:00
+Due Dt                  2024-09-01 00:00:00
+Name: 1, dtype: object",action,"automatically matched by id to: 
+dodid                                             1234567891
+email                                                       
+cleanName                                            johndoe
+fullName                                            John Doe
+DHA Accommodations (1 hr)-JKO    =CHOOSE(1,"""",""IND_OVERDUE"")
+Name: 0, dtype: object"
+JKO,"Last Name                               Doe
+First Name                             John
+EDIPI                            1234567891
+Category                        ACTIVE DUTY
+Course Name     MHS Customer Service (1 hr)
+Completed Dt            2024-08-31 00:00:00
+Due Dt                  2024-09-01 00:00:00
+Name: 2, dtype: object",action,"automatically matched by id to: 
+dodid                                                        1234567891
+email                                                                  
+cleanName                                                       johndoe
+fullName                                                       John Doe
+DHA Accommodations (1 hr)-JKO               =CHOOSE(1,"""",""IND_OVERDUE"")
+Leadership Training (4 hrs)-JKO    =CHOOSE(1,""2024-08-31"",""IND_ONTIME"")
+Name: 0, dtype: object"
+JKO,"Last Name                                 Hartmann
+First Name                                  Andrew
+EDIPI                                   3322111234
+Category                             DOD CIVILLIAN
+Course Name     Supervisor Safety Training (2 hrs)
+Completed Dt                   2024-08-30 00:00:00
+Due Dt                         2024-08-01 00:00:00
+Name: 5, dtype: object",action,"automatically matched by id to: 
+dodid                                                   3322111234
+email                                                             
+cleanName                                           andrewhartmann
+fullName                                           Andrew Hartmann
+DHA Accommodations (1 hr)-JKO      =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Leadership Training (4 hrs)-JKO    =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+MHS Customer Service (1 hr)-JKO    =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Counterintelligence (1 hr)-JKO         =CHOOSE(1,"""",""IND_OVERDUE"")
+HIPAA Training (1 hr)-JKO          =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Name: 1, dtype: object"
+JKO,"Last Name                     Hartmann
+First Name                      Andrew
+EDIPI                       3322111234
+Category                 DOD CIVILLIAN
+Course Name     Employee Safety (1 hr)
+Completed Dt       2024-08-29 00:00:00
+Due Dt             2024-08-01 00:00:00
+Name: 6, dtype: object",action,"automatically matched by id to: 
+dodid                                                                3322111234
+email                                                                          
+cleanName                                                        andrewhartmann
+fullName                                                        Andrew Hartmann
+DHA Accommodations (1 hr)-JKO                   =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Leadership Training (4 hrs)-JKO                 =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+MHS Customer Service (1 hr)-JKO                 =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Counterintelligence (1 hr)-JKO                      =CHOOSE(1,"""",""IND_OVERDUE"")
+HIPAA Training (1 hr)-JKO                       =CHOOSE(1,"""",""IND_NOTASSIGNED"")
+Supervisor Safety Training (2 hrs)-JKO    =CHOOSE(1,""2024-08-30"",""IND_OVERDUE"")
+Name: 1, dtype: object"

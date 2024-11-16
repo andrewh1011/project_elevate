@@ -5,8 +5,8 @@ from thefuzz import fuzz
 
 
 nameMatchThreshold = 78
-reportFileName = "output.xlsx"
-logFileName = "log.csv"
+reportFileName = "../output/output.xlsx"
+logFileName = "../output/log.csv"
 
 class DateStatus(Enum):
 	overdue = "IND_OVERDUE" #this person has been assigned the course, and they either completed it(after the due date) or havent completed it and its past the due date.

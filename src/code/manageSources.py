@@ -1,7 +1,7 @@
 import pandas as pd
 from enum import Enum
 
-sourceFileName = "sources.csv"
+sourceFileName = "../appStorage/sources.csv"
 
 #if they dont use a column that requires a number, use this.
 #this prevents a number column being used from being changed to empty string which causes an error.

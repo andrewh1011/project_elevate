@@ -30,7 +30,7 @@ class MainUI(QMainWindow):
 		self.refresh_sources()
 
 		self.ui.tutorialBtn.clicked.connect(self.open_tutorial)
-		with open("tutorial/generalAppInstructions.txt", "r") as file:
+		with open("../appStorage/generalAppInstructions.txt", "r") as file:
 			self.tutorial_text = file.read()
 
 	def nameMatchConfirmOuter(self):
@@ -172,7 +172,7 @@ class AddSourceUI(QMainWindow):
 		self.ui.saveSourceBtn.clicked.connect(self.save_source_clicked)
 		
 		self.ui.tutorialBtn.clicked.connect(self.open_tutorial)
-		with open("tutorial/addSourceInstructions.txt", "r") as file:
+		with open("../appStorage/addSourceInstructions.txt", "r") as file:
 			self.add_tutorial_text = file.read()
 
 	def show_source_clicked(self, source_name, sources):
