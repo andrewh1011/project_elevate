@@ -3,7 +3,6 @@ from datetime import datetime
 from manageSources import *
 from thefuzz import fuzz
 
-
 nameMatchThreshold = 78
 reportFileName = "../output/output.xlsx"
 logFileName = "../output/log.csv"
@@ -21,35 +20,38 @@ class ReportExtraColumns(Enum):
 	logType = "logType"
 	desc = "description"
 	rowData = "rowData"
+	filePath = "filePath"
 
 class LogTypes(Enum):
 	error = "ERROR"
 	action = "action"
 
-def writeLogRow(source, rowStr, logVal, desc):
-	df = pd.DataFrame([{SourceFileColumns.sourceName.value: source, ReportExtraColumns.rowData.value: rowStr, ReportExtraColumns.logType.value: logVal, ReportExtraColumns.desc.value: desc}])
+def writeLogRow(source,filePath,rowStr, logVal, desc):
+	df = pd.DataFrame([{SourceFileColumns.sourceName.value: source, ReportExtraColumns.filePath.value: filePath, ReportExtraColumns.rowData.value: rowStr, ReportExtraColumns.logType.value: logVal, ReportExtraColumns.desc.value: desc}])
 	df.to_csv(logFileName, index = False, header = False, mode = 'a')
 
-def convertToInt(value):
+def convertToInt(value,sourceName,fileName,columnIndex):
 	try:
 		return int(value) if not pd.isnull(value) else -1
 	except Exception:
+		writeLogRow(sourceName, fileName, str(value), LogTypes.error.value, "invalid number ignored in column " + str(columnIndex))
 		return -1
-def convertToStr(value):
+def convertToStr(value,sourceName,fileName,columnIndex):
 	try:
 		return str(value) if not pd.isnull(value) else ""
 	except Exception:
+		writeLogRow(sourceName, fileName, str(value), LogTypes.error.value, "invalid string ignored in column " + str(columnIndex))
 		return ""
-def convertToDate(value):
+def convertToDate(value,sourceName,fileName,columnIndex):
 	try:
 		return pd.Timestamp(value)
 	except Exception:
+		writeLogRow(sourceName, fileName, str(value), LogTypes.error.value, "invalid date ignored in column " + str(columnIndex))
 		return pd.NaT
-		
 			
-def forceTypeOnColumn(data, columnIndex, typeFunc):
+def forceTypeOnColumn(data, columnIndex, typeFunc, sourceName, fileName):
 	if columnIndex != -1:
-		data[data.columns[columnIndex]] = data[data.columns[columnIndex]].apply(typeFunc)
+		data[data.columns[columnIndex]] = data[data.columns[columnIndex]].apply(lambda value: typeFunc(value,sourceName,fileName,columnIndex))
 
 def cleanEmail(email):
 	return email.replace(" ", "").lower()
@@ -118,7 +120,7 @@ def formatOutput(data):
 #nameMatchCallback is a function that takes two names(the two that matched), returns true/false
 def buildOutput(fileInfos, nameMatchCallBack):
 
-	logHdr = pd.DataFrame(columns = [SourceFileColumns.sourceName.value, ReportExtraColumns.rowData.value, ReportExtraColumns.logType.value, ReportExtraColumns.desc.value])
+	logHdr = pd.DataFrame(columns = [SourceFileColumns.sourceName.value, ReportExtraColumns.filePath.value, ReportExtraColumns.rowData.value, ReportExtraColumns.logType.value, ReportExtraColumns.desc.value])
 	logHdr.to_csv(logFileName, index = False)
 
 	#pandas dataframe that originally has columns dodid, email, name
@@ -147,13 +149,13 @@ def buildOutput(fileInfos, nameMatchCallBack):
 		if emailIndex > lc or dodIndex > lc or firstNameIndex > lc or lastNameIndex > lc or courseNameIndex > lc or dueDateIndex > lc or compDateIndex > lc:
 			raise Exception("Column Index too large! File: " + filePath + " Source Assigned: " + sourceName)
 
-		forceTypeOnColumn(fileDf,emailIndex, convertToStr)
-		forceTypeOnColumn(fileDf,firstNameIndex, convertToStr)
-		forceTypeOnColumn(fileDf,lastNameIndex, convertToStr)
-		forceTypeOnColumn(fileDf,courseNameIndex, convertToStr)
-		forceTypeOnColumn(fileDf,dodIndex, convertToInt)
-		forceTypeOnColumn(fileDf,dueDateIndex, convertToDate)
-		forceTypeOnColumn(fileDf,compDateIndex, convertToDate)
+		forceTypeOnColumn(fileDf,emailIndex, convertToStr, sourceName, filePath)
+		forceTypeOnColumn(fileDf,firstNameIndex, convertToStr, sourceName, filePath)
+		forceTypeOnColumn(fileDf,lastNameIndex, convertToStr, sourceName, filePath)
+		forceTypeOnColumn(fileDf,courseNameIndex, convertToStr, sourceName, filePath)
+		forceTypeOnColumn(fileDf,dodIndex, convertToInt, sourceName, filePath)
+		forceTypeOnColumn(fileDf,dueDateIndex, convertToDate, sourceName, filePath)
+		forceTypeOnColumn(fileDf,compDateIndex, convertToDate, sourceName, filePath)
 		
 		for ind, row in fileDf.iterrows():
 			dodidNum = -1
@@ -178,13 +180,13 @@ def buildOutput(fileInfos, nameMatchCallBack):
 				dodidMatchIndices = ids.index[ids[SourceFileColumns.dodid.value] == dodidNum]
 				if not dodidMatchIndices.empty:
 					matchIndex = dodidMatchIndices[0]
-					writeLogRow(sourceName, str(row), LogTypes.action.value, "automatically matched by id to: \n" + str(ids.iloc[matchIndex]))
+					writeLogRow(sourceName, filePath, row.to_string(), LogTypes.action.value, "automatically matched by id to: \n" + ids.iloc[matchIndex, :4].to_string())
 					
 			if email != "" and matchIndex == -1:	
 				emailMatchIndices = ids.index[ids[SourceFileColumns.email.value] == email]
 				if not emailMatchIndices.empty:
 					matchIndex = emailMatchIndices[0]
-					writeLogRow(sourceName, str(row), LogTypes.action.value, "automatically matched by email to: \n " + str(ids.iloc[matchIndex]))
+					writeLogRow(sourceName, filePath, row.to_string(), LogTypes.action.value, "automatically matched by email to: \n " + ids.iloc[matchIndex, :4].to_string())
 			if matchIndex == -1:
 				transformed = ids.apply(lambda row: calculateMatchRow(clnName,email,dodidNum, row), axis =1)
 				if not transformed.empty:
@@ -193,7 +195,7 @@ def buildOutput(fileInfos, nameMatchCallBack):
 						proceed = nameMatchCallBack(fullName,ids.iloc[maxInd].loc[ReportExtraColumns.fullName.value])
 						if proceed:
 							matchIndex = maxInd
-							writeLogRow(sourceName, str(row), LogTypes.action.value, "user matched by name to: \n" + str(ids.iloc[matchIndex]))
+							writeLogRow(sourceName, filePath, row.to_string(), LogTypes.action.value, "user matched by name to: \n" + ids.iloc[matchIndex, :4].to_string())
 			if matchIndex != -1:
 				matchRow = ids.loc[matchIndex]
 				if matchRow.loc[SourceFileColumns.dodid.value] == -1 and dodidNum != -1:
