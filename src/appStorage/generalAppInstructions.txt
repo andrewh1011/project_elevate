@@ -7,3 +7,13 @@ Once imported, the application will ask you which source they came from (ie JKO,
 If the source is not in the dropdown menu or a source changes format, you can manually add a new data souce with the "Add Source" button.
 
 Import as many files as necessary. Once all files have been added, click the "Create Output" button. This will generate an output in an Excel file (output.xlsx) in the same directory as the application.
+
+The colors of the output has meaning:
+
+    • Blue: important information about the trainees
+
+Courses section:
+    • Green: Course is assigned and completed on time
+    • Yellow: Course is assigned and has not been completed yet, and it is not past the due date
+    • Red: Course is assigned and not completed (if empty), or has been completed late (if there is a date)
+    • Grey: Course has not been assigned to this person
