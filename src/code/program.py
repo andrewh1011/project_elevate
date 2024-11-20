@@ -18,7 +18,7 @@ class MainUI(QMainWindow):
 		self.ui = Ui_Dialog()
 		self.ui.setupUi(self)
 
-		self.ui.sourceList.itemClicked.connect(self.source_clicked)
+		self.ui.sourceList.itemDoubleClicked.connect(self.source_clicked)
 		self.ui.fileList.itemClicked.connect(self.file_clicked)
 
 		self.ui.importButton.clicked.connect(self.import_clicked)
@@ -234,6 +234,16 @@ class AddSourceUI(QMainWindow):
 						return False
 	
 		formData = self.package_source_form()
+
+		for sourceColumn in SourceFileColumns:			
+			if sourceColumn.value != SourceFileColumns.sourceName.value:
+				for sourceColumnInner in SourceFileColumns:
+					if sourceColumn.value != SourceFileColumns.sourceName.value and sourceColumnInner.value != sourceColumn.value:
+						if formData[sourceColumn.value] == formData[sourceColumnInner.value] and formData[sourceColumn.value] != notUsedNumber:
+							self.ui.actionLabel.setText("DUPLICATE COLUMN INDICES ASSIGNED")
+							return False
+	
+
 		ret = addSourceToFile(formData)
 		if ret:
 			self.mainWindow.ui.actionLabel.setText("Source added")
