@@ -94,7 +94,6 @@ class MainUI(QMainWindow):
 			if choice == QMessageBox.Yes:
 				ret = deleteSourceFromFile(sName)
 				if ret:
-					self.ui.actionLabel.setText("Deleted source" + sName)
 					self.refresh_sources()
 					self.delete_all_files_with_source(sName)
 				else:
@@ -110,7 +109,6 @@ class MainUI(QMainWindow):
 			if row > -1:
 				itm = self.ui.fileList.currentItem()
 				self.ui.fileList.takeItem(row)
-				self.ui.actionLabel.setText("Deleted" + itm.text())
 				del self.fileNames[itm.text()]
 
 	
@@ -148,7 +146,6 @@ class MainUI(QMainWindow):
 			itm = QListWidgetItem(name)
 			itm.setTextAlignment(QtCore.Qt.AlignCenter)
 			self.ui.fileList.addItem(itm)
-			self.ui.actionLabel.setText("Added file: " + itm.text())
 
 	def open_tutorial(self):
 		instructions = QMessageBox(self)
@@ -246,7 +243,6 @@ class AddSourceUI(QMainWindow):
 
 		ret = addSourceToFile(formData)
 		if ret:
-			self.mainWindow.ui.actionLabel.setText("Source added")
 			self.return_to_main_window()
 			return True
 		else:
