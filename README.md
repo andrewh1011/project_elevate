@@ -14,6 +14,7 @@ We created a Python application with a UI interface. This interface allows for t
     • PyQt5 - User interface
     • Pandas - Data manipulation & output formatting
     • thefuzz - Name matching
+    • XlsxWriter - Output coloring
 
 ### How to Use
 
