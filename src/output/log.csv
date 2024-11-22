@@ -1,1 +1,251 @@
 sourceName,filePath,rowData,logType,description
+nameMatchTest,C:/Users/nflet/Desktop/project_elevate/testData/nameMatchTest.xlsx,"0                           Doej
+1                    ACTIVE DUTY
+2    MHS Customer Service (1 hr)
+3            2024-08-31 00:00:00
+4            2024-09-01 00:00:00",action,"user matched by name to: 
+dodid             -1
+email               
+cleanName    johndoe
+fullName     JohnDOE"
+nameMatchTest,C:/Users/nflet/Desktop/project_elevate/testData/nameMatchTest.xlsx,"0                         Jdoe
+1                  ACTIVE DUTY
+2    DHA Accommodations (1 hr)
+3          2024-08-31 00:00:00
+4          2024-09-01 00:00:00",action,"user matched by name to: 
+dodid             -1
+email               
+cleanName    johndoe
+fullName     JohnDOE"
+nameMatchTest,C:/Users/nflet/Desktop/project_elevate/testData/nameMatchTest.xlsx,"0                       Doe-John
+1                    ACTIVE DUTY
+2    Leadership Training (4 hrs)
+3            2024-08-31 00:00:00
+4            2024-09-01 00:00:00",action,"user matched by name to: 
+dodid              -1
+email                
+cleanName    doe,john
+fullName     Doe,John"
+nameMatchTest,C:/Users/nflet/Desktop/project_elevate/testData/nameMatchTest.xlsx,"0                  DrewHartmann
+1                 DOD CIVILLIAN
+2    Counterintelligence (1 hr)
+3           2024-08-29 00:00:00
+4           2024-09-01 00:00:00",action,"user matched by name to: 
+dodid                    -1
+email                      
+cleanName    andrewhartmann
+fullName     AndrewHartmann"
+nameMatchTest,C:/Users/nflet/Desktop/project_elevate/testData/nameMatchTest.xlsx,"0                HartmannA
+1            DOD CIVILLIAN
+2    HIPAA Training (1 hr)
+3      2024-08-29 00:00:00
+4      2024-09-01 00:00:00",action,"user matched by name to: 
+dodid                    -1
+email                      
+cleanName    hartmannandrew
+fullName     HartmannAndrew"
+nameMatchTest,C:/Users/nflet/Desktop/project_elevate/testData/nameMatchTest.xlsx,"0                       Hartmann,Andrew
+1                         DOD CIVILLIAN
+2    Supervisor Safety Training (2 hrs)
+3                   2024-08-29 00:00:00
+4                   2024-08-01 00:00:00",action,"user matched by name to: 
+dodid                    -1
+email                      
+cleanName    hartmannandrew
+fullName     HartmannAndrew"
+nameMatchTest,C:/Users/nflet/Desktop/project_elevate/testData/nameMatchTest.xlsx,"0              Fletcher,Nicholas
+1                    ACTIVE DUTY
+2    MHS Customer Service (1 hr)
+3            2024-08-28 00:00:00
+4            2024-09-01 00:00:00",action,"user matched by name to: 
+dodid                      -1
+email                        
+cleanName    fletchernicholas
+fullName     FletcherNicholas"
+nameMatchTest,C:/Users/nflet/Desktop/project_elevate/testData/nameMatchTest.xlsx,"0            FletcherNicholas
+1                 ACTIVE DUTY
+2    Violence Response (1 hr)
+3         2024-08-28 00:00:00
+4         2024-09-01 00:00:00",action,"user matched by name to: 
+dodid                      -1
+email                        
+cleanName    fletchernicholas
+fullName     FletcherNicholas"
+JKO,C:/Users/nflet/Desktop/project_elevate/testData/fileFromJKO.xlsx,thisisnotanid,ERROR,invalid number ignored in column 2
+JKO,C:/Users/nflet/Desktop/project_elevate/testData/fileFromJKO.xlsx,thisisnotadate,ERROR,invalid date ignored in column 5
+JKO,C:/Users/nflet/Desktop/project_elevate/testData/fileFromJKO.xlsx,"Last Name                             Doe
+First Name                           John
+EDIPI                          1234567891
+Category                      ACTIVE DUTY
+Course Name     DHA Accommodations (1 hr)
+Completed Dt                          NaT
+Due Dt                2024-09-01 00:00:00",action,"user matched by name to: 
+dodid             -1
+email               
+cleanName    johndoe
+fullName     JohnDOE"
+JKO,C:/Users/nflet/Desktop/project_elevate/testData/fileFromJKO.xlsx,"Last Name                               Doe
+First Name                             John
+EDIPI                            1234567891
+Category                        ACTIVE DUTY
+Course Name     Leadership Training (4 hrs)
+Completed Dt            2024-08-31 00:00:00
+Due Dt                  2024-09-01 00:00:00",action,"automatically matched by id to: 
+dodid        1234567891
+email                  
+cleanName       johndoe
+fullName        JohnDOE"
+JKO,C:/Users/nflet/Desktop/project_elevate/testData/fileFromJKO.xlsx,"Last Name                               Doe
+First Name                             John
+EDIPI                            1234567891
+Category                        ACTIVE DUTY
+Course Name     MHS Customer Service (1 hr)
+Completed Dt            2024-08-31 00:00:00
+Due Dt                  2024-09-01 00:00:00",action,"automatically matched by id to: 
+dodid        1234567891
+email                  
+cleanName       johndoe
+fullName        JohnDOE"
+JKO,C:/Users/nflet/Desktop/project_elevate/testData/fileFromJKO.xlsx,"Last Name                         Hartmann
+First Name                          Andrew
+EDIPI                           3322111234
+Category                     DOD CIVILLIAN
+Course Name     Counterintelligence (1 hr)
+Completed Dt                           NaT
+Due Dt                 2024-09-01 00:00:00",action,"user matched by name to: 
+dodid                    -1
+email                      
+cleanName    andrewhartmann
+fullName     AndrewHartmann"
+JKO,C:/Users/nflet/Desktop/project_elevate/testData/fileFromJKO.xlsx,"Last Name                    Hartmann
+First Name                     Andrew
+EDIPI                              -1
+Category                DOD CIVILLIAN
+Course Name     HIPAA Training (1 hr)
+Completed Dt                      NaT
+Due Dt            2030-09-01 00:00:00",action,"user matched by name to: 
+dodid            3322111234
+email                      
+cleanName    andrewhartmann
+fullName     AndrewHartmann"
+JKO,C:/Users/nflet/Desktop/project_elevate/testData/fileFromJKO.xlsx,"Last Name                                 Hartmann
+First Name                                  Andrew
+EDIPI                                   3322111234
+Category                             DOD CIVILLIAN
+Course Name     Supervisor Safety Training (2 hrs)
+Completed Dt                   2024-08-30 00:00:00
+Due Dt                         2024-08-01 00:00:00",action,"automatically matched by id to: 
+dodid            3322111234
+email                      
+cleanName    andrewhartmann
+fullName     AndrewHartmann"
+JKO,C:/Users/nflet/Desktop/project_elevate/testData/fileFromJKO.xlsx,"Last Name                     Hartmann
+First Name                      Andrew
+EDIPI                       3322111234
+Category                 DOD CIVILLIAN
+Course Name     Employee Safety (1 hr)
+Completed Dt       2024-08-29 00:00:00
+Due Dt             2024-08-01 00:00:00",action,"automatically matched by id to: 
+dodid            3322111234
+email                      
+cleanName    andrewhartmann
+fullName     AndrewHartmann"
+JKO,C:/Users/nflet/Desktop/project_elevate/testData/fileFromJKO.xlsx,"Last Name                         Fletcher
+First Name                            Nick
+EDIPI                                   -1
+Category                     DOD CIVILLIAN
+Course Name     Counterintelligence (1 hr)
+Completed Dt                           NaT
+Due Dt                 2024-09-01 00:00:00",action,"user matched by name to: 
+dodid                      -1
+email                        
+cleanName    nicholasfletcher
+fullName     NicholasFletcher"
+JKO,C:/Users/nflet/Desktop/project_elevate/testData/fileFromJKO.xlsx,"Last Name                    Fletcher
+First Name                       Nick
+EDIPI                              -1
+Category                DOD CIVILLIAN
+Course Name     HIPAA Training (1 hr)
+Completed Dt      2024-08-29 00:00:00
+Due Dt            2024-09-01 00:00:00",action,"user matched by name to: 
+dodid                      -1
+email                        
+cleanName    nicholasfletcher
+fullName     NicholasFletcher"
+JKO,C:/Users/nflet/Desktop/project_elevate/testData/fileFromJKO.xlsx,"Last Name                                 Fletcher
+First Name                                    Nick
+EDIPI                                           -1
+Category                             DOD CIVILLIAN
+Course Name     Supervisor Safety Training (2 hrs)
+Completed Dt                   2024-08-29 00:00:00
+Due Dt                         2024-08-01 00:00:00",action,"user matched by name to: 
+dodid                      -1
+email                        
+cleanName    nicholasfletcher
+fullName     NicholasFletcher"
+JKO,C:/Users/nflet/Desktop/project_elevate/testData/fileFromJKO.xlsx,"Last Name                     Fletcher
+First Name                        Nick
+EDIPI                               -1
+Category                 DOD CIVILLIAN
+Course Name     Employee Safety (1 hr)
+Completed Dt       2024-08-28 00:00:00
+Due Dt             2024-08-01 00:00:00",action,"user matched by name to: 
+dodid                      -1
+email                        
+cleanName    nicholasfletcher
+fullName     NicholasFletcher"
+JKO,C:/Users/nflet/Desktop/project_elevate/testData/fileFromJKO.xlsx,"Last Name                              Cena
+First Name                             John
+EDIPI                                    -1
+Category                        ACTIVE DUTY
+Course Name     Leadership Training (4 hrs)
+Completed Dt            2024-08-28 00:00:00
+Due Dt                  2024-09-01 00:00:00",action,"user matched by name to: 
+dodid               -1
+email                 
+cleanName     johncena
+fullName     John Cena"
+JKO,C:/Users/nflet/Desktop/project_elevate/testData/fileFromJKO.xlsx,"Last Name                              Cena
+First Name                             John
+EDIPI                                    -1
+Category                        ACTIVE DUTY
+Course Name     MHS Customer Service (1 hr)
+Completed Dt            2024-08-28 00:00:00
+Due Dt                  2024-09-01 00:00:00",action,"user matched by name to: 
+dodid               -1
+email                 
+cleanName     johncena
+fullName     John Cena"
+JKO,C:/Users/nflet/Desktop/project_elevate/testData/fileFromJKO.xlsx,"Last Name                           Cena
+First Name                          John
+EDIPI                                 -1
+Category                     ACTIVE DUTY
+Course Name     Violence Response (1 hr)
+Completed Dt         2024-08-28 00:00:00
+Due Dt               2024-09-01 00:00:00",action,"user matched by name to: 
+dodid               -1
+email                 
+cleanName     johncena
+fullName     John Cena"
+JKO,C:/Users/nflet/Desktop/project_elevate/testData/fileFromJKO.xlsx,"Last Name                  Fletcher
+First Name                 Nicholas
+EDIPI                    4453245321
+Category                ACTIVE DUTY
+Course Name            RandomCourse
+Completed Dt    2000-01-01 00:00:00
+Due Dt          2000-01-02 00:00:00",action,"user matched by name to: 
+dodid                      -1
+email                        
+cleanName    nicholasfletcher
+fullName     NicholasFletcher"
+JKO,C:/Users/nflet/Desktop/project_elevate/testData/fileFromJKO.xlsx,"Last Name                      Cena
+First Name                        J
+EDIPI                    5555555555
+Category                ACTIVE DUTY
+Course Name            RandomCourse
+Completed Dt    2000-01-01 00:00:00
+Due Dt          1999-01-01 00:00:00",action,"user matched by name to: 
+dodid               -1
+email                 
+cleanName     johncena
+fullName     John Cena"

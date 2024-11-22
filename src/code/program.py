@@ -185,7 +185,7 @@ class AddSourceUI(QMainWindow):
 					inputField.setText(str(val))
 				else:
 					inputField.setText("")
-
+		
 	def return_to_main_window(self):
 		self.mainWindow.refresh_sources()
 		self.close()
@@ -236,9 +236,9 @@ class AddSourceUI(QMainWindow):
 		formData = self.package_source_form()
 
 		for sourceColumn in SourceFileColumns:			
-			if sourceColumn.value != SourceFileColumns.sourceName.value:
+			if sourceColumn.value != SourceFileColumns.sourceName.value and sourceColumn.value != SourceFileColumns.skipRows.value:
 				for sourceColumnInner in SourceFileColumns:
-					if sourceColumn.value != SourceFileColumns.sourceName.value and sourceColumnInner.value != sourceColumn.value:
+					if sourceColumnInner.value != SourceFileColumns.sourceName.value and sourceColumnInner.value != SourceFileColumns.skipRows.value and sourceColumnInner.value != sourceColumn.value:	
 						if formData[sourceColumn.value] == formData[sourceColumnInner.value] and formData[sourceColumn.value] != notUsedNumber:
 							self.ui.actionLabel.setText("DUPLICATE COLUMN INDICES ASSIGNED")
 							return False

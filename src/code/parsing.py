@@ -133,10 +133,9 @@ def buildOutput(fileInfos, nameMatchCallBack):
 		filePath = fileInfo[0]
 		sourceName = fileInfo[1]
 
-		fileDf = pd.read_excel(filePath)
-		
 		source_indices = sources.loc[sourceName]
 
+		skipRows = source_indices.loc[SourceFileColumns.skipRows.value]
 		emailIndex = source_indices.loc[SourceFileColumns.email.value]
 		dodIndex = source_indices.loc[SourceFileColumns.dodid.value]
 		firstNameIndex = source_indices.loc[SourceFileColumns.firstName.value]
@@ -145,6 +144,8 @@ def buildOutput(fileInfos, nameMatchCallBack):
 		dueDateIndex = source_indices.loc[SourceFileColumns.dueDate.value]
 		compDateIndex = source_indices.loc[SourceFileColumns.compDate.value]
 
+		fileDf = pd.read_excel(filePath, header = list(range(skipRows)) ) if skipRows > 0 else pd.read_excel(filePath, header = None)
+		
 		lc = len(fileDf.columns) - 1
 		if emailIndex > lc or dodIndex > lc or firstNameIndex > lc or lastNameIndex > lc or courseNameIndex > lc or dueDateIndex > lc or compDateIndex > lc:
 			raise Exception("Column Index too large! File: " + filePath + " Source Assigned: " + sourceName)
@@ -195,7 +196,8 @@ def buildOutput(fileInfos, nameMatchCallBack):
 						proceed = nameMatchCallBack(fullName,ids.iloc[maxInd].loc[ReportExtraColumns.fullName.value])
 						if proceed:
 							matchIndex = maxInd
-							writeLogRow(sourceName, filePath, row.to_string(), LogTypes.action.value, "user matched by name to: \n" + ids.iloc[matchIndex, :4].to_string())
+							writeLogRow(sourceName, filePath, row.to_string() , LogTypes.action.value, "user matched by name to: \n" + ids.iloc[matchIndex, :4].to_string())
+							print(row.to_string())
 			if matchIndex != -1:
 				matchRow = ids.loc[matchIndex]
 				if matchRow.loc[SourceFileColumns.dodid.value] == -1 and dodidNum != -1:
