@@ -62,7 +62,10 @@ def buildCourseName(courseName, sourceName):
 
 def chooseDateIndicator(dueDate,compDate):
 	if pd.isnull(dueDate):
-		return DateStatus.notAssigned.value
+		if pd.isnull(compDate):
+			return DateStatus.notAssigned.value
+		else:
+			return DateStatus.ontime.value
 
 	today = datetime.today()
 	if pd.isnull(compDate):
