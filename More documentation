@@ -49,4 +49,9 @@ Last Name, First Name, EDIPI, Category, Course Name, Completed Dt, Due Dt
 The required entries are the name of the source, first name, due date, completed date, and course name. If the first name and last name columns are combined into one name column, enter the index of the name column in the 'First Name' column.
 
 ## Installation and Running Program
-...
+
+The main program is located in the src/code directory and is called "program.py." To run the application, simply cd into that directory and type:
+
+    python program.py
+
+Intalling dependencies...
