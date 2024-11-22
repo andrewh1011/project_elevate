@@ -3,7 +3,7 @@ from datetime import datetime
 from manageSources import *
 from thefuzz import fuzz
 
-nameMatchThreshold = 78
+nameMatchThreshold = 95
 reportFileName = "../output/output.xlsx"
 logFileName = "../output/log.csv"
 
