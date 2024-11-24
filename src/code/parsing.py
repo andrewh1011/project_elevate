@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from datetime import datetime
 from manageSources import *
 from manageSettings import *
@@ -60,24 +61,27 @@ def cleanName(name):
 def buildCourseName(courseName, sourceName):
 	return courseName + "-" + sourceName
 
-def chooseDateIndicator(dueDate,compDate):
+def buildDateIndicator(dueDate,compDate):
+
+	baseString = "\"{0}\",\"{1}\""
+
 	if pd.isnull(dueDate):
 		if pd.isnull(compDate):
-			return DateStatus.notAssigned.value
+			return baseString.format("",DateStatus.notAssigned.value)
 		else:
-			return DateStatus.ontime.value
+			return baseString.format(str(compDate.date()), DateStatus.ontime.value + "(DUE:NONE)")
 
 	today = datetime.today()
 	if pd.isnull(compDate):
 		if today > dueDate:
-			return DateStatus.overdue.value
+			return baseString.format("", DateStatus.overdue.value + "(DUE:" + str(dueDate.date()) + ")")
 		else:
-			return DateStatus.assigned.value
+			return baseString.format("", DateStatus.assigned.value + "(DUE:" + str(dueDate.date()) + ")")
 	else:
 		if compDate > dueDate:
-			return DateStatus.overdue.value
+			return baseString.format(str(compDate.date()), DateStatus.overdue.value + "(DUE:" + str(dueDate.date()) + ")")
 		else:
-			return DateStatus.ontime.value
+			return baseString.format(str(compDate.date()), DateStatus.ontime.value + "(DUE:" + str(dueDate.date()) + ")")
 
 #this makes sure we only name match rows that dont have a mismatch with dodids or emails
 #dont want to give a name match on two people who have two different values for an id value.
@@ -93,7 +97,12 @@ def calculateMatchRow(cleanName,matchEmail,matchId, row):
 
 def formatOutput(data):
 
-	lastInfoColumnIndex = 4
+	lastInfoColumnIndex = 3
+	#upper left cell where the data section of the report starts
+	firstCellDates = "D2"
+	#upper left cell where the id section of the report starts
+	firstCellIds = "A2"
+
 	writer = pd.ExcelWriter(reportFileName)
 	data.to_excel(writer, index = False, sheet_name = "Report", engine='xlsxwriter')
 	rowCount = len(data.index.values.tolist())
@@ -111,11 +120,11 @@ def formatOutput(data):
 	
 	sheet.set_column(0,lastInfoColumnIndex - 1,15)
 	sheet.set_column(lastInfoColumnIndex,colCount,30)
-	sheet.conditional_format(1,lastInfoColumnIndex,rowCount,colCount-1,{'type':'formula','criteria': "=ISNUMBER(SEARCH(\"{0}\", _xlfn.FORMULATEXT(E2)))".format(DateStatus.overdue.value),'format': overDueColor})
-	sheet.conditional_format(1,lastInfoColumnIndex,rowCount,colCount-1,{'type':'formula','criteria':"=ISNUMBER(SEARCH(\"{0}\", _xlfn.FORMULATEXT(E2)))".format(DateStatus.ontime.value),'format': onTimeColor})
-	sheet.conditional_format(1,lastInfoColumnIndex,rowCount,colCount-1,{'type':'formula','criteria':"=ISNUMBER(SEARCH(\"{0}\", _xlfn.FORMULATEXT(E2)))".format(DateStatus.notAssigned.value),'format': notAssignedColor})
-	sheet.conditional_format(1,lastInfoColumnIndex,rowCount,colCount-1,{'type':'formula','criteria':"=ISNUMBER(SEARCH(\"{0}\", _xlfn.FORMULATEXT(E2)))".format(DateStatus.assigned.value),'format': assignedColor})
-	sheet.conditional_format(1,0,rowCount,lastInfoColumnIndex,{'type':'formula','criteria':"=AND(COLUMN(A2) < {0}, ROW(A2) < {1})".format(lastInfoColumnIndex + 1, rowCount + 2),'format': infoColor})
+	sheet.conditional_format(1,lastInfoColumnIndex,rowCount,colCount,{'type':'formula','criteria': "=ISNUMBER(SEARCH(\"{0}\", _xlfn.FORMULATEXT({1})))".format(DateStatus.overdue.value, firstCellDates),'format': overDueColor})
+	sheet.conditional_format(1,lastInfoColumnIndex,rowCount,colCount,{'type':'formula','criteria':"=ISNUMBER(SEARCH(\"{0}\", _xlfn.FORMULATEXT({1})))".format(DateStatus.ontime.value, firstCellDates),'format': onTimeColor})
+	sheet.conditional_format(1,lastInfoColumnIndex,rowCount,colCount,{'type':'formula','criteria':"=ISNUMBER(SEARCH(\"{0}\", _xlfn.FORMULATEXT({1})))".format(DateStatus.notAssigned.value, firstCellDates),'format': notAssignedColor})
+	sheet.conditional_format(1,lastInfoColumnIndex,rowCount,colCount,{'type':'formula','criteria':"=ISNUMBER(SEARCH(\"{0}\", _xlfn.FORMULATEXT({1})))".format(DateStatus.assigned.value, firstCellDates),'format': assignedColor})
+	sheet.conditional_format(1,0,rowCount,lastInfoColumnIndex -1,{'type':'formula','criteria':"=AND(COLUMN({2}) < {0}, ROW({2}) < {1})".format(lastInfoColumnIndex + 1, rowCount + 2 , firstCellIds),'format': infoColor})
 	
 	writer._save()	
 
@@ -216,17 +225,17 @@ def buildOutput(fileInfos, nameMatchCallBack):
 				ids = ids._append({SourceFileColumns.dodid.value : dodidNum,SourceFileColumns.email.value: email, ReportExtraColumns.cleanName.value: clnName, ReportExtraColumns.fullName.value: fullName}, ignore_index=True)
 				inds = ids.index.values.tolist()
 				matchIndex = inds[len(inds)-1]
-				ids.iloc[matchIndex, 4:] = "=CHOOSE(1,\"\",\"{0}\")".format(DateStatus.notAssigned.value)
+				ids.iloc[matchIndex, 4:] = "=CHOOSE(1,{0})".format(buildDateIndicator(None,None))
 
 			
 			courseName = buildCourseName(row.iloc[courseNameIndex],sourceName)
 			dueDate = row.iloc[dueDateIndex]
 			compDate = row.iloc[compDateIndex]
 			if not courseName in ids.columns.values.tolist():
-				colInfo = {courseName: "=CHOOSE(1,\"\",\"{0}\")".format(DateStatus.notAssigned.value)}
+				colInfo = {courseName: "=CHOOSE(1,{0})".format(buildDateIndicator(None,None))}
 				ids = ids.assign(**colInfo)
 			
-			ids.loc[matchIndex, courseName] = "=CHOOSE(1,\"{0}\",\"{1}\")".format(str(compDate.date()) if not pd.isnull(compDate) else "", chooseDateIndicator(dueDate,compDate))
+			ids.loc[matchIndex, courseName] = "=CHOOSE(1,{0})".format(buildDateIndicator(dueDate,compDate))
 			
-				
+	ids.drop(ReportExtraColumns.cleanName.value, axis=1, inplace=True)
 	formatOutput(ids)
