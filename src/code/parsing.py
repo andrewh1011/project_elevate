@@ -1,9 +1,9 @@
 import pandas as pd
 from datetime import datetime
 from manageSources import *
+from manageSettings import *
 from thefuzz import fuzz
 
-nameMatchThreshold = 78
 reportFileName = "../output/output.xlsx"
 logFileName = "../output/log.csv"
 
@@ -123,6 +123,11 @@ def formatOutput(data):
 #nameMatchCallback is a function that takes two names(the two that matched), returns true/false
 def buildOutput(fileInfos, nameMatchCallBack):
 
+	nameMatchThreshold = 75
+	settings = buildSettingsDataFromFile()
+	if SettingsFileColumns.nameMatch.value in list(settings.index):
+		nameMatchThreshold = settings.loc[SettingsFileColumns.nameMatch.value]
+
 	logHdr = pd.DataFrame(columns = [SourceFileColumns.sourceName.value, ReportExtraColumns.filePath.value, ReportExtraColumns.rowData.value, ReportExtraColumns.logType.value, ReportExtraColumns.desc.value])
 	logHdr.to_csv(logFileName, index = False)
 
@@ -200,7 +205,6 @@ def buildOutput(fileInfos, nameMatchCallBack):
 						if proceed:
 							matchIndex = maxInd
 							writeLogRow(sourceName, filePath, row.to_string() , LogTypes.action.value, "user matched by name to: \n" + ids.iloc[matchIndex, :4].to_string())
-							print(row.to_string())
 			if matchIndex != -1:
 				matchRow = ids.loc[matchIndex]
 				if matchRow.loc[SourceFileColumns.dodid.value] == -1 and dodidNum != -1:

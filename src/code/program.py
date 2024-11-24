@@ -3,7 +3,9 @@ from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QFileDialog,
 import sys
 from uiFile import Ui_Dialog
 from addSource import Ui_AddWindow
+from settingsUI import Ui_AddWindow as SettingUi_AddWindow
 from manageSources import *
+from manageSettings import *
 from parsing import *
 
 class MainUI(QMainWindow):
@@ -25,6 +27,7 @@ class MainUI(QMainWindow):
 		self.ui.deleteFileBtn.clicked.connect(self.delete_file_clicked)
 		self.ui.deleteSourceBtn.clicked.connect(self.delete_source_clicked)
 		self.ui.addSourceBtn.clicked.connect(self.open_add_source_window)
+		self.ui.settingsBtn.clicked.connect(self.open_settings_window)
 		self.ui.startBtn.clicked.connect(self.start_btn_clicked)
 		
 		self.refresh_sources()
@@ -101,6 +104,11 @@ class MainUI(QMainWindow):
 
 	def open_add_source_window(self):
 		self.window = AddSourceUI(self)
+		self.window.show()
+	
+	def open_settings_window(self):
+		self.window = AddSettingUI(self)
+		self.window.show_settings()
 		self.window.show()
 
 	def delete_file_clicked(self):
@@ -247,6 +255,81 @@ class AddSourceUI(QMainWindow):
 			return True
 		else:
 			self.mainWindow.ui.actionLabel.setText("Source could not be added")
+			self.return_to_main_window()
+			return False
+
+class AddSettingUI(QMainWindow):
+	def __init__(self, mainWindow):
+		super(AddSettingUI, self).__init__()
+
+		self.mainWindow = mainWindow
+		self.ui = SettingUi_AddWindow()
+		self.ui.setupUi(self)
+
+		self.ui.saveBtn.clicked.connect(self.save_setting_clicked)
+		
+		self.ui.tutorialBtn.clicked.connect(self.open_tutorial)
+		with open("../appStorage/settingsInstructions.txt", "r") as file:
+			self.add_tutorial_text = file.read()
+
+	def show_settings(self):
+		settings = buildSettingsDataFromFile()
+		cols = list(settings.index)
+		for column in cols:
+			val = settings.loc[column]
+			inputField = self.findChild(QLineEdit, column)
+			if inputField:
+				inputField.setText(str(val))
+						
+	def return_to_main_window(self):
+		self.close()
+
+	def open_tutorial(self):
+		instructions = QMessageBox(self)
+		instructions.setIcon(QMessageBox.Information)
+		instructions.setWindowTitle("Tutorial")
+		instructions.setText(self.add_tutorial_text)
+		instructions.exec_()
+
+	#assumes all number columns have already been verified
+	def package_setting_form(self):
+		dict = {}
+		for setColumn in SettingsFileColumns:
+			inputField = self.findChild(QLineEdit, setColumn.value)
+			if not setColumn in dict.keys():
+				dict[setColumn.value] = int(inputField.text())
+		return dict
+
+	def save_setting_clicked(self):
+		for setColumn in RequiredSettingsFileColumns:
+			inputField = self.findChild(QLineEdit, setColumn.value)
+			if inputField:
+				if inputField.text() == "":
+					self.ui.actionLabel.setText("REQUIRED COLUMN " + inputField.objectName() + " NEEDS NON-EMPTY INPUT")
+					return False
+
+		nameMatchField = self.findChild(QLineEdit, SettingsFileColumns.nameMatch.value)
+		if nameMatchField:
+			if nameMatchField.text() != "":
+				try:
+					converted = int(nameMatchField.text())
+					if converted < 0 or converted > 100:
+						self.ui.actionLabel.setText("Name Match Value must be greater than or equal to 0 and less than or equal to 100.")
+						return False
+
+				except ValueError:
+					self.ui.actionLabel.setText("Name Match Value must be a number.")
+					return False
+		
+	
+	
+		formData = self.package_setting_form()
+		ret = addSettingsToFile(formData)
+		if ret:
+			self.return_to_main_window()
+			return True
+		else:
+			self.mainWindow.ui.actionLabel.setText("Settings could not be updated.")
 			self.return_to_main_window()
 			return False
 
