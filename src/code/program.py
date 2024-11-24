@@ -308,17 +308,30 @@ class AddSettingUI(QMainWindow):
 					self.ui.actionLabel.setText("REQUIRED COLUMN " + inputField.objectName() + " NEEDS NON-EMPTY INPUT")
 					return False
 
-		nameMatchField = self.findChild(QLineEdit, SettingsFileColumns.nameMatch.value)
-		if nameMatchField:
-			if nameMatchField.text() != "":
+		nameThresholdField = self.findChild(QLineEdit, SettingsFileColumns.nameMatchThreshold.value)
+		if nameThresholdField:
+			if nameThresholdField.text() != "":
 				try:
-					converted = int(nameMatchField.text())
+					converted = int(nameThresholdField.text())
 					if converted < 0 or converted > 100:
-						self.ui.actionLabel.setText("Name Match Value must be greater than or equal to 0 and less than or equal to 100.")
+						self.ui.actionLabel.setText("Name Match Threshold Value must be greater than or equal to 0 and less than or equal to 100.")
 						return False
 
 				except ValueError:
-					self.ui.actionLabel.setText("Name Match Value must be a number.")
+					self.ui.actionLabel.setText("Name Match Threshold Value must be a number.")
+					return False
+		
+		autoThresholdField = self.findChild(QLineEdit, SettingsFileColumns.autoMatchThreshold.value)
+		if autoThresholdField:
+			if autoThresholdField.text() != "":
+				try:
+					converted = int(autoThresholdField.text())
+					if converted < 0 or converted > 100:
+						self.ui.actionLabel.setText("Auto Name Match Threshold Value must be greater than or equal to 0 and less than or equal to 100.")
+						return False
+
+				except ValueError:
+					self.ui.actionLabel.setText("Auto Name Match Threshold Value must be a number.")
 					return False
 		
 	

@@ -5,11 +5,13 @@ settingsFileName = "../appStorage/settings.csv"
 
 #make sure these enum values of column names match the form input field names.
 class SettingsFileColumns(Enum):
-	nameMatch = "nameMatch"
+	nameMatchThreshold = "nameMatchThreshold"
+	autoMatchThreshold = "autoMatchThreshold"
 	
 #These are the columns in the settings form which should not be left blank
 class RequiredSettingsFileColumns(Enum):
-	nameMatch = "nameMatch"
+	nameMatchThreshold = "nameMatchThreshold"
+	autoMatchThreshold = "autoMatchThreshold"
 
 #settingFieldDict is a dict that maps setting field names of the form to their filled values
 def addSettingsToFile(settingFieldDict):

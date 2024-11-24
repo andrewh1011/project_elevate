@@ -90,7 +90,7 @@ def calculateMatchRow(cleanName,matchEmail,matchId, row):
 	dodid = row[SourceFileColumns.dodid.value]
 	otherName = row[ReportExtraColumns.cleanName.value]
 
-	if (email == "" or email != matchEmail) and (dodid == -1 or dodid != matchId):
+	if (email == "" or matchEmail == "" or email != matchEmail) and (dodid == -1 or matchId == -1 or dodid != matchId):
 		return fuzz.partial_ratio(cleanName,otherName)
 	else:
 		return -1	
@@ -132,10 +132,14 @@ def formatOutput(data):
 #nameMatchCallback is a function that takes two names(the two that matched), returns true/false
 def buildOutput(fileInfos, nameMatchCallBack):
 
-	nameMatchThreshold = 75
 	settings = buildSettingsDataFromFile()
-	if SettingsFileColumns.nameMatch.value in list(settings.index):
-		nameMatchThreshold = settings.loc[SettingsFileColumns.nameMatch.value]
+	nameMatchThreshold = 75
+	if SettingsFileColumns.nameMatchThreshold.value in list(settings.index):
+		nameMatchThreshold = settings.loc[SettingsFileColumns.nameMatchThreshold.value]
+
+	autoMatchThreshold = 75
+	if SettingsFileColumns.autoMatchThreshold.value in list(settings.index):
+		autoMatchThreshold = settings.loc[SettingsFileColumns.autoMatchThreshold.value]
 
 	logHdr = pd.DataFrame(columns = [SourceFileColumns.sourceName.value, ReportExtraColumns.filePath.value, ReportExtraColumns.rowData.value, ReportExtraColumns.logType.value, ReportExtraColumns.desc.value])
 	logHdr.to_csv(logFileName, index = False)
@@ -208,12 +212,19 @@ def buildOutput(fileInfos, nameMatchCallBack):
 			if matchIndex == -1:
 				transformed = ids.apply(lambda row: calculateMatchRow(clnName,email,dodidNum, row), axis =1)
 				if not transformed.empty:
-					maxInd = transformed.idxmax()
-					if transformed.iloc[maxInd] > nameMatchThreshold:
-						proceed = nameMatchCallBack(fullName,ids.iloc[maxInd].loc[ReportExtraColumns.fullName.value])
-						if proceed:
-							matchIndex = maxInd
-							writeLogRow(sourceName, filePath, row.to_string() , LogTypes.action.value, "user matched by name to: \n" + ids.iloc[matchIndex, :4].to_string())
+					matchIndices = transformed[transformed > nameMatchThreshold].index.to_list()
+					matchIndices.sort(key=lambda ind: transformed.iloc[ind])
+					for index in matchIndices:
+						if transformed.iloc[index] > autoMatchThreshold:
+							matchIndex = index
+							writeLogRow(sourceName, filePath, row.to_string() , LogTypes.action.value, "automatically matched by name to: \n" + ids.iloc[matchIndex, :4].to_string())
+							break
+						else:
+							proceed = nameMatchCallBack(fullName,ids.iloc[index].loc[ReportExtraColumns.fullName.value])
+							if proceed:
+								matchIndex = index
+								writeLogRow(sourceName, filePath, row.to_string() , LogTypes.action.value, "user matched by name to: \n" + ids.iloc[matchIndex, :4].to_string())
+								break
 			if matchIndex != -1:
 				matchRow = ids.loc[matchIndex]
 				if matchRow.loc[SourceFileColumns.dodid.value] == -1 and dodidNum != -1:

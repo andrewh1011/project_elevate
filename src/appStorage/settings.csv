@@ -1,2 +1,2 @@
-,nameMatch
-0,100
+,nameMatchThreshold,autoMatchThreshold
+0,90,99
