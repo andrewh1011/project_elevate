@@ -16,6 +16,23 @@ We created a Python application with a UI interface. This interface allows for t
     • thefuzz - Name matching
     • XlsxWriter - Output coloring
 
+## Installation and Running Program
+
+The main program is located in the src/code directory and is called "program.py." To run the application, simply cd into that directory and type:
+
+    python program.py
+
+Make sure all the libraries are installed. You may need to run:
+
+    pip install PyQt5
+    pip install Pandas
+    pip install thefuzz
+    pip intall XlsxWriter
+
+### Executable
+
+Currently in development...
+
 ### How to Use
 
 The application requires Excel (.xlsx) files from the training sources. You can import these files by clicking the "Import" button. 
@@ -48,11 +65,3 @@ Last Name, First Name, EDIPI, Category, Course Name, Completed Dt, Due Dt
 'Last Name' is in column 0, 'First Name' is in column 1, DODID is in column 2 and so on.
 
 The required entries are the name of the source, first name, due date, completed date, and course name. If the first name and last name columns are combined into one name column, enter the index of the name column in the 'First Name' column.
-
-## Installation and Running Program
-
-The main program is located in the src/code directory and is called "program.py." To run the application, simply cd into that directory and type:
-
-    python program.py
-
-Intalling dependencies...
