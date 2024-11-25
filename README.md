@@ -27,7 +27,7 @@ Make sure all the libraries are installed. You may need to run:
     pip install PyQt5
     pip install Pandas
     pip install thefuzz
-    pip intall XlsxWriter
+    pip install XlsxWriter
 
 ### Executable
 
