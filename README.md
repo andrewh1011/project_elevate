@@ -33,7 +33,7 @@ Make sure all the libraries are installed. You may need to run:
 
 Currently in development...
 
-### How to Use
+## How to Use
 
 The application requires Excel (.xlsx) files from the training sources. You can import these files by clicking the "Import" button. 
 
