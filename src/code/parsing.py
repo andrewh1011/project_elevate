@@ -126,6 +126,7 @@ def formatOutput(data):
 	sheet.conditional_format(1,lastInfoColumnIndex,rowCount,colCount,{'type':'formula','criteria':"=ISNUMBER(SEARCH(\"{0}\", _xlfn.FORMULATEXT({1})))".format(DateStatus.assigned.value, firstCellDates),'format': assignedColor})
 	sheet.conditional_format(1,0,rowCount,lastInfoColumnIndex -1,{'type':'formula','criteria':"=AND(COLUMN({2}) < {0}, ROW({2}) < {1})".format(lastInfoColumnIndex + 1, rowCount + 2 , firstCellIds),'format': infoColor})
 	
+	sheet.freeze_panes(0, lastInfoColumnIndex)
 	writer._save()	
 
 #fileInfos is a list of pairs (filePath,sourceName)
