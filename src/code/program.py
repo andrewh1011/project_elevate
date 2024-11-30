@@ -37,23 +37,31 @@ class MainUI(QMainWindow):
 			self.tutorial_text = file.read()
 
 	def name_match_confirmer(self):
+		#returns (bool: yesAnswer, bool: keepGoing)
 		def nameMatchConfirmInner(name1, name2):
-			choice = QMessageBox.question(self, 'Name Match Detected', name1 + " appears to match " + name2 + ". Proceed to combine these into one person record?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-			if choice == QMessageBox.Yes:
-				return True
+			msgBox = QMessageBox();
+			msgBox.setWindowTitle("Name Match Detected")
+			msgBox.setText(name1 + " appears to match " + name2 + ". Proceed to combine these into one person record?")
+			msgBox.setStandardButtons(QMessageBox.Yes | QMessageBox.No | QMessageBox.Close)
+			choice = msgBox.exec_()
+			if choice == QMessageBox.Close:
+				return (False,False)
 			else:
-				return False
+				if choice == QMessageBox.Yes:
+					return (True,True)
+				else:
+					return (False, True)
 		return nameMatchConfirmInner
+
 
 	def start_btn_clicked(self):
 		keys = self.fileNames.keys()
 		if len(keys) >	0:
 			try:
-				buildOutput(self.fileNames.values(), self.name_match_confirmer())
-				self.ui.actionLabel.setText("Output generated in 'output.xlsx' file.")	
+				ret = buildOutput(self.fileNames.values(), self.name_match_confirmer())
+				self.ui.actionLabel.setText(ret)
 			except Exception as e:
 				self.ui.actionLabel.setText("Parsing/Generation Error: " + str(e))
-				print(str(e))
 		else:
 			self.ui.actionLabel.setText("Please provide at least one file for the report generation.")	
 

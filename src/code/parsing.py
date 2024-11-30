@@ -116,10 +116,9 @@ def formatOutput(data):
 	notAssignedColor = book.add_format({'bg_color':'#C0C0C0'})
 	assignedColor = book.add_format({'bg_color':'#FFFF00'})
 	infoColor = book.add_format({'bg_color':'#0066CC'})
-	borderColor = book.add_format({'bg_color':'#000000'})
 	
 	sheet.set_column(0,lastInfoColumnIndex - 1,15)
-	sheet.set_column(lastInfoColumnIndex,colCount,30)
+	sheet.set_column(lastInfoColumnIndex,colCount-1,30)
 	sheet.conditional_format(1,lastInfoColumnIndex,rowCount,colCount,{'type':'formula','criteria': "=ISNUMBER(SEARCH(\"{0}\", _xlfn.FORMULATEXT({1})))".format(DateStatus.overdue.value, firstCellDates),'format': overDueColor})
 	sheet.conditional_format(1,lastInfoColumnIndex,rowCount,colCount,{'type':'formula','criteria':"=ISNUMBER(SEARCH(\"{0}\", _xlfn.FORMULATEXT({1})))".format(DateStatus.ontime.value, firstCellDates),'format': onTimeColor})
 	sheet.conditional_format(1,lastInfoColumnIndex,rowCount,colCount,{'type':'formula','criteria':"=ISNUMBER(SEARCH(\"{0}\", _xlfn.FORMULATEXT({1})))".format(DateStatus.notAssigned.value, firstCellDates),'format': notAssignedColor})
@@ -166,11 +165,19 @@ def buildOutput(fileInfos, nameMatchCallBack):
 		dueDateIndex = source_indices.loc[SourceFileColumns.dueDate.value]
 		compDateIndex = source_indices.loc[SourceFileColumns.compDate.value]
 
-		fileDf = pd.read_excel(filePath, header = list(range(skipRows)) ) if skipRows > 0 else pd.read_excel(filePath, header = None)
+		fileDf = pd.read_excel(filePath, header = None)
+		if skipRows > 0:
+			actualRowNum = len(fileDf.index)
+			#want at least one row to process for a file
+			if skipRows >= actualRowNum:
+				return "Skip row number too large! File: " + filePath + " Source Assigned: " + sourceName
+			else:
+				del fileDf
+				fileDf = pd.read_excel(filePath, header = list(range(skipRows)))
 		
 		lc = len(fileDf.columns) - 1
 		if emailIndex > lc or dodIndex > lc or firstNameIndex > lc or lastNameIndex > lc or courseNameIndex > lc or dueDateIndex > lc or compDateIndex > lc:
-			raise Exception("Column Index too large! File: " + filePath + " Source Assigned: " + sourceName)
+			return "Column Index too large! File: " + filePath + " Source Assigned: " + sourceName
 
 		forceTypeOnColumn(fileDf,emailIndex, convertToStr, sourceName, filePath)
 		forceTypeOnColumn(fileDf,firstNameIndex, convertToStr, sourceName, filePath)
@@ -221,11 +228,16 @@ def buildOutput(fileInfos, nameMatchCallBack):
 							writeLogRow(sourceName, filePath, row.to_string() , LogTypes.action.value, "automatically matched by name to: \n" + ids.iloc[matchIndex, :4].to_string())
 							break
 						else:
-							proceed = nameMatchCallBack(fullName,ids.iloc[index].loc[ReportExtraColumns.fullName.value])
-							if proceed:
-								matchIndex = index
-								writeLogRow(sourceName, filePath, row.to_string() , LogTypes.action.value, "user matched by name to: \n" + ids.iloc[matchIndex, :4].to_string())
-								break
+							results = nameMatchCallBack(fullName,ids.iloc[index].loc[ReportExtraColumns.fullName.value])
+							yesAnswer = results[0]
+							keepGoing = results[1]
+							if keepGoing:
+								if yesAnswer:
+									matchIndex = index
+									writeLogRow(sourceName, filePath, row.to_string() , LogTypes.action.value, "user matched by name to: \n" + ids.iloc[matchIndex, :4].to_string())
+									break
+							else:
+								return "Parsing process stopped manually during name match."
 			if matchIndex != -1:
 				matchRow = ids.loc[matchIndex]
 				if matchRow.loc[SourceFileColumns.dodid.value] == -1 and dodidNum != -1:
@@ -251,3 +263,4 @@ def buildOutput(fileInfos, nameMatchCallBack):
 			
 	ids.drop(ReportExtraColumns.cleanName.value, axis=1, inplace=True)
 	formatOutput(ids)
+	return "Output generated in output.xlsx file."
