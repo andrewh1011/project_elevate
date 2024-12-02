@@ -1,1 +1,5 @@
-Settings instructions
+When working with files without an email or ID (our preferred identifiers), we identify people based on their names. Sometimes, across files, these names do not match up one-to-one. For instance, John Doe in one file may be John F. Doe in another. 
+
+The "name match threshold" is how similar these two names need to be in order for the program to consider combining them. The higher the threshold, the more similar they need to be in order to prompt the user to confirm if they are the same person. If there are too many popups, consider raising the number. 
+
+The "auto match threshold" is how similar two names need to be for the program to auto match them without asking the user. For example, if two names match exactly, the program will not ask the user if they are the same person. Instead, it will do it automatically. So, an auto match threshold of 95 will automatically match any two names that match 95%. It is good to keep this number high. Default is 99.
