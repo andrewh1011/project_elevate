@@ -18,7 +18,7 @@ We created a Python application with a UI interface. This interface allows for t
 
 ## Installation and Running Program
 
-The main program is located in the src/code directory and is called "program.py." To run the application, simply cd into that directory and type:
+The main program is located in the src/code/ directory and is called "program.py". To run the application, navigate into the src/code/ directory and type:
 
     python program.py
 
