@@ -7,7 +7,7 @@ The Medical Group at Scott Air Force Base needs a system that outputs a report c
 
 ## Description
 
-We created a Python application with a UI interface. This interface allows for the importing of multiple training data files, and outputs an organized Excel file with important information.
+We created a Python application with a UI interface. This interface allows for the importing of multiple training data files from different sources, and outputs an organized Excel file with important information. We allow for adding multiple custom courses with different fortatting.
 
 ### Libraries Used
 
@@ -54,14 +54,14 @@ The colors of the output has meaning:
 
     • Blue: important information about the trainees
 
-Courses section:
+### Courses section:
 
       • Green: Course is assigned and completed on time
       • Yellow: Course is assigned and has not been completed yet, and it is not past the due date
       • Red: Course is assigned and not completed (if empty), or has been completed late (if there is a date)
       • Grey: Course has not been assigned to this person
 
-Adding a Source:
+### Adding a Source:
 
 A portion of the application allows for adding a new data source. Enter the index (starting from 0) of the important columns in the new data source so the application knows where to find them.
 
