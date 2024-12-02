@@ -14,7 +14,7 @@ We created a Python application with a UI interface. This interface allows for t
     • PyQt5 - User interface
     • Pandas - Data manipulation & output formatting
     • thefuzz - Name matching
-    • XlsxWriter - Output coloring
+    • XlsxWriter/openpyxl - Libraries used by pandas excel writer to output to excel. Either one works when using the python interpreter, but when compiling to an executable openpyxl is the only one that seems to work right now.
 
 ## Installation and Running Program
 
@@ -28,10 +28,17 @@ Make sure all the libraries are installed. You may need to run:
     pip install Pandas
     pip install thefuzz
     pip install XlsxWriter
+    (if compiling to executable) pip install openpyxl
 
 ### Executable
-
-Currently in development...
+    ensure libraries above have been installed with pip. Additionally, ensure the directory these libraries are stored in is included in your system PATH(so that the compiler used next can find them).
+    -run command: pip install -U nuitka
+    Note: before proceeding, make sure your python app is downloaded directly from the python site and not from the windows app store. The nuitka compiler enforces this.
+    -navigate to directory where source code is kept for this app.
+    -run command: python -m nuitka program.py --standalone --plugin-enable=pyqt5 --include-module=pandas --include-module=thefuzz --onefile --include-module=openpyxl
+    This will take a pretty long time. 
+    Once the executable has been compiled, it should stay in this source code directory so that the app knows where the instruction/storage files it needs to run are.
+    
 
 ## How to Use
 
