@@ -18,6 +18,18 @@ We created a Python application with a UI interface. This interface allows for t
     • openpyxl(Version 3.1.5) - Library used by pandas excel writer to output/read excel files. 
 
 ## Installation and Running Program
+There are two ways to use this program. Either you can run it with the python interpreter or compile it and run it as an executable. Regardless of which way you choose to run it, you will need python installed.
+
+Additionally, we recommend using a virtual environment alongside python. This will allow you to make sure the library versions you are using are the same ones we tested and developed this app to use and that other python programs on the computer that need different versions of libraries will not interfere with this app. 
+
+### Creating the virtual environment
+1) navigate to the code directory(src/code).
+2) Run command: "python -m venv .venv"
+3) From the code directory, run command: ".venv\Scripts\activate"
+4) Now that you are in the virtual environment, run command: "python -m pip install --upgrade pip"
+5) For each of the required libraries(and versions) above, run the command: "pip install -Iv lib==version" where lib is the library name and version is the version of that library.
+6) Your virtual environment should now have all the required libraries needed to run the app. You can leave the virtual environment by running the command "deactivate"
+
 
 The main program is located in the src/code/ directory and is called "program.py". To run the application, navigate into the src/code/ directory and type:
 
