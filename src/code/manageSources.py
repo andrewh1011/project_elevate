@@ -10,7 +10,7 @@ sourceFilePath = os.path.join(baseDir, "../appStorage/sources.csv")
 notUsedNumber = -1
 
 #below enum values are ids of fields from Pyqt5 form for the source input.
-#each fields corresponding text label will be the id + "Label".
+#each fields corresponding text label will be the fieldid + "Label".
 
 class SourceFileColumns(Enum):
 	sourceName = "sourceName"

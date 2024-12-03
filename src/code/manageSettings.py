@@ -5,12 +5,14 @@ import os
 baseDir = os.path.dirname(__file__)
 settingsFilePath = os.path.join(baseDir, "../appStorage/settings.csv")
 
-#make sure these enum values of column names match the form input field names.
+
+#below enum values are ids of fields from Pyqt5 form for the source input.
+#each fields corresponding text label id will be the fieldid + "Label".
+
 class SettingsFileColumns(Enum):
 	nameMatchThreshold = "nameMatchThreshold"
 	autoMatchThreshold = "autoMatchThreshold"
 	
-#These are the columns in the settings form which should not be left blank
 class RequiredSettingsFileColumns(Enum):
 	nameMatchThreshold = "nameMatchThreshold"
 	autoMatchThreshold = "autoMatchThreshold"
