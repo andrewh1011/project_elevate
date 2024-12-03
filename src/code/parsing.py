@@ -4,9 +4,11 @@ from datetime import datetime
 from manageSources import *
 from manageSettings import *
 from thefuzz import fuzz
+import os
 
-reportFileName = "../output/output.xlsx"
-logFileName = "../output/log.csv"
+baseDir = os.path.dirname(__file__)
+reportFilePath = os.path.join(baseDir, "../output/output.xlsx")
+logFilePath = os.path.join(baseDir, "../output/log.csv")
 
 class DateStatus(Enum):
 	overdue = "IND_OVERDUE" #this person has been assigned the course, and they either completed it(after the due date) or havent completed it and its past the due date.
@@ -29,7 +31,7 @@ class LogTypes(Enum):
 
 def writeLogRow(source,filePath,rowStr, logVal, desc):
 	df = pd.DataFrame([{SourceFileColumns.sourceName.value: source, ReportExtraColumns.filePath.value: filePath, ReportExtraColumns.rowData.value: rowStr, ReportExtraColumns.logType.value: logVal, ReportExtraColumns.desc.value: desc}])
-	df.to_csv(logFileName, index = False, header = False, mode = 'a')
+	df.to_csv(logFilePath, index = False, header = False, mode = 'a')
 
 def convertToInt(value,sourceName,fileName,columnIndex):
 	try:
@@ -103,7 +105,7 @@ def formatOutput(data):
 	#upper left cell where the id section of the report starts
 	firstCellIds = "A2"
 
-	writer = pd.ExcelWriter(reportFileName)
+	writer = pd.ExcelWriter(reportFilePath)
 	data.to_excel(writer, index = False, sheet_name = "Report", engine='xlsxwriter')
 	rowCount = len(data.index.values.tolist())
 	colCount = len(data.columns.tolist())
@@ -142,13 +144,13 @@ def buildOutput(fileInfos, nameMatchCallBack):
 		autoMatchThreshold = settings.loc[SettingsFileColumns.autoMatchThreshold.value]
 
 	logHdr = pd.DataFrame(columns = [SourceFileColumns.sourceName.value, ReportExtraColumns.filePath.value, ReportExtraColumns.rowData.value, ReportExtraColumns.logType.value, ReportExtraColumns.desc.value])
-	logHdr.to_csv(logFileName, index = False)
+	logHdr.to_csv(logFilePath, index = False)
 
 	#pandas dataframe that originally has columns dodid, email, name
 	#when a new coursename is encounter, this course will be added as a column
 	ids = pd.DataFrame(columns = [SourceFileColumns.dodid.value, SourceFileColumns.email.value, ReportExtraColumns.cleanName.value, ReportExtraColumns.fullName.value])
 
-	sources = pd.read_csv(sourceFileName, index_col = 0)
+	sources = pd.read_csv(sourceFilePath, index_col = 0)
 
 	for fileInfo in fileInfos:
 		filePath = fileInfo[0]

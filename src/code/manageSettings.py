@@ -1,7 +1,9 @@
 import pandas as pd
 from enum import Enum
+import os
 
-settingsFileName = "../appStorage/settings.csv"
+baseDir = os.path.dirname(__file__)
+settingsFilePath = os.path.join(baseDir, "../appStorage/settings.csv")
 
 #make sure these enum values of column names match the form input field names.
 class SettingsFileColumns(Enum):
@@ -20,14 +22,14 @@ def addSettingsToFile(settingFieldDict):
 	#there will only ever be one setting line so dont care about overwrite
 	try:
 		dfNew = pd.DataFrame([settingFieldDict])
-		dfNew.to_csv(settingsFileName)	
+		dfNew.to_csv(settingsFilePath)	
 		return True
 	except:
 		return False	
 	
 def buildSettingsDataFromFile():
 	try:
-		df = pd.read_csv(settingsFileName, index_col = 0)
+		df = pd.read_csv(settingsFilePath, index_col = 0)
 		#only care about the first(and only) setting row
 		return df.iloc[0]
 	except:

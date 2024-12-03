@@ -1,12 +1,19 @@
 from PyQt5 import Qt, QtCore
 from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QFileDialog, QLabel, QListWidget, QListWidgetItem, QInputDialog, QMessageBox, QLineEdit
-import sys
+import sys, os
 from uiFile import Ui_Dialog
 from addSource import Ui_AddWindow
 from settingsUI import Ui_AddWindow as SettingUi_AddWindow
 from manageSources import *
 from manageSettings import *
 from parsing import *
+
+#make sure the directories of files needed by the app are resolved to be relative to the path of the current python file, NOT the cwd.
+#cwd is not always guaranteed to be in the code dir, ie when using desktop icons.
+baseDir = os.path.dirname(__file__)
+genAppInstPath = os.path.join(baseDir, "../appStorage/generalAppInstructions.txt")
+addSrcInstPath = os.path.join(baseDir, "../appStorage/addSourceInstructions.txt")
+addSetInstPath = os.path.join(baseDir, "../appStorage/settingsInstructions.txt")
 
 class MainUI(QMainWindow):
 	
@@ -33,7 +40,7 @@ class MainUI(QMainWindow):
 		self.refresh_sources()
 
 		self.ui.tutorialBtn.clicked.connect(self.open_tutorial)
-		with open("../appStorage/generalAppInstructions.txt", "r") as file:
+		with open(genAppInstPath, "r") as file:
 			self.tutorial_text = file.read()
 
 	def name_match_confirmer(self):
@@ -58,6 +65,8 @@ class MainUI(QMainWindow):
 		keys = self.fileNames.keys()
 		if len(keys) >	0:
 			try:
+				self.ui.actionLabel.setText("Output generation started...")
+				QApplication.processEvents()
 				ret = buildOutput(self.fileNames.values(), self.name_match_confirmer())
 				self.ui.actionLabel.setText(ret)
 			except Exception as e:
@@ -185,8 +194,11 @@ class AddSourceUI(QMainWindow):
 		self.ui.saveSourceBtn.clicked.connect(self.save_source_clicked)
 		
 		self.ui.tutorialBtn.clicked.connect(self.open_tutorial)
-		with open("../appStorage/addSourceInstructions.txt", "r") as file:
+		with open(addSrcInstPath, "r") as file:
 			self.add_tutorial_text = file.read()
+		for rCol in RequiredSourceFileColumns:
+			el = self.findChild(QLabel, rCol.value + "Label")
+			el.setStyleSheet('color: red;')
 
 	def show_source_clicked(self, source_name, sources):
 		cols = list(sources.columns)
@@ -198,7 +210,7 @@ class AddSourceUI(QMainWindow):
 					inputField.setText(str(val))
 				else:
 					inputField.setText("")
-		
+			
 	def return_to_main_window(self):
 		self.mainWindow.refresh_sources()
 		self.close()
@@ -277,8 +289,12 @@ class AddSettingUI(QMainWindow):
 		self.ui.saveBtn.clicked.connect(self.save_setting_clicked)
 		
 		self.ui.tutorialBtn.clicked.connect(self.open_tutorial)
-		with open("../appStorage/settingsInstructions.txt", "r") as file:
+		with open(addSetInstPath, "r") as file:
 			self.add_tutorial_text = file.read()
+
+		for rCol in RequiredSettingsFileColumns:
+			el = self.findChild(QLabel, rCol.value + "Label")
+			el.setStyleSheet('color: red;')
 
 	def show_settings(self):
 		settings = buildSettingsDataFromFile()
