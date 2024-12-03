@@ -11,10 +11,11 @@ We created a Python application with a UI interface. This interface allows for t
 
 ### Libraries Used
 
-    • PyQt5 - User interface
-    • Pandas - Data manipulation & output formatting
-    • thefuzz - Name matching
-    • XlsxWriter/openpyxl - Libraries used by pandas excel writer to output to excel. Either one works when using the python interpreter, but when compiling to an executable openpyxl is the only one that seems to work right now.
+    • PyQt5(Version 5.15.11) - User interface
+    • pandas(Version 2.2.2) - Data manipulation & output formatting
+    • thefuzz(Version 0.22.1) - Name matching
+    • XlsxWriter(Version 3.2.0) - Library used by pandas excel writer to output/read excel files. 
+    • openpyxl(Version 3.1.5) - Library used by pandas excel writer to output/read excel files. 
 
 ## Installation and Running Program
 
