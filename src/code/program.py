@@ -20,7 +20,6 @@ class MainUI(QMainWindow):
 	def __init__(self):
 		super(MainUI, self).__init__()
 
-		
 		self.fileNames = {} # maps fileNames to (fullFilePath, system) -> a tuple with important information about the file
 		self.sources = None # this is a pandas dataframe. Each row's index is the source name. call the refresh_sources() anytime an update to the source storage file is made.
 		
@@ -43,6 +42,7 @@ class MainUI(QMainWindow):
 		with open(genAppInstPath, "r") as file:
 			self.tutorial_text = file.read()
 
+	#Prompts user to confirm to two names are the same person
 	def name_match_confirmer(self):
 		#returns (bool: yesAnswer, bool: keepGoing)
 		def nameMatchConfirmInner(name1, name2):
@@ -60,7 +60,7 @@ class MainUI(QMainWindow):
 					return (False, True)
 		return nameMatchConfirmInner
 
-
+	#Uses to parsing.py to build an output with the input files
 	def start_btn_clicked(self):
 		keys = self.fileNames.keys()
 		if len(keys) >	0:
@@ -74,12 +74,14 @@ class MainUI(QMainWindow):
 		else:
 			self.ui.actionLabel.setText("Please provide at least one file for the report generation.")	
 
+	#When a source is clicked, the AddSourceUI window is opened to allow the user to edit the source
 	def source_clicked(self, item):
 		source_name = item.text()
 		self.window = AddSourceUI(self)
 		self.window.show_source_clicked(source_name, self.sources)
 		self.window.show()
 
+	#If a source is deleted, all files with the source must be deleted
 	def delete_all_files_with_source(self, sName):
 		fileDict = self.fileNames
 		fileListWidget = self.ui.fileList
@@ -93,10 +95,12 @@ class MainUI(QMainWindow):
 		for file in remFiles:
 			del fileDict[file]
 
+	#Ask user to confirm to delete all files with a source
 	def confirm_delete_files_from_source(self, sName):
 		choice = QMessageBox.question(self, 'Confirmation', "Deleting a source will delete all the files currently mapped to this source in the current session. Are you sure?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 		return choice
 
+	#Loads saved sources from sources.csv
 	def refresh_sources(self):
 		self.ui.sourceList.clear()
 		self.sources = buildSourceDataFromFile()
@@ -119,10 +123,12 @@ class MainUI(QMainWindow):
 				else:
 					self.ui.actionLabel.setText("Could not delete source" + sName)
 
+	#Opens the AddSourceUI window to allow for adding a source 
 	def open_add_source_window(self):
 		self.window = AddSourceUI(self)
 		self.window.show()
 	
+	#Opens the AddSettingUI window
 	def open_settings_window(self):
 		self.window = AddSettingUI(self)
 		self.window.show_settings()
@@ -136,7 +142,7 @@ class MainUI(QMainWindow):
 				self.ui.fileList.takeItem(row)
 				del self.fileNames[itm.text()]
 
-	
+	#Allows the user to import a file
 	def import_clicked(self):
 		file = QFileDialog.getOpenFileName(self, "Add Source", "/~", "Spreadsheets(*.csv *.xlsx *.txt)")
 
@@ -147,6 +153,7 @@ class MainUI(QMainWindow):
 				fileName = file[0].rsplit('/', 1)[-1]
 				self.add_to_file_list(fileName, fileFullPath, system)
 
+	#Allows the user to tell us what source the file they imported is from
 	def get_source(self):
 		if not self.sources.empty:
 			source, ok_pressed = QInputDialog.getItem(self, "Source Selection", "Select Source:", self.sources[SourceFileColumns.sourceName.value].to_list(), 0, False)
@@ -172,6 +179,7 @@ class MainUI(QMainWindow):
 			itm.setTextAlignment(QtCore.Qt.AlignCenter)
 			self.ui.fileList.addItem(itm)
 
+	#Opens a QMessageBox window that explains how to use the app
 	def open_tutorial(self):
 		instructions = QMessageBox(self)
 		instructions.setIcon(QMessageBox.Information)
@@ -179,10 +187,12 @@ class MainUI(QMainWindow):
 		instructions.setText(self.tutorial_text)
 		instructions.exec_()
 
+	#If the main window is closed, close all other windows
 	def closeEvent(self, event): 
 		for window in QApplication.topLevelWidgets(): 
 			window.close()
 
+#This window allows the user to edit and add a new source
 class AddSourceUI(QMainWindow):
 	def __init__(self, mainWindow):
 		super(AddSourceUI, self).__init__()
@@ -196,10 +206,12 @@ class AddSourceUI(QMainWindow):
 		self.ui.tutorialBtn.clicked.connect(self.open_tutorial)
 		with open(addSrcInstPath, "r") as file:
 			self.add_tutorial_text = file.read()
+
 		for rCol in RequiredSourceFileColumns:
 			el = self.findChild(QLabel, rCol.value + "Label")
 			el.setStyleSheet('color: red;')
 
+	#Fill out source values if source is clicked
 	def show_source_clicked(self, source_name, sources):
 		cols = list(sources.columns)
 		for column in cols:
@@ -234,6 +246,7 @@ class AddSourceUI(QMainWindow):
 					dict[sourceColumn.value] = notUsedNumber if inputField.text() == "" else int(inputField.text())
 		return dict
 
+	#Add source
 	def save_source_clicked(self):
 		for sourceColumn in RequiredSourceFileColumns:
 			inputField = self.findChild(QLineEdit, sourceColumn.value)
@@ -278,6 +291,7 @@ class AddSourceUI(QMainWindow):
 			self.return_to_main_window()
 			return False
 
+#This window allows the user to change app settings (name match threshold values)
 class AddSettingUI(QMainWindow):
 	def __init__(self, mainWindow):
 		super(AddSettingUI, self).__init__()
@@ -357,7 +371,6 @@ class AddSettingUI(QMainWindow):
 				except ValueError:
 					self.ui.actionLabel.setText("Auto Name Match Threshold Value must be a number.")
 					return False
-		
 	
 	
 		formData = self.package_setting_form()
