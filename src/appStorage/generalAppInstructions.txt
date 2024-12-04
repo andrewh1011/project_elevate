@@ -1,19 +1,25 @@
 This application is designed to automate the process of outputing a report card of training data across multiple sources.
 
-The application requires Excel (.xlsx) files from the training sources. You can import these files by clicking the "Import" button. 
+The application requires Excel (.xlsx) files from the training sources. You can import these files by clicking the "Import" button.
 
-Once imported, the application will ask you which source they came from (ie JKO, myLearning, ect.). Please choose the correct source from the dropdown menu. 
+Once imported, the application will ask you which source they came from (ie JKO, myLearning, ect.). Please choose the correct source from the dropdown menu.
 
 If the source is not in the dropdown menu or a source changes format, you can manually add a new data souce with the "Add Source" button.
 
-Import as many files as necessary. Once all files have been added, click the "Create Output" button. This will generate an output in an Excel file (output.xlsx) in the same directory as the application.
+Import as many files as necessary. Once all files have been added, click the "Create Output" button.
+
+This will generate an output report in an Excel file (/src/output/output.xlsx).
+
+Additionally, a log file (/src/output/log.csv) will be generated. This log file gives details about any not fatal errors that were encountered during the parsing process(for example a date was not formatted correctly).
+
+The log file also gives information about any automatic person matches that took place during the session.
 
 The colors of the output has meaning:
 
-    • Blue: important information about the trainees
+    - Blue: important information about the trainees
 
 Courses section:
-    • Green: Course is assigned and completed on time
-    • Yellow: Course is assigned and has not been completed yet, and it is not past the due date
-    • Red: Course is assigned and not completed (if empty), or has been completed late (if there is a date)
-    • Grey: Course has not been assigned to this person
+    - Green: Course is assigned and completed on time
+    - Yellow: Course is assigned and has not been completed yet, and it is not past the due date
+    - Red: Course is assigned and not completed (if empty), or has been completed late (if there is a date)
+    - Grey: Course has not been assigned to this person

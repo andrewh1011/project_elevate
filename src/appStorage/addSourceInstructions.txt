@@ -8,4 +8,4 @@ Last Name, First Name, EDIPI, Category, Course Name, Completed Dt, Due Dt
 
 The 'Header Rows' entry is how many rows you want to skip from the top of the file. For instance, most files have a header row before the data begins. So, the 'Header Rows' value is typically 1, but could be more.
 
-The required entries are the name of the source, first name, due date, completed date, and course name. If the first name and last name columns are combined into one name column, enter the index of the name column in the 'First Name' column.
+The required columns of the form are highlighted in red. If the first name and last name columns are combined into one name column, enter the index of the name column in the 'First Name' column.
