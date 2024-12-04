@@ -92,7 +92,7 @@ def calculateMatchRow(cleanName,matchEmail,matchId, row):
 	dodid = row[SourceFileColumns.dodid.value]
 	otherName = row[ReportExtraColumns.cleanName.value]
 
-	if (email == "" or matchEmail == "" or email != matchEmail) and (dodid == -1 or matchId == -1 or dodid != matchId):
+	if (email == "" or matchEmail == "") and (dodid == -1 or matchId == -1):
 		return fuzz.partial_ratio(cleanName,otherName)
 	else:
 		return -1	
