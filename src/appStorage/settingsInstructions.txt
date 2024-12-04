@@ -3,8 +3,6 @@ When working with files without an email or ID (our preferred identifiers), we i
 To combine records belonging to the same person in the output, we employ a name scoring system.
 This system takes two names and scores the similarity of them from 0 to 100.
 
-If the score is high enough, the user, through the match settings detailed below, can choose to either be asked to manually confirm the two names belong to the same person or have this done automatically.
-
 The "name match threshold" is an exclusive lower bound on the scores that will cause a match based on names to be considered in the first place. If you are finding that the app is either asking you to manually confirm or is automatically confirming names that are not similar enough, you should raise this value. Putting this value to 100 effectively turns the name matching system off.
 
 The "auto match threshold" is an exclusive lower bound on the scores that will cause an automatic match without the user's permission. If you are finding that the app is asking you to often manually confirm two names which are extremely similar(or the same) you should raise this number. If you observe, via the logs, that the app is making automatic name matches that you dont agree with, you should lower this number. Putting this value to 100 effectively turns off the automatic matching.

@@ -6,15 +6,23 @@ Once imported, the application will ask you which source they came from (ie JKO,
 
 If the source is not in the dropdown menu or a source changes format, you can manually add a new data souce with the "Add Source" button.
 
-Import as many files as necessary. Once all files have been added, click the "Create Output" button.
+Import as many files as necessary. Once all files have been added, click the "Create Output" button. This will start the parsing and combination process.
 
-This will generate an output report in an Excel file (/src/output/output.xlsx).
+During parsing of the files you imported, records for the same people(either in the same file or across files) will be combined when possible to make a more consolidated output report card.
 
-Additionally, a log file (/src/output/log.csv) will be generated. This log file gives details about any not fatal errors that were encountered during the parsing process(for example a date was not formatted correctly).
+The record combination process works as follows:
+1) if two people have the same dod id, automatically combine their records.
+2) if two people have the same email(case insensitive), automatically combine their records.
+3) if two people, where at least one person does not have an id or email, have names that are deemed similar by the name matching process, combine their records.
+The name matching process is detailed more thoroughly in the settings instructions.
+
+Once the parsing and combination is done, the app will generate an output report in an Excel file (/src/output/output.xlsx).
+
+Additionally, a log file (/src/output/log.csv) will be generated. This log file gives details about any non fatal errors that were encountered during the parsing process(for example a date was not formatted correctly).
 
 The log file also gives information about any automatic person matches that took place during the session.
 
-The colors of the output has meaning:
+The colors of the output have meaning:
 
     - Blue: important information about the trainees
 
