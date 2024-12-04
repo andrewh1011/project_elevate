@@ -44,7 +44,7 @@ To recompile:
 4) run command: python -m nuitka program.py --standalone --plugin-enable=pyqt5 --include-module=pandas --include-module=thefuzz --onefile --include-module=openpyxl --include-module=XlsxWriter
 5) At this point the executable(program.exe) will be compiled and you can run it however you normally run executable programs.
   
-## Using to App
+## Using the App
 Each important section of the app will have an instruction button associated with it. Clicking this button will cause a popup with instructions to be displayed that give information about that section of the app.
 If you wish to read the instructions without running the app, they can be found in the src/appStorage directory.
 
