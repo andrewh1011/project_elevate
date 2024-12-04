@@ -44,35 +44,8 @@ To recompile:
 4) run command: python -m nuitka program.py --standalone --plugin-enable=pyqt5 --include-module=pandas --include-module=thefuzz --onefile --include-module=openpyxl --include-module=XlsxWriter
 5) At this point the executable(program.exe) will be compiled and you can run it however you normally run executable programs.
   
-## How to Use
+## Using to App
+Each important section of the app will have an instruction button associated with it. Clicking this button will cause a popup with instructions to be displayed that give information about that section of the app.
+If you wish to read the instructions without running the app, they can be found in the src/appStorage directory.
 
-The application requires Excel (.xlsx) files from the training sources. You can import these files by clicking the "Import" button. 
 
-Once imported, the application will ask you which source they came from (ie JKO, myLearning, ect.). Please choose the correct source from the dropdown menu. 
-
-If the source is not in the dropdown menu or a source changes format, you can manually add a new data souce with the "Add Source" button.
-
-Import as many files as necessary. Once all files have been added, click the "Create Output" button. This will generate an output in an Excel file (output.xlsx) in the same directory as the application.
-
-The colors of the output has meaning:
-
-    • Blue: important information about the trainees
-
-### Courses section:
-
-      • Green: Course is assigned and completed on time
-      • Yellow: Course is assigned and has not been completed yet, and it is not past the due date
-      • Red: Course is assigned and not completed (if empty), or has been completed late (if there is a date)
-      • Grey: Course has not been assigned to this person
-
-### Adding a Source:
-
-A portion of the application allows for adding a new data source. Enter the index (starting from 0) of the important columns in the new data source so the application knows where to find them.
-
-For example, let's say there is a data source with the following columns in the order:
-
-Last Name, First Name, EDIPI, Category, Course Name, Completed Dt, Due Dt
-
-'Last Name' is in column 0, 'First Name' is in column 1, DODID is in column 2 and so on.
-
-The required entries are the name of the source, first name, due date, completed date, and course name. If the first name and last name columns are combined into one name column, enter the index of the name column in the 'First Name' column.
