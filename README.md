@@ -7,7 +7,7 @@ The Medical Group at Scott Air Force Base needs a system that outputs a report c
 
 ## Description
 
-We created a Python application with a UI interface. This interface allows for the importing of multiple training data files from different sources, and outputs an organized Excel file with important information. We allow for adding multiple custom courses with different fortatting.
+We created a Python application with a UI interface. This interface allows for the importing of multiple training data files from different sources, and outputs an organized Excel file with important information. We allow for adding multiple custom courses with different formatting.
 
 ### Libraries Used
 
@@ -42,7 +42,7 @@ To recompile:
 2) Enter the virtual environment with the command: ".venv\Scripts\activate"
 3) run command: "pip install -U nuitka". Note: before proceeding, make sure your python app is downloaded directly from the python site and not from the windows app store. The nuitka compiler enforces this.
 4) run command: python -m nuitka program.py --standalone --plugin-enable=pyqt5 --include-module=pandas --include-module=thefuzz --onefile --include-module=openpyxl --include-module=XlsxWriter
-5)At this point the executable(program.exe) will be compiled and you can run it however you normally run executable programs.
+5) At this point the executable(program.exe) will be compiled and you can run it however you normally run executable programs.
   
 ## How to Use
 
