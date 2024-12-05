@@ -185,6 +185,7 @@ class MainUI(QMainWindow):
 		instructions.setIcon(QMessageBox.Information)
 		instructions.setWindowTitle("Tutorial")
 		instructions.setText(self.tutorial_text)
+		instructions.setStyleSheet("QLabel{font-size: 10px;}")
 		instructions.exec_()
 
 	#If the main window is closed, close all other windows
