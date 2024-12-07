@@ -10,6 +10,7 @@ from manageSettings import *
 from manageTypes import *
 from parsing import *
 import ast
+import json
 
 #make sure the directories of files needed by the app are resolved to be relative to the path of the current python file, NOT the cwd.
 #cwd is not always guaranteed to be in the code dir, ie when using desktop icons.
@@ -246,7 +247,7 @@ class AddSourceUI(QMainWindow):
 		self.mainWindow = mainWindow
 		self.ui = Ui_AddWindow()
 		self.ui.setupUi(self)
-		self.ui.typeDdl.currentIndexChanged.connect(self.typeChanged)
+		
 
 		self.ui.saveSourceBtn.clicked.connect(self.save_source_clicked)
 		
@@ -258,12 +259,14 @@ class AddSourceUI(QMainWindow):
 			el = self.findChild(QLabel, rCol.value + "Label")
 			el.setStyleSheet('color: red;')
 
-		self.ui.typeDdl.blockSignals(True)
 		types = buildTypeDataFromFile()
 		typeInd = list(types.index)
 		for ind in typeInd:
 			self.ui.typeDdl.addItem(ind)
-		self.ui.typeDdl.blockSignals(False)
+		if self.ui.typeDdl.currentText() != "":
+			self.populateDynamicCols(self.ui.typeDdl.currentText(), types)
+		
+		self.ui.typeDdl.currentIndexChanged.connect(self.typeChanged)
 		
 	def clearDynamicCols(self):
 		while self.ui.dynamicLabelVL.count():
@@ -278,14 +281,13 @@ class AddSourceUI(QMainWindow):
 				widget.deleteLater()
 
 	def typeChanged(self,ind):
-		self.clearDynamicCols()
 		types = buildTypeDataFromFile()
 		currType = self.ui.typeDdl.currentText()
 		self.populateDynamicCols(currType,types)
 
 
 	def populateDynamicCols(self, typeName, types):
-	
+		self.clearDynamicCols()
 		if typeName != "":
 			customCols = types.loc[typeName,TypeFileColumns.colList.value]
 			colList = customCols.split(",")
@@ -323,11 +325,10 @@ class AddSourceUI(QMainWindow):
 		self.ui.typeDdl.blockSignals(True)
 		self.ui.typeDdl.setCurrentText(str(tName))
 		self.populateDynamicCols(tName,buildTypeDataFromFile())
-		tcols = ast.literal_eval(sources.loc[source_name, ExtraSourceFileColumns.typeCols.value])
-		for colPair in tcols:
-			colName = colPair[0]
-			colIndex = colPair[1]
-			self.fillDynamicCol(colName,colIndex)
+		tcols = json.loads(sources.loc[source_name, ExtraSourceFileColumns.typeCols.value])
+		for col in tcols.keys():
+			colIndex = tcols[col]
+			self.fillDynamicCol(col,colIndex)
 		self.ui.typeDdl.blockSignals(False)
 
 	def return_to_main_window(self):
@@ -353,11 +354,12 @@ class AddSourceUI(QMainWindow):
 					dictL[sourceColumn.value] = notUsedNumber if inputField.text() == "" else int(inputField.text())
 
 		dictL[ExtraSourceFileColumns.typeName.value] = self.ui.typeDdl.currentText()
-		dynamicCols = []
+		dynamicCols = {}
 		for dynamicColInd in range(self.ui.dynamicIndexVL.count()):
 			dynamicCol = self.ui.dynamicIndexVL.itemAt(dynamicColInd).widget()
-			dynamicCols.append((dynamicCol.objectName(), dynamicCol.text()))
-		dictL[ExtraSourceFileColumns.typeCols.value] = dynamicCols
+			dynamicCols[dynamicCol.objectName()] = dynamicCol.text()
+		
+		dictL[ExtraSourceFileColumns.typeCols.value] = json.dumps(dynamicCols)
 		return dictL
 
 	#Add source

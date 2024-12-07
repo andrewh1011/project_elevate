@@ -2,6 +2,7 @@ import pandas as pd
 from enum import Enum
 import os
 
+
 baseDir = os.path.dirname(__file__)
 sourceFilePath = os.path.join(baseDir, "../appStorage/sources.csv")
 
@@ -31,6 +32,8 @@ class RequiredSourceFileColumns(Enum):
 
 #sourceFieldDict is a dict that maps source field names of the form to their filled values
 def addSourceToFile(sourceFieldDict):
+
+	print(sourceFieldDict)
 
 	#if file doesnt exist yet, make sure its created
 	#if it already exists, this does nothing
