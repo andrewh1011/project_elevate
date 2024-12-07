@@ -19,6 +19,11 @@ class RequiredSettingsFileColumns(Enum):
 
 #settingFieldDict is a dict that maps setting field names of the form to their filled values
 def addSettingsToFile(settingFieldDict):
+
+	#if file doesnt exist yet, make sure its created
+	#if it already exists, this does nothing
+	f = open(settingsFilePath, "a+")
+	f.close() 
 	
 	#want to overwrite settings each time they change it.
 	#there will only ever be one setting line so dont care about overwrite
@@ -30,6 +35,12 @@ def addSettingsToFile(settingFieldDict):
 		return False	
 	
 def buildSettingsDataFromFile():
+	
+	#if file doesnt exist yet, make sure its created
+	#if it already exists, this does nothing
+	f = open(settingsFilePath, "a+")
+	f.close() 
+
 	try:
 		df = pd.read_csv(settingsFilePath, index_col = 0)
 		#only care about the first(and only) setting row

@@ -16,30 +16,33 @@ class SourceFileColumns(Enum):
 	sourceName = "sourceName"
 	firstName = "firstName"
 	lastName = "lastName"
-	dueDate = "dueDate"
-	compDate = "compDate"
 	dodid = "dodid"
 	email = "email"
 	courseName = "courseName"
 	skipRows = "skipRows"
+
+class ExtraSourceFileColumns(Enum):
+	typeName = "typeName"
+	typeCols = "typeCols"
 	
 class RequiredSourceFileColumns(Enum):
 	name = "sourceName"
-	firstName = "firstName"
-	dueDate = "dueDate"
-	compDate = "compDate"
-	courseName = "courseName"
 	skipRows = "skipRows"
 
 #sourceFieldDict is a dict that maps source field names of the form to their filled values
 def addSourceToFile(sourceFieldDict):
+
+	#if file doesnt exist yet, make sure its created
+	#if it already exists, this does nothing
+	f = open(sourceFilePath, "a+")
+	f.close() 
 
 	df = pd.DataFrame()
 	sourceName = ""
 	if SourceFileColumns.sourceName.value in sourceFieldDict.keys():
 		sourceName = sourceFieldDict[SourceFileColumns.sourceName.value]
 	else:
-		return False	
+		return False
 
 	try:
 		df = pd.read_csv(sourceFilePath, index_col = 0)
@@ -48,7 +51,7 @@ def addSourceToFile(sourceFieldDict):
 
 	if not df.empty:
 		#if sourceName is already there, this is basically edit functionality.
-		df.loc[sourceName] = sourceFieldDict.values()
+		df.loc[sourceName] = list(sourceFieldDict.values())
 		df.to_csv(sourceFilePath)
 	else:
 		dfNew = pd.DataFrame([sourceFieldDict])
@@ -59,6 +62,12 @@ def addSourceToFile(sourceFieldDict):
 	
 
 def deleteSourceFromFile(name):
+	
+	#if file doesnt exist yet, make sure its created
+	#if it already exists, this does nothing
+	f = open(sourceFilePath, "a+")
+	f.close() 
+
 	df = pd.read_csv(sourceFilePath, index_col = 0)
 
 	if not df.empty:
