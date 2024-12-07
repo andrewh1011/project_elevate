@@ -9,6 +9,7 @@ from manageSources import *
 from manageSettings import *
 from manageTypes import *
 from parsing import *
+import ast
 
 #make sure the directories of files needed by the app are resolved to be relative to the path of the current python file, NOT the cwd.
 #cwd is not always guaranteed to be in the code dir, ie when using desktop icons.
@@ -245,6 +246,7 @@ class AddSourceUI(QMainWindow):
 		self.mainWindow = mainWindow
 		self.ui = Ui_AddWindow()
 		self.ui.setupUi(self)
+		self.ui.typeDdl.currentIndexChanged.connect(self.typeChanged)
 
 		self.ui.saveSourceBtn.clicked.connect(self.save_source_clicked)
 		
@@ -256,14 +258,36 @@ class AddSourceUI(QMainWindow):
 			el = self.findChild(QLabel, rCol.value + "Label")
 			el.setStyleSheet('color: red;')
 
+		self.ui.typeDdl.blockSignals(True)
 		types = buildTypeDataFromFile()
 		typeInd = list(types.index)
 		for ind in typeInd:
 			self.ui.typeDdl.addItem(ind)
+		self.ui.typeDdl.blockSignals(False)
+		
+	def clearDynamicCols(self):
+		while self.ui.dynamicLabelVL.count():
+			item = self.ui.dynamicLabelVL.takeAt(0)
+			widget = item.widget()
+			if widget is not None:
+				widget.deleteLater()
+		while self.ui.dynamicIndexVL.count():
+			item = self.ui.dynamicIndexVL.takeAt(0)
+			widget = item.widget()
+			if widget is not None:
+				widget.deleteLater()
 
+	def typeChanged(self,ind):
+		self.clearDynamicCols()
+		types = buildTypeDataFromFile()
 		currType = self.ui.typeDdl.currentText()
-		if currType != "":
-			customCols = types.loc[currType,TypeFileColumns.colList.value]
+		self.populateDynamicCols(currType,types)
+
+
+	def populateDynamicCols(self, typeName, types):
+	
+		if typeName != "":
+			customCols = types.loc[typeName,TypeFileColumns.colList.value]
 			colList = customCols.split(",")
 			for col in colList:
 				lab = QLabel()
@@ -276,7 +300,12 @@ class AddSourceUI(QMainWindow):
 				self.ui.dynamicLabelVL.addWidget(lab)
 				self.ui.dynamicIndexVL.addWidget(lEdit)
 
-
+	def fillDynamicCol(self, columnName, columnIndex):
+		for i in range(self.ui.dynamicIndexVL.count()):
+			item = self.ui.dynamicIndexVL.itemAt(i)
+			if item.widget() and item.widget().objectName() == columnName:
+				el = item.widget()
+				el.setText(columnIndex)
 		
 
 	#Fill out source values if source is clicked
@@ -291,9 +320,16 @@ class AddSourceUI(QMainWindow):
 				else:
 					inputField.setText("")
 		tName = sources.loc[source_name, ExtraSourceFileColumns.typeName.value]
+		self.ui.typeDdl.blockSignals(True)
 		self.ui.typeDdl.setCurrentText(str(tName))
-		
-			
+		self.populateDynamicCols(tName,buildTypeDataFromFile())
+		tcols = ast.literal_eval(sources.loc[source_name, ExtraSourceFileColumns.typeCols.value])
+		for colPair in tcols:
+			colName = colPair[0]
+			colIndex = colPair[1]
+			self.fillDynamicCol(colName,colIndex)
+		self.ui.typeDdl.blockSignals(False)
+
 	def return_to_main_window(self):
 		self.mainWindow.refresh_sources()
 		self.close()
@@ -315,7 +351,13 @@ class AddSourceUI(QMainWindow):
 					dictL[sourceColumn.value] = inputField.text()
 				else:
 					dictL[sourceColumn.value] = notUsedNumber if inputField.text() == "" else int(inputField.text())
+
 		dictL[ExtraSourceFileColumns.typeName.value] = self.ui.typeDdl.currentText()
+		dynamicCols = []
+		for dynamicColInd in range(self.ui.dynamicIndexVL.count()):
+			dynamicCol = self.ui.dynamicIndexVL.itemAt(dynamicColInd).widget()
+			dynamicCols.append((dynamicCol.objectName(), dynamicCol.text()))
+		dictL[ExtraSourceFileColumns.typeCols.value] = dynamicCols
 		return dictL
 
 	#Add source
@@ -326,6 +368,11 @@ class AddSourceUI(QMainWindow):
 				if inputField.text() == "":
 					self.ui.actionLabel.setText("REQUIRED COLUMN " + inputField.objectName() + " NEEDS NON-EMPTY INPUT")
 					return False
+		for dynamicColInd in range(self.ui.dynamicIndexVL.count()):
+			dynamicCol = self.ui.dynamicIndexVL.itemAt(dynamicColInd).widget()
+			if dynamicCol.text() == "":
+				self.ui.actionLabel.setText("REQUIRED COLUMN " + dynamicCol.objectName() + " NEEDS NON-EMPTY INPUT")
+				return False
 		
 		#all columns besides sourceName should be a number(index).
 		for sourceColumn in SourceFileColumns:
@@ -342,6 +389,18 @@ class AddSourceUI(QMainWindow):
 					except ValueError:
 						self.ui.actionLabel.setText("INPUT COLUMN " + inputField.objectName() + " NEEDS A NUMBER")
 						return False
+
+		for dynamicColInd in range(self.ui.dynamicIndexVL.count()):
+			dynamicCol = self.ui.dynamicIndexVL.itemAt(dynamicColInd).widget()
+			try:
+				converted = int(dynamicCol.text())
+				if converted < 0:
+					self.ui.actionLabel.setText("INPUT COLUMN " + dynamicCol.objectName() + " HAS INVALID NUMBER")
+					return False
+
+			except ValueError:
+				self.ui.actionLabel.setText("INPUT COLUMN " + dynamicCol.objectName() + " NEEDS A NUMBER")
+				return False
 	
 		formData = self.package_source_form()
 
