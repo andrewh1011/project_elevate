@@ -83,7 +83,7 @@ class MainUI(QMainWindow):
 	def source_clicked(self, item):
 		source_name = item.text()
 		self.window = AddSourceUI(self)
-		self.window.show_source_clicked(source_name, self.sources)
+		self.window.show_source_clicked(source_name)
 		self.window.show()
 
 	def type_clicked(self, item):
@@ -105,6 +105,15 @@ class MainUI(QMainWindow):
 				remFiles.append(fName)
 		for file in remFiles:
 			del fileDict[file]
+
+	def default_all_sources_with_type(self, typeName):
+		sources = buildSourceDataFromFile()
+		for sourcek in sources.keys():
+			sourceInfo = sources[sourcek]
+			sourceType = sourceInfo[ExtraSourceFileColumns.typeName.value]
+			if sourceType == typeName:
+				sourceInfo[ExtraSourceFileColumns.typeName.value] = emptyTypeName
+				addSourceToFile(sourceInfo)
 
 	#Ask user to confirm to delete all files with a source
 	def confirm_delete_files_from_source(self, sName):
@@ -156,7 +165,7 @@ class MainUI(QMainWindow):
 				ret = deleteTypeFromFile(tName)
 				if ret:
 					self.refresh_types()
-					#self.delete_all_files_with_source(sName)
+					self.default_all_sources_with_type(tName)
 				else:
 					self.ui.actionLabel.setText("Could not delete type" + tName)
 
@@ -372,7 +381,6 @@ class AddSourceUI(QMainWindow):
 			inputField = self.findChild(QLineEdit, sourceColumn.value)
 			if inputField:
 				if inputField.text() != "" and sourceColumn.value != SourceFileColumns.sourceName.value:
-
 					try:
 						converted = int(inputField.text())
 						if converted < 0:
@@ -401,7 +409,7 @@ class AddSourceUI(QMainWindow):
 			if sourceColumn.value != SourceFileColumns.sourceName.value and sourceColumn.value != SourceFileColumns.skipRows.value:
 				for sourceColumnInner in SourceFileColumns:
 					if sourceColumnInner.value != SourceFileColumns.sourceName.value and sourceColumnInner.value != SourceFileColumns.skipRows.value and sourceColumnInner.value != sourceColumn.value:	
-						if formData[sourceColumn.value] == formData[sourceColumnInner.value]:
+						if formData[sourceColumn.value] == formData[sourceColumnInner.value] and formData[sourceColumn.value] != "":
 							self.ui.actionLabel.setText("DUPLICATE COLUMN INDICES ASSIGNED")
 							return False
 	
@@ -554,7 +562,35 @@ class AddTypeUI(QMainWindow):
 				dictL[typeColumn.value] = str(inputField.text())
 		return dictL
 
+	def confirm_change_columns_for_type(self):
+		choice = QMessageBox.warning(self, 'Confirmation', "Saving this change will cause the column list for this type to be different. If you added columns, these columns indices will need to be specified by the sources that use these types. Proceed with save?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+		return choice
+
+	def clean_type_info_for_sources(self):
+		sources = buildSourceDataFromFile()
+		types = buildTypeDataFromFile()
+		for sourcek in sources.keys():
+			sourceInfo = sources[sourcek]
+			typeName = sourceInfo[ExtraSourceFileColumns.typeName.value]
+			typeCols = dict(sourceInfo[ExtraSourceFileColumns.typeCols.value])
+
+			typeInfo = types[typeName]
+			realCols = typeInfo[TypeFileColumns.colList.value]
+			#make sure all real cols from type file are in source that has that type
+			for realCol in realCols.split(","):
+				if not realCol in typeCols:
+					#set an invalid index so the user will be alerted when they try to use this
+					sourceInfo[ExtraSourceFileColumns.typeCols.value][realCol] = "-1"
+			#make sure all cols in source are real cols from type file
+			for col in typeCols:
+				if not col in realCols.split(","):
+					sourceInfo[ExtraSourceFileColumns.typeCols.value].pop(col)
+
+			addSourceToFile(sourceInfo)
+
+
 	def save_type_clicked(self):
+		
 		for setColumn in RequiredTypeFileColumns:
 			inputField = self.findChild(QLineEdit, setColumn.value)
 			if inputField:
@@ -563,14 +599,32 @@ class AddTypeUI(QMainWindow):
 					return False
 
 		formData = self.package_type_form()
-		ret = addTypeToFile(formData)
-		if ret:
-			self.return_to_main_window()
-			return True
+		types = buildTypeDataFromFile()
+		typeName = formData[TypeFileColumns.typeName.value]
+		afterColList = formData[TypeFileColumns.colList.value]
+
+		#dont want to warn a user when they are adding a new type, since no sources will be affected by colList change yet.
+		if typeName in types.keys() and types[typeName][TypeFileColumns.colList.value] != afterColList:
+			choice = self.confirm_change_columns_for_type()
+			if choice == QMessageBox.Yes:
+				ret = addTypeToFile(formData)
+				if ret:
+					self.clean_type_info_for_sources()
+					self.return_to_main_window()
+					return True
+				else:
+					self.mainWindow.ui.actionLabel.setText("Type could not be updated.")
+					self.return_to_main_window()
+					return False
 		else:
-			self.mainWindow.ui.actionLabel.setText("Type could not be updated.")
-			self.return_to_main_window()
-			return False
+			ret = addTypeToFile(formData)
+			if ret:
+				self.return_to_main_window()
+				return True
+			else:
+				self.mainWindow.ui.actionLabel.setText("Type could not be updated.")
+				self.return_to_main_window()
+				return False
 
 if __name__ == '__main__':
 	app = QApplication(sys.argv)

@@ -1,4 +1,3 @@
-import pandas as pd
 from enum import Enum
 import os
 import json
@@ -17,25 +16,26 @@ class SourceFileColumns(Enum):
 	email = "email"
 	courseName = "courseName"
 	skipRows = "skipRows"
-
-class ExtraSourceFileColumns(Enum):
-	typeName = "typeName"
-	typeCols = "typeCols"
 	
 class RequiredSourceFileColumns(Enum):
 	name = "sourceName"
 	skipRows = "skipRows"
 
+#these are columns that are stored for each source but not directly editable by the user
+class ExtraSourceFileColumns(Enum):
+	typeName = "typeName"
+	typeCols = "typeCols"
+
 #sourceFieldDict is a dict that maps source field names of the form to their filled values
 def addSourceToFile(sourceFieldDict):
 
 	res = {}
-	#try
-	f = open(sourceFilePath, "r")
-	res = json.load(f)
-	f.close() 
-	#except:
-		#res = {}
+	try:
+		f = open(sourceFilePath, "r")
+		res = json.load(f)
+		f.close() 
+	except:
+		res = {}
 
 	sourceName = ""
 	if SourceFileColumns.sourceName.value in sourceFieldDict.keys():
@@ -45,14 +45,14 @@ def addSourceToFile(sourceFieldDict):
 
 	#if its theres this overwrites, if not it adds a new entry
 	res[sourceName] = sourceFieldDict
-	#try:
-	f = open(sourceFilePath, "w")
-	jsonStr = json.dumps(res)
-	f.write(jsonStr)
-	f.close()
-	return True 
-	#except:
-	#	return False	
+	try:
+		f = open(sourceFilePath, "w")
+		jsonStr = json.dumps(res)
+		f.write(jsonStr)
+		f.close()
+		return True 
+	except:
+		return False	
 	
 
 def deleteSourceFromFile(name):
