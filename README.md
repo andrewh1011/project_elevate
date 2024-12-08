@@ -24,22 +24,22 @@ Additionally, we recommend using a virtual environment alongside python. This wi
 
 ### Creating the Virtual Environment
 1) navigate to the code directory(src/code).
-2) Run command: "python -m venv .venv"
-3) From the code directory, run command: ".venv\Scripts\activate"
+2) Run command: "python -m venv .venv" to create the environment
+3) From the code directory, run command (for Windows): ".venv\Scripts\activate", (for Mac): "source ./.venv/bin/activate" to activate the environment
 4) Now that you are in the virtual environment, run command: "python -m pip install --upgrade pip"
 5) For each of the required libraries(and versions) above, run the command: "pip install -Iv lib==version" where lib is the library name and version is the version of that library.
 6) Your virtual environment should now have all the required libraries needed to run the app. You can leave the virtual environment by running the command "deactivate"
 
 ### Running the App with the Python Interpreter
 1) navigate to the code directory(src/code)
-2) Enter the virtual environment with the command: ".venv\Scripts\activate"
+2) Enter the virtual environment with the command: (for Windows): ".venv\Scripts\activate", (for Mac): "source ./.venv/bin/activate"
 3) Run command: "python program.py"
 
 ### Running the App as an Executable
 We have provided the app as an executable(program.exe in the code directory), but the executable may not work on your machine if it has a different architecture. This means you may have to recompile the app if you want to use it as an executable. You may also want to make changes to the source code, which would require recompiling if you want to use the app as an executable.
 To recompile:
 1) navigate to the code directory(src/code)
-2) Enter the virtual environment with the command: ".venv\Scripts\activate"
+2) Enter the virtual environment with the command: (for Windows): ".venv\Scripts\activate", (for Mac): "source ./.venv/bin/activate"
 3) run command: "pip install -U nuitka". Note: before proceeding, make sure your python app is downloaded directly from the python site and not from the windows app store. The nuitka compiler enforces this.
 4) run command: python -m nuitka program.py --standalone --plugin-enable=pyqt5 --include-module=pandas --include-module=thefuzz --onefile --include-module=openpyxl --include-module=XlsxWriter
 5) At this point the executable(program.exe) will be compiled and you can run it however you normally run executable programs.
