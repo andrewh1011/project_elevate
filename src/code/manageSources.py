@@ -1,14 +1,10 @@
 import pandas as pd
 from enum import Enum
 import os
-
+import json
 
 baseDir = os.path.dirname(__file__)
-sourceFilePath = os.path.join(baseDir, "../appStorage/sources.csv")
-
-#if they dont use a column that requires a number, use this.
-#this prevents a number column being used from being changed to empty string which causes an error.
-notUsedNumber = -1
+sourceFilePath = os.path.join(baseDir, "../appStorage/sources.json")
 
 #below enum values are ids of fields from Pyqt5 form for the source input.
 #each fields corresponding text label will be the fieldid + "Label".
@@ -33,65 +29,58 @@ class RequiredSourceFileColumns(Enum):
 #sourceFieldDict is a dict that maps source field names of the form to their filled values
 def addSourceToFile(sourceFieldDict):
 
-	print(sourceFieldDict)
-
-	#if file doesnt exist yet, make sure its created
-	#if it already exists, this does nothing
-	f = open(sourceFilePath, "a+")
+	res = {}
+	#try
+	f = open(sourceFilePath, "r")
+	res = json.load(f)
 	f.close() 
+	#except:
+		#res = {}
 
-	df = pd.DataFrame()
 	sourceName = ""
 	if SourceFileColumns.sourceName.value in sourceFieldDict.keys():
 		sourceName = sourceFieldDict[SourceFileColumns.sourceName.value]
 	else:
-		return False
+		return False	
 
-	try:
-		df = pd.read_csv(sourceFilePath, index_col = 0)
-	except pd.errors.EmptyDataError:
-		df = pd.DataFrame()
-
-	if not df.empty:
-		#if sourceName is already there, this is basically edit functionality.
-		df.loc[sourceName] = list(sourceFieldDict.values())
-		df.to_csv(sourceFilePath)
-	else:
-		dfNew = pd.DataFrame([sourceFieldDict])
-		dfNew.index = [sourceName]
-		dfNew.to_csv(sourceFilePath)
-
-	return True
+	#if its theres this overwrites, if not it adds a new entry
+	res[sourceName] = sourceFieldDict
+	#try:
+	f = open(sourceFilePath, "w")
+	jsonStr = json.dumps(res)
+	f.write(jsonStr)
+	f.close()
+	return True 
+	#except:
+	#	return False	
 	
 
 def deleteSourceFromFile(name):
 	
-	#if file doesnt exist yet, make sure its created
-	#if it already exists, this does nothing
-	f = open(sourceFilePath, "a+")
-	f.close() 
+	res = {}
+	try:
+		f = open(sourceFilePath, "r")
+		res = json.load(f)
+		f.close() 
+	except:
+		res = {}
 
-	df = pd.read_csv(sourceFilePath, index_col = 0)
-
-	if not df.empty:
-		if name in df.index.values.tolist():
-			df.drop(name, inplace =True)
-			df.to_csv(sourceFilePath)
-		else:
-			return False
-	else:
-		return False
-
-	return True
+	if name in res.keys():
+		res.pop(name)
+	try:
+		f = open(sourceFilePath, "w")
+		jsonStr = json.dumps(res)
+		f.write(jsonStr)
+		f.close()
+		return True 
+	except:
+		return False	
 
 def buildSourceDataFromFile():
-	#if file doesnt exist yet, make sure its created
-	#if it already exists, this does nothing
-	f = open(sourceFilePath, "a+")
-	f.close() 
-
 	try:
-		df = pd.read_csv(sourceFilePath, index_col = 0)
-		return df
-	except pd.errors.EmptyDataError:
-		return pd.DataFrame()
+		f = open(sourceFilePath, "r")
+		res = json.load(f)
+		f.close() 
+		return res
+	except:
+		return {}

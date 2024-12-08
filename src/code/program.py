@@ -9,8 +9,6 @@ from manageSources import *
 from manageSettings import *
 from manageTypes import *
 from parsing import *
-import ast
-import json
 
 #make sure the directories of files needed by the app are resolved to be relative to the path of the current python file, NOT the cwd.
 #cwd is not always guaranteed to be in the code dir, ie when using desktop icons.
@@ -24,9 +22,7 @@ class MainUI(QMainWindow):
 	
 	def __init__(self):
 		super(MainUI, self).__init__()
-
-		self.fileNames = {} # maps fileNames to (fullFilePath, system) -> a tuple with important information about the file
-		self.sources = None # this is a pandas dataframe. Each row's index is the source name. call the refresh_sources() anytime an update to the source storage file is made.
+		self.fileNames = {} # maps fileNames to (fullFilePath, sourceName) -> a tuple with important information about the file
 		
 		self.ui = Ui_Dialog()
 		self.ui.setupUi(self)
@@ -123,13 +119,11 @@ class MainUI(QMainWindow):
 	#Loads saved sources from sources.csv
 	def refresh_sources(self):
 		self.ui.sourceList.clear()
-		self.sources = buildSourceDataFromFile()
-		if not self.sources.empty:
-			for source in self.sources[SourceFileColumns.sourceName.value].to_list():
-				source = str(source)
-				itm = QListWidgetItem(source)
-				itm.setTextAlignment(QtCore.Qt.AlignCenter)
-				self.ui.sourceList.addItem(itm)
+		sources = buildSourceDataFromFile()
+		for source in sources.keys():
+			itm = QListWidgetItem(source)
+			itm.setTextAlignment(QtCore.Qt.AlignCenter)
+			self.ui.sourceList.addItem(itm)
 	
 	def refresh_types(self):
 		self.ui.typeList.clear()
@@ -142,7 +136,7 @@ class MainUI(QMainWindow):
 
 	def delete_source_clicked(self):
 		itm = self.ui.sourceList.currentItem()
-		if (not self.sources.empty) and itm:
+		if itm:
 			sName = itm.text()
 			choice = self.confirm_delete_files_from_source(sName)
 			if choice == QMessageBox.Yes:
@@ -203,12 +197,11 @@ class MainUI(QMainWindow):
 
 	#Allows the user to tell us what source the file they imported is from
 	def get_source(self):
-		if not self.sources.empty:
-			source, ok_pressed = QInputDialog.getItem(self, "Source Selection", "Select Source:", self.sources[SourceFileColumns.sourceName.value].to_list(), 0, False)
-		
+		sources = buildSourceDataFromFile()
+		if len(sources.keys()) > 0:
+			source, ok_pressed = QInputDialog.getItem(self, "Source Selection", "Select Source:", sources.keys(), 0, False)
 			if ok_pressed:
 				return source
-		
 			#User clicked cancel
 			return None
 		else:
@@ -261,12 +254,10 @@ class AddSourceUI(QMainWindow):
 			el.setStyleSheet('color: red;')
 
 		types = buildTypeDataFromFile()
-		typeInd = list(types.index)
-		for ind in typeInd:
+		for ind in types.keys():
 			self.ui.typeDdl.addItem(ind)
-		if self.ui.typeDdl.currentText() != "":
-			self.populateDynamicCols(self.ui.typeDdl.currentText(), types)
-		
+		self.populateDynamicCols(self.ui.typeDdl.currentText())
+
 		self.ui.typeDdl.currentIndexChanged.connect(self.typeChanged)
 		
 	def clearDynamicCols(self):
@@ -284,13 +275,14 @@ class AddSourceUI(QMainWindow):
 	def typeChanged(self,ind):
 		types = buildTypeDataFromFile()
 		currType = self.ui.typeDdl.currentText()
-		self.populateDynamicCols(currType,types)
+		self.populateDynamicCols(currType)
 
 
-	def populateDynamicCols(self, typeName, types):
+	def populateDynamicCols(self, typeName):
+		types = buildTypeDataFromFile()
 		self.clearDynamicCols()
 		if typeName != "" and typeName != emptyTypeName:
-			customCols = str(types.loc[typeName,TypeFileColumns.colList.value])
+			customCols = str(types[typeName][TypeFileColumns.colList.value])
 			colList = customCols.split(",")
 			for col in colList:
 				lab = QLabel()
@@ -310,24 +302,21 @@ class AddSourceUI(QMainWindow):
 				el = item.widget()
 				el.setText(columnIndex)
 		
-
 	#Fill out source values if source is clicked
-	def show_source_clicked(self, source_name, sources):
-		source_name = str(source_name)
-		cols = list(sources.columns)
-		for column in cols:
-			val = sources.loc[source_name, column]
-			inputField = self.findChild(QLineEdit, column)
+	def show_source_clicked(self, source_name):
+		sources = buildSourceDataFromFile()
+		for column in SourceFileColumns:
+			colName = column.value
+			val = sources[source_name][colName]
+			inputField = self.findChild(QLineEdit, colName)
 			if inputField:
-				if val != notUsedNumber:
-					inputField.setText(str(val))
-				else:
-					inputField.setText("")
-		tName = sources.loc[source_name, ExtraSourceFileColumns.typeName.value]
+				inputField.setText(str(val))
+				
+		tName = sources[source_name][ExtraSourceFileColumns.typeName.value]
 		self.ui.typeDdl.blockSignals(True)
 		self.ui.typeDdl.setCurrentText(str(tName))
-		self.populateDynamicCols(tName,buildTypeDataFromFile())
-		tcols = json.loads(sources.loc[source_name, ExtraSourceFileColumns.typeCols.value])
+		self.populateDynamicCols(tName)
+		tcols = sources[source_name][ExtraSourceFileColumns.typeCols.value]
 		for col in tcols.keys():
 			colIndex = tcols[col]
 			self.fillDynamicCol(col,colIndex)
@@ -353,7 +342,7 @@ class AddSourceUI(QMainWindow):
 				if sourceColumn.value == SourceFileColumns.sourceName.value:
 					dictL[sourceColumn.value] = inputField.text()
 				else:
-					dictL[sourceColumn.value] = notUsedNumber if inputField.text() == "" else int(inputField.text())
+					dictL[sourceColumn.value] = str(inputField.text())
 
 		dictL[ExtraSourceFileColumns.typeName.value] = self.ui.typeDdl.currentText()
 		dynamicCols = {}
@@ -361,7 +350,7 @@ class AddSourceUI(QMainWindow):
 			dynamicCol = self.ui.dynamicIndexVL.itemAt(dynamicColInd).widget()
 			dynamicCols[dynamicCol.objectName()] = dynamicCol.text()
 		
-		dictL[ExtraSourceFileColumns.typeCols.value] = json.dumps(dynamicCols)
+		dictL[ExtraSourceFileColumns.typeCols.value] = dynamicCols
 		return dictL
 
 	#Add source
@@ -412,7 +401,7 @@ class AddSourceUI(QMainWindow):
 			if sourceColumn.value != SourceFileColumns.sourceName.value and sourceColumn.value != SourceFileColumns.skipRows.value:
 				for sourceColumnInner in SourceFileColumns:
 					if sourceColumnInner.value != SourceFileColumns.sourceName.value and sourceColumnInner.value != SourceFileColumns.skipRows.value and sourceColumnInner.value != sourceColumn.value:	
-						if formData[sourceColumn.value] == formData[sourceColumnInner.value] and formData[sourceColumn.value] != notUsedNumber:
+						if formData[sourceColumn.value] == formData[sourceColumnInner.value]:
 							self.ui.actionLabel.setText("DUPLICATE COLUMN INDICES ASSIGNED")
 							return False
 	
