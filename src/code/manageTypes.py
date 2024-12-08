@@ -1,13 +1,10 @@
 import pandas as pd
 from enum import Enum
 import os
+import json
 
 baseDir = os.path.dirname(__file__)
-typeFilePath = os.path.join(baseDir, "../appStorage/types.csv")
-
-#if they dont use a column that requires a number, use this.
-#this prevents a number column being used from being changed to empty string which causes an error.
-notUsedStr = "notUsed"
+typeFilePath = os.path.join(baseDir, "../appStorage/types.json")
 
 #below enum values are ids of fields from Pyqt5 form for the type input.
 #each fields corresponding text label will be the fieldid + "Label".
@@ -28,64 +25,75 @@ class RequiredTypeFileColumns(Enum):
 	typeName = "tName"
 	colList = "colList"
 
+emptyTypeName = "noType"
+def buildEmptyType():
+	dictL = {}
+	dictL[TypeFileColumns.typeName.value] = emptyTypeName
+	for col in TypeFileColumns:
+		if col.value != TypeFileColumns.typeName.value:
+			dictL[col.value] = ""
+	return dictL
+
 #sourceFieldDict is a dict that maps source field names of the form to their filled values
 def addTypeToFile(typeFieldDict):
 
-	#if file doesnt exist yet, make sure its created
-	#if it already exists, this does nothing
-	f = open(typeFilePath, "a+")
-	f.close() 
+	res = {}
+	try:
+		f = open(typeFilePath, "r")
+		res = json.load(f)
+		f.close() 
+	except:
+		res = {}
 
-	df = pd.DataFrame()
 	typeName = ""
 	if TypeFileColumns.typeName.value in typeFieldDict.keys():
 		typeName = typeFieldDict[TypeFileColumns.typeName.value]
 	else:
 		return False	
 
+	#user shouldnt be able to edit the emptyType, dont want them to add columns to it.
+	if typeName in res.keys() and typeName == emptyTypeName:
+		return
+
+	#if its theres this overwrites, if not it adds a new entry
+	res[typeName] = typeFieldDict
 	try:
-		df = pd.read_csv(typeFilePath, index_col = 0)
-	except pd.errors.EmptyDataError:
-		df = pd.DataFrame()
-
-	if not df.empty:
-		#if typeName is already there, this is basically edit functionality.
-		df.loc[typeName] = list(typeFieldDict.values())
-		df.to_csv(typeFilePath)
-	else:
-		dfNew = pd.DataFrame([typeFieldDict])
-		dfNew.index = [typeName]
-		dfNew.to_csv(typeFilePath)
-
-	return True
-	
+		f = open(typeFilePath, "w")
+		jsonStr = json.dumps(res)
+		f.write(jsonStr)
+		f.close()
+		return True 
+	except:
+		return False	
 
 def deleteTypeFromFile(name):
-	#if file doesnt exist yet, make sure its created
-	#if it already exists, this does nothing
-	f = open(typeFilePath, "a+")
-	f.close() 
-	df = pd.read_csv(typeFilePath, index_col = 0)
 
-	if not df.empty:
-		if name in df.index.values.tolist():
-			df.drop(name, inplace =True)
-			df.to_csv(typeFilePath)
-		else:
-			return False
-	else:
-		return False
+	res = {}
+	try:
+		f = open(typeFilePath, "r")
+		res = json.load(f)
+		f.close() 
+	except:
+		res = {}
 
-	return True
+	if name in res.keys():
+		res.pop(name)
+	try:
+		f = open(typeFilePath, "w")
+		jsonStr = json.dumps(res)
+		f.write(jsonStr)
+		f.close()
+		return True 
+	except:
+		return False	
 
 def buildTypeDataFromFile():
-	#if file doesnt exist yet, make sure its created
-	#if it already exists, this does nothing
-	f = open(typeFilePath, "a+")
-	f.close() 
 
 	try:
-		df = pd.read_csv(typeFilePath, index_col = 0)
-		return df
-	except pd.errors.EmptyDataError:
-		return pd.DataFrame()
+		addTypeToFile(buildEmptyType())
+		f = open(typeFilePath, "r")
+		res = json.load(f)
+		f.close() 
+		return res
+	except:
+		return {}

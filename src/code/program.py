@@ -126,6 +126,7 @@ class MainUI(QMainWindow):
 		self.sources = buildSourceDataFromFile()
 		if not self.sources.empty:
 			for source in self.sources[SourceFileColumns.sourceName.value].to_list():
+				source = str(source)
 				itm = QListWidgetItem(source)
 				itm.setTextAlignment(QtCore.Qt.AlignCenter)
 				self.ui.sourceList.addItem(itm)
@@ -133,11 +134,11 @@ class MainUI(QMainWindow):
 	def refresh_types(self):
 		self.ui.typeList.clear()
 		types = buildTypeDataFromFile()
-		if not types.empty:
-			for typeR in types[TypeFileColumns.typeName.value].to_list():
-				itm = QListWidgetItem(typeR)
-				itm.setTextAlignment(QtCore.Qt.AlignCenter)
-				self.ui.typeList.addItem(itm)
+		for typeR in types.keys():
+				if typeR != emptyTypeName:
+					itm = QListWidgetItem(typeR)
+					itm.setTextAlignment(QtCore.Qt.AlignCenter)
+					self.ui.typeList.addItem(itm)
 
 	def delete_source_clicked(self):
 		itm = self.ui.sourceList.currentItem()
@@ -288,8 +289,8 @@ class AddSourceUI(QMainWindow):
 
 	def populateDynamicCols(self, typeName, types):
 		self.clearDynamicCols()
-		if typeName != "":
-			customCols = types.loc[typeName,TypeFileColumns.colList.value]
+		if typeName != "" and typeName != emptyTypeName:
+			customCols = str(types.loc[typeName,TypeFileColumns.colList.value])
 			colList = customCols.split(",")
 			for col in colList:
 				lab = QLabel()
@@ -312,6 +313,7 @@ class AddSourceUI(QMainWindow):
 
 	#Fill out source values if source is clicked
 	def show_source_clicked(self, source_name, sources):
+		source_name = str(source_name)
 		cols = list(sources.columns)
 		for column in cols:
 			val = sources.loc[source_name, column]
@@ -445,9 +447,9 @@ class AddSettingUI(QMainWindow):
 
 	def show_settings(self):
 		settings = buildSettingsDataFromFile()
-		cols = list(settings.index)
+		cols = settings.keys()
 		for column in cols:
-			val = settings.loc[column]
+			val = settings[column]
 			inputField = self.findChild(QLineEdit, column)
 			if inputField:
 				inputField.setText(str(val))
@@ -536,15 +538,12 @@ class AddTypeUI(QMainWindow):
 
 	def show_type_clicked(self, type_name):
 		types = buildTypeDataFromFile()
-		cols = list(types.columns)
-		for column in cols:
-			val = types.loc[type_name, column]
-			inputField = self.findChild(QLineEdit, column)
-			if val != notUsedStr:
-				inputField.setText(str(val))
-			else:
-				inputField.setText("")
-
+		
+		for column in TypeFileColumns:
+			colName = column.value
+			val = types[type_name][colName]
+			inputField = self.findChild(QLineEdit, colName)
+			inputField.setText(str(val))
 						
 	def return_to_main_window(self):
 		self.mainWindow.refresh_types()
@@ -563,7 +562,7 @@ class AddTypeUI(QMainWindow):
 		for typeColumn in TypeFileColumns:
 			inputField = self.findChild(QLineEdit, typeColumn.value)
 			if not typeColumn in dictL.keys():
-				dictL[typeColumn.value] = notUsedStr if inputField.text() == "" else str(inputField.text())
+				dictL[typeColumn.value] = str(inputField.text())
 		return dictL
 
 	def save_type_clicked(self):
