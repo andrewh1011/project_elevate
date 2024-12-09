@@ -47,12 +47,6 @@ def convertToStr(value,sourceName,fileName,columnIndex):
 	except Exception:
 		writeLogRow(sourceName, fileName, str(value), LogTypes.error.value, "invalid string ignored in column " + str(columnIndex))
 		return ""
-def convertToDate(value,sourceName,fileName,columnIndex):
-	try:
-		return pd.Timestamp(value)
-	except Exception:
-		writeLogRow(sourceName, fileName, str(value), LogTypes.error.value, "invalid date ignored in column " + str(columnIndex))
-		return pd.NaT
 			
 def forceTypeOnColumn(data, columnIndex, typeFunc, sourceName, fileName):
 	if columnIndex != -1:
@@ -191,6 +185,8 @@ def buildOutput(fileInfos, nameMatchCallBack):
 		
 		for ind, row in fileDf.iterrows():
 
+			print(row)
+
 			plugin.globalRow = row
 
 			dodidNum = -1
@@ -209,6 +205,12 @@ def buildOutput(fileInfos, nameMatchCallBack):
 			if lastNameIndex != -1:
 				fullName = fullName + " " + row.iloc[lastNameIndex]
 			clnName = cleanName(fullName)
+
+			#user claims to have given at least one identifier column, yet didnt get any identifier information.
+			#this is a useless row, so ignore it.
+			if clnName == "" and email == "" and dodidNum == -1:
+				writeLogRow(sourceName, filePath, row.to_string(), LogTypes.action.error, "blank row(" + str(ind) + ") with no identifying information ignored.")
+				continue
 
 			matchIndex = -1
 			
