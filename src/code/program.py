@@ -69,13 +69,13 @@ class MainUI(QMainWindow):
 	def start_btn_clicked(self):
 		keys = self.fileNames.keys()
 		if len(keys) >	0:
-			try:
-				self.ui.actionLabel.setText("Output generation started...")
-				QApplication.processEvents()
-				ret = buildOutput(self.fileNames.values(), self.name_match_confirmer())
-				self.ui.actionLabel.setText(ret)
-			except Exception as e:
-				self.ui.actionLabel.setText("Parsing/Generation Error: " + str(e))
+			#try:
+			self.ui.actionLabel.setText("Output generation started...")
+			QApplication.processEvents()
+			ret = buildOutput(self.fileNames.values(), self.name_match_confirmer())
+			self.ui.actionLabel.setText(ret)
+			#except Exception as e:
+			#	self.ui.actionLabel.setText("Parsing/Generation Error: " + str(e))
 		else:
 			self.ui.actionLabel.setText("Please provide at least one file for the report generation.")	
 

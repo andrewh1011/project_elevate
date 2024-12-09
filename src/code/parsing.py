@@ -155,7 +155,6 @@ def buildOutput(fileInfos, nameMatchCallBack):
 	sources = buildSourceDataFromFile()
 	types = buildTypeDataFromFile()
 
-
 	for fileInfo in fileInfos:
 		filePath = fileInfo[0]
 		sourceName = fileInfo[1]
@@ -167,6 +166,9 @@ def buildOutput(fileInfos, nameMatchCallBack):
 		firstNameIndex = int(source_data[SourceFileColumns.firstName.value]) if source_data[SourceFileColumns.firstName.value] != "" else -1
 		lastNameIndex = int(source_data[SourceFileColumns.lastName.value]) if source_data[SourceFileColumns.lastName.value] != "" else -1
 		courseNameIndex = int(source_data[SourceFileColumns.courseName.value]) if source_data[SourceFileColumns.courseName.value] != "" else -1
+
+		if firstNameIndex == -1 and dodIndex == -1 and emailIndex == -1:
+			return "Must have at least one identifier column(email, id, name,...) " + filePath + " Source Assigned: " + sourceName
 
 		fileDf = pd.read_excel(filePath, header = None)
 		if skipRows > 0:
@@ -190,20 +192,17 @@ def buildOutput(fileInfos, nameMatchCallBack):
 				return "Column Index too large! File: " + filePath + " Source Assigned: " + sourceName
 
 		trainingTypeName = source_data[ExtraSourceFileColumns.typeName.value]
-
 		trainingTypeData = types[trainingTypeName]
-
-		pluginFilePath = trainingTypeData[TypeFileColumns.pluginFile.value]
-		executePlugin(pluginFilePath)
 
 		forceTypeOnColumn(fileDf,emailIndex, convertToStr, sourceName, filePath)
 		forceTypeOnColumn(fileDf,firstNameIndex, convertToStr, sourceName, filePath)
 		forceTypeOnColumn(fileDf,lastNameIndex, convertToStr, sourceName, filePath)
 		forceTypeOnColumn(fileDf,courseNameIndex, convertToStr, sourceName, filePath)
 		forceTypeOnColumn(fileDf,dodIndex, convertToInt, sourceName, filePath)
-		
-		return
 
+		pluginFilePath = trainingTypeData[TypeFileColumns.pluginFile.value]
+		untransformedPlugin = readPlugin(pluginFilePath)
+		
 		for ind, row in fileDf.iterrows():
 			dodidNum = -1
 			email = ""
@@ -216,7 +215,8 @@ def buildOutput(fileInfos, nameMatchCallBack):
 			if emailIndex != -1:
 				email = cleanEmail(row.iloc[emailIndex])
 		
-			fullName = row.iloc[firstNameIndex]	
+			if firstNameIndex != -1:
+				fullName = row.iloc[firstNameIndex]	
 			if lastNameIndex != -1:
 				fullName = fullName + " " + row.iloc[lastNameIndex]
 			clnName = cleanName(fullName)
@@ -266,17 +266,19 @@ def buildOutput(fileInfos, nameMatchCallBack):
 				ids = ids._append({SourceFileColumns.dodid.value : dodidNum,SourceFileColumns.email.value: email, ReportExtraColumns.cleanName.value: clnName, ReportExtraColumns.fullName.value: fullName}, ignore_index=True)
 				inds = ids.index.values.tolist()
 				matchIndex = inds[len(inds)-1]
-				ids.iloc[matchIndex, 4:] = "=CHOOSE(1,{0})".format(buildDateIndicator(None,None))
+				ids.iloc[matchIndex, 4:] = "=CHOOSE(1,{0})".format(DateStatus.notAssigned.value)
 
 			
 			courseName = buildCourseName(row.iloc[courseNameIndex],sourceName)
-			dueDate = row.iloc[dueDateIndex]
-			compDate = row.iloc[compDateIndex]
 			if not courseName in ids.columns.values.tolist():
-				colInfo = {courseName: "=CHOOSE(1,{0})".format(buildDateIndicator(None,None))}
+				colInfo = {courseName: "=CHOOSE(1,{0})".format(DateStatus.notAssigned.value)}
 				ids = ids.assign(**colInfo)
 			
-			ids.loc[matchIndex, courseName] = "=CHOOSE(1,{0})".format(buildDateIndicator(dueDate,compDate))
+			transformedPlugin = transformPlugin(untransformedPlugin,customCols,ind)
+			print(transformedPlugin)
+			executePlugin(transformedPlugin)
+
+			#ids.loc[matchIndex, courseName] = "=CHOOSE(1,{0})".format(buildDateIndicator(dueDate,compDate))
 			
 	ids.drop(ReportExtraColumns.cleanName.value, axis=1, inplace=True)
 	formatOutput(ids)
