@@ -1,11 +1,32 @@
 import inspect
 
-#custom cols will be a dict that maps colname to index
-def transformPlugin(pluginStr, customCols, rowIndex):
-	for col in customCols.keys():
-		colIndex = customCols[col]
-		pluginStr = pluginStr.replace(col, "row.iloc[int(customCols['" + col + "'])]")
-	return pluginStr	
+#objects that are set by the parsing routine which will be available to plugin code that is executed
+globalRow = None
+globalCustomCols = None
+globalOutput = None
+
+#0 is output text that is shown, 1 is classification indicator, 2 is hidden text
+baseString = "\"{0}\",\"{1}\", \"{2} \""
+
+#functions that a plugin user can call for their convenience
+def getCustomCol(customCol):
+	print(globalRow.iloc[int(globalCustomCols[customCol])])
+	return globalRow.iloc[int(globalCustomCols[customCol])]
+
+def setHiddenText(txt):
+
+
+def setOutputText(txt):
+
+def setOutputOnTime():
+
+def setOutputLate():
+
+def setOutputPending():
+
+def setOutputNotAssigned():
+
+
 
 
 def readPlugin(pluginFile):
@@ -22,6 +43,11 @@ def readPlugin(pluginFile):
 
 def executePlugin(pluginStr):
 	frame = inspect.currentframe().f_back
+	#print("globs ")
+	#print(frame.f_globals)
+	#print("locs")
+	#print(frame.f_locals)
+	
 	exec(pluginStr,frame.f_globals, frame.f_locals)
 
 

@@ -4,7 +4,7 @@ from datetime import datetime
 from manageSources import *
 from manageSettings import *
 from manageTypes import *
-from plugins import *
+import plugins as plugin
 from thefuzz import fuzz
 import os
 
@@ -191,6 +191,8 @@ def buildOutput(fileInfos, nameMatchCallBack):
 			if colIndex > lc:
 				return "Column Index too large! File: " + filePath + " Source Assigned: " + sourceName
 
+		plugin.globalCustomCols = customCols
+
 		trainingTypeName = source_data[ExtraSourceFileColumns.typeName.value]
 		trainingTypeData = types[trainingTypeName]
 
@@ -201,9 +203,12 @@ def buildOutput(fileInfos, nameMatchCallBack):
 		forceTypeOnColumn(fileDf,dodIndex, convertToInt, sourceName, filePath)
 
 		pluginFilePath = trainingTypeData[TypeFileColumns.pluginFile.value]
-		untransformedPlugin = readPlugin(pluginFilePath)
+		pluginStr = plugin.readPlugin(pluginFilePath)
 		
 		for ind, row in fileDf.iterrows():
+
+			plugin.globalRow = row
+
 			dodidNum = -1
 			email = ""
 			fullName = ""
@@ -274,9 +279,8 @@ def buildOutput(fileInfos, nameMatchCallBack):
 				colInfo = {courseName: "=CHOOSE(1,{0})".format(DateStatus.notAssigned.value)}
 				ids = ids.assign(**colInfo)
 			
-			transformedPlugin = transformPlugin(untransformedPlugin,customCols,ind)
-			print(transformedPlugin)
-			executePlugin(transformedPlugin)
+
+			plugin.executePlugin(pluginStr)
 
 			#ids.loc[matchIndex, courseName] = "=CHOOSE(1,{0})".format(buildDateIndicator(dueDate,compDate))
 			
