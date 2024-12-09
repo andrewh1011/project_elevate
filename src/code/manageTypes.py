@@ -19,7 +19,7 @@ class RequiredTypeFileColumns(Enum):
 	colList = "colList"
 	pluginFile = "pluginFile"
 
-emptyTypeName = "noType"
+emptyTypeName = "infoType"
 def buildEmptyType():
 	dictL = {}
 	dictL[TypeFileColumns.typeName.value] = emptyTypeName

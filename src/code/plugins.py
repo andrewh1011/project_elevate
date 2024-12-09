@@ -25,16 +25,16 @@ def setOutputText(txt):
 	outputText = txt
 def setOutputAsSuccess():
 	global outputClass
-	outputClass = parsing.DateStatus.ontime.value
+	outputClass = parsing.CellStatus.success.value
 def setOutputAsFailure():
 	global outputClass
-	outputClass = parsing.DateStatus.overdue.value
+	outputClass = parsing.CellStatus.failure.value
 def setOutputAsPending():
 	global outputClass
-	outputClass = parsing.DateStatus.assigned.value
+	outputClass = parsing.CellStatus.pending.value
 def setOutputAsNotApplicable():
 	global outputClass
-	outputClass = parsing.DateStatus.notAssigned.value
+	outputClass = parsing.CellStatus.notApplicable.value
 def finalizeOutput():
 	global globalOutput
 	globalOutput = baseString.format(outputText,outputClass,hiddenText)	

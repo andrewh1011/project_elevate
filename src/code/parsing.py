@@ -12,11 +12,11 @@ baseDir = os.path.dirname(__file__)
 reportFilePath = os.path.join(baseDir, "../output/output.xlsx")
 logFilePath = os.path.join(baseDir, "../output/log.csv")
 
-class DateStatus(Enum):
-	overdue = "IND_OVERDUE" #this person has been assigned the course, and they either completed it(after the due date) or havent completed it and its past the due date.
-	ontime = "IND_ONTIME" #this person has been assigned the course, and they completed it before the due date.
-	assigned = "IND_ASSIGNED" #this person has been assigned the course, and they have not completed it but it is still before the due date.
-	notAssigned = "IND_NOTASSIGNED"
+class CellStatus(Enum):
+	failure = "IND_FAILURE" 
+	success = "IND_SUCCESS" 
+	pending = "IND_PENDING" 
+	notApplicable = "IND_NOTAPPLICABLE"
 
 #for all the columns needed in the report/log building that arent already in the source storage file.
 class ReportExtraColumns(Enum):
@@ -65,28 +65,6 @@ def cleanName(name):
 def buildCourseName(courseName, sourceName):
 	return courseName + "-" + sourceName
 
-def buildDateIndicator(dueDate,compDate):
-
-	baseString = "\"{0}\",\"{1}\""
-
-	if pd.isnull(dueDate):
-		if pd.isnull(compDate):
-			return baseString.format("",DateStatus.notAssigned.value)
-		else:
-			return baseString.format(str(compDate.date()), DateStatus.ontime.value + "(DUE:NONE)")
-
-	today = datetime.today()
-	if pd.isnull(compDate):
-		if today > dueDate:
-			return baseString.format("", DateStatus.overdue.value + "(DUE:" + str(dueDate.date()) + ")")
-		else:
-			return baseString.format("", DateStatus.assigned.value + "(DUE:" + str(dueDate.date()) + ")")
-	else:
-		if compDate > dueDate:
-			return baseString.format(str(compDate.date()), DateStatus.overdue.value + "(DUE:" + str(dueDate.date()) + ")")
-		else:
-			return baseString.format(str(compDate.date()), DateStatus.ontime.value + "(DUE:" + str(dueDate.date()) + ")")
-
 #this makes sure we only name match rows that dont have a mismatch with dodids or emails
 #dont want to give a name match on two people who have two different values for an id value.
 def calculateMatchRow(cleanName,matchEmail,matchId, row):
@@ -115,18 +93,18 @@ def formatOutput(data):
 	book  = writer.book
 	sheet = writer.sheets['Report']
 
-	overDueColor = book.add_format({'bg_color':'#FF0000'})
-	onTimeColor = book.add_format({'bg_color':'#00FF00'})
-	notAssignedColor = book.add_format({'bg_color':'#C0C0C0'})
-	assignedColor = book.add_format({'bg_color':'#FFFF00'})
-	infoColor = book.add_format({'bg_color':'#0066CC'})
+	failureColor = book.add_format({'bg_color':'#D82C2C'})
+	successColor = book.add_format({'bg_color':'#7AD52F'})
+	notApplicableColor = book.add_format({'bg_color':'#C0C0C0'})
+	pendingColor = book.add_format({'bg_color':'#FFFF00'})
+	infoColor = book.add_format({'bg_color':'#9999FF'})
 	
 	sheet.set_column(0,lastInfoColumnIndex - 1,15)
 	sheet.set_column(lastInfoColumnIndex,colCount-1,30)
-	sheet.conditional_format(1,lastInfoColumnIndex,rowCount,colCount,{'type':'formula','criteria': "=ISNUMBER(SEARCH(\"{0}\", _xlfn.FORMULATEXT({1})))".format(DateStatus.overdue.value, firstCellDates),'format': overDueColor})
-	sheet.conditional_format(1,lastInfoColumnIndex,rowCount,colCount,{'type':'formula','criteria':"=ISNUMBER(SEARCH(\"{0}\", _xlfn.FORMULATEXT({1})))".format(DateStatus.ontime.value, firstCellDates),'format': onTimeColor})
-	sheet.conditional_format(1,lastInfoColumnIndex,rowCount,colCount,{'type':'formula','criteria':"=ISNUMBER(SEARCH(\"{0}\", _xlfn.FORMULATEXT({1})))".format(DateStatus.notAssigned.value, firstCellDates),'format': notAssignedColor})
-	sheet.conditional_format(1,lastInfoColumnIndex,rowCount,colCount,{'type':'formula','criteria':"=ISNUMBER(SEARCH(\"{0}\", _xlfn.FORMULATEXT({1})))".format(DateStatus.assigned.value, firstCellDates),'format': assignedColor})
+	sheet.conditional_format(1,lastInfoColumnIndex,rowCount,colCount,{'type':'formula','criteria': "=ISNUMBER(SEARCH(\"{0}\", _xlfn.FORMULATEXT({1})))".format(CellStatus.failure.value, firstCellDates),'format': failureColor})
+	sheet.conditional_format(1,lastInfoColumnIndex,rowCount,colCount,{'type':'formula','criteria':"=ISNUMBER(SEARCH(\"{0}\", _xlfn.FORMULATEXT({1})))".format(CellStatus.success.value, firstCellDates),'format': successColor})
+	sheet.conditional_format(1,lastInfoColumnIndex,rowCount,colCount,{'type':'formula','criteria':"=ISNUMBER(SEARCH(\"{0}\", _xlfn.FORMULATEXT({1})))".format(CellStatus.notApplicable.value, firstCellDates),'format': notApplicableColor})
+	sheet.conditional_format(1,lastInfoColumnIndex,rowCount,colCount,{'type':'formula','criteria':"=ISNUMBER(SEARCH(\"{0}\", _xlfn.FORMULATEXT({1})))".format(CellStatus.pending.value, firstCellDates),'format': pendingColor})
 	sheet.conditional_format(1,0,rowCount,lastInfoColumnIndex -1,{'type':'formula','criteria':"=AND(COLUMN({2}) < {0}, ROW({2}) < {1})".format(lastInfoColumnIndex + 1, rowCount + 2 , firstCellIds),'format': infoColor})
 	
 	sheet.freeze_panes(0, lastInfoColumnIndex)
@@ -202,11 +180,14 @@ def buildOutput(fileInfos, nameMatchCallBack):
 		forceTypeOnColumn(fileDf,courseNameIndex, convertToStr, sourceName, filePath)
 		forceTypeOnColumn(fileDf,dodIndex, convertToInt, sourceName, filePath)
 
-		pluginFilePath = trainingTypeData[TypeFileColumns.pluginFile.value]
-		try:
-			pluginStr = plugin.readPlugin(pluginFilePath)
-		except:
-			return "Error reading plugin. It is possible this plugin file has moved somewhere else or it is being used by another program. File: " + filePath
+		#empty type means this is an info/personel file, which we want to treat differently.
+		#info files data are solely used to add more information to person info section or course names
+		if trainingTypeName != emptyTypeName:
+			pluginFilePath = trainingTypeData[TypeFileColumns.pluginFile.value]
+			try:
+				pluginStr = plugin.readPlugin(pluginFilePath)
+			except:
+				return "Error reading plugin. It is possible this plugin file has moved somewhere else or it is being used by another program. File: " + filePath
 		
 		for ind, row in fileDf.iterrows():
 
@@ -264,31 +245,40 @@ def buildOutput(fileInfos, nameMatchCallBack):
 							else:
 								return "Parsing process stopped manually during name match."
 			if matchIndex != -1:
+				#fill in any new data that we gained for a person from a match
 				matchRow = ids.loc[matchIndex]
 				if matchRow.loc[SourceFileColumns.dodid.value] == -1 and dodidNum != -1:
 					ids.loc[matchIndex,SourceFileColumns.dodid.value] = dodidNum
 				if matchRow.loc[SourceFileColumns.email.value] == "" and email != "":
 					ids.loc[matchIndex,SourceFileColumns.email.value] = email
+				if matchRow.loc[ReportExtraColumns.fullName.value] == "" and fullName != "":
+					ids.loc[matchIndex,ReportExtraColumns.fullName.value] = fullName
 
 			else:
 				ids = ids._append({SourceFileColumns.dodid.value : dodidNum,SourceFileColumns.email.value: email, ReportExtraColumns.cleanName.value: clnName, ReportExtraColumns.fullName.value: fullName}, ignore_index=True)
 				inds = ids.index.values.tolist()
 				matchIndex = inds[len(inds)-1]
-				ids.iloc[matchIndex, 4:] = "=CHOOSE(1,{0},{1},{2})".format("\"\"", "\"" + DateStatus.notAssigned.value + "\"", "\"\"")
+				ids.iloc[matchIndex, 4:] = "=CHOOSE(1,{0},{1},{2})".format("\"\"", "\"" + CellStatus.notApplicable.value + "\"", "\"\"")
 
-			
-			courseName = buildCourseName(row.iloc[courseNameIndex],sourceName)
-			if not courseName in ids.columns.values.tolist():
-				colInfo = {courseName: "=CHOOSE(1,{0},{1},{2})".format("\"\"", "\"" + DateStatus.notAssigned.value + "\"", "\"\"")}
-				ids = ids.assign(**colInfo)
-			
-			try:
-				plugin.executePlugin(pluginStr)
-			except Exception as e:
-				return "Error while running plugin. File: " + pluginFilePath + " Error: " + str(e)
+			if trainingTypeName != emptyTypeName:
+				if courseNameIndex != -1:
+					courseName = buildCourseName(row.iloc[courseNameIndex],sourceName)
+				else:
+					#if no coursename, file is assumed to be describing a single training module. In this case, sourceName is the same as courseName
+					courseName = sourceName
 
-			builtOutput = plugin.globalOutput
-			ids.loc[matchIndex, courseName] = "=CHOOSE(1,{0})".format(builtOutput)
+				if not courseName in ids.columns.values.tolist():
+					colInfo = {courseName: "=CHOOSE(1,{0},{1},{2})".format("\"\"", "\"" + CellStatus.notApplicable.value + "\"", "\"\"")}
+					ids = ids.assign(**colInfo)
+			
+			if trainingTypeName != emptyTypeName:
+				try:
+					plugin.executePlugin(pluginStr)
+				except Exception as e:
+					return "Error while running plugin. File: " + pluginFilePath + " Error: " + str(e)
+				
+				builtOutput = plugin.globalOutput
+				ids.loc[matchIndex, courseName] = "=CHOOSE(1,{0})".format(builtOutput)
 			
 	ids.drop(ReportExtraColumns.cleanName.value, axis=1, inplace=True)
 	formatOutput(ids)
