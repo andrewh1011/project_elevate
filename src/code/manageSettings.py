@@ -28,6 +28,8 @@ def addSettingsToFile(settingFieldDict):
 		f.close()
 		return True 
 	except:
+		if not f.closed():
+			f.close()
 		return False	
 	
 def buildSettingsDataFromFile():
@@ -38,4 +40,6 @@ def buildSettingsDataFromFile():
 		f.close() 
 		return res
 	except:
+		if not f.closed():
+			f.close()
 		return {}

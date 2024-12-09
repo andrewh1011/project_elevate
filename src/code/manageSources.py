@@ -35,6 +35,8 @@ def addSourceToFile(sourceFieldDict):
 		res = json.load(f)
 		f.close() 
 	except:
+		if not f.closed():
+			f.close()
 		res = {}
 
 	sourceName = ""
@@ -52,6 +54,8 @@ def addSourceToFile(sourceFieldDict):
 		f.close()
 		return True 
 	except:
+		if not f.closed():
+			f.close()
 		return False	
 	
 
@@ -63,6 +67,8 @@ def deleteSourceFromFile(name):
 		res = json.load(f)
 		f.close() 
 	except:
+		if not f.closed():
+			f.close()
 		res = {}
 
 	if name in res.keys():
@@ -74,6 +80,8 @@ def deleteSourceFromFile(name):
 		f.close()
 		return True 
 	except:
+		if not f.closed():
+			f.close()
 		return False	
 
 def buildSourceDataFromFile():
@@ -83,4 +91,6 @@ def buildSourceDataFromFile():
 		f.close() 
 		return res
 	except:
+		if not f.closed():
+			f.close()
 		return {}

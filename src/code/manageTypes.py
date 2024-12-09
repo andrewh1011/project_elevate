@@ -37,6 +37,8 @@ def addTypeToFile(typeFieldDict):
 		res = json.load(f)
 		f.close() 
 	except:
+		if not f.closed():
+			f.close()
 		res = {}
 
 	typeName = ""
@@ -58,6 +60,8 @@ def addTypeToFile(typeFieldDict):
 		f.close()
 		return True 
 	except:
+		if not f.closed():
+			f.close()
 		return False	
 
 def deleteTypeFromFile(name):
@@ -68,6 +72,8 @@ def deleteTypeFromFile(name):
 		res = json.load(f)
 		f.close() 
 	except:
+		if not f.closed():
+			f.close()
 		res = {}
 
 	if name in res.keys():
@@ -79,6 +85,8 @@ def deleteTypeFromFile(name):
 		f.close()
 		return True 
 	except:
+		if not f.closed():
+			f.close()
 		return False	
 
 def buildTypeDataFromFile():
@@ -90,4 +98,6 @@ def buildTypeDataFromFile():
 		f.close() 
 		return res
 	except:
+		if not f.closed():
+			f.close()
 		return {}

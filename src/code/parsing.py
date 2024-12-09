@@ -3,6 +3,8 @@ import numpy as np
 from datetime import datetime
 from manageSources import *
 from manageSettings import *
+from manageTypes import *
+from plugins import *
 from thefuzz import fuzz
 import os
 
@@ -136,12 +138,12 @@ def buildOutput(fileInfos, nameMatchCallBack):
 
 	settings = buildSettingsDataFromFile()
 	nameMatchThreshold = 75
-	if SettingsFileColumns.nameMatchThreshold.value in list(settings.index):
-		nameMatchThreshold = settings.loc[SettingsFileColumns.nameMatchThreshold.value]
+	if SettingsFileColumns.nameMatchThreshold.value in settings.keys():
+		nameMatchThreshold = settings[SettingsFileColumns.nameMatchThreshold.value]
 
 	autoMatchThreshold = 75
-	if SettingsFileColumns.autoMatchThreshold.value in list(settings.index):
-		autoMatchThreshold = settings.loc[SettingsFileColumns.autoMatchThreshold.value]
+	if SettingsFileColumns.autoMatchThreshold.value in settings.keys():
+		autoMatchThreshold = settings[SettingsFileColumns.autoMatchThreshold.value]
 
 	logHdr = pd.DataFrame(columns = [SourceFileColumns.sourceName.value, ReportExtraColumns.filePath.value, ReportExtraColumns.rowData.value, ReportExtraColumns.logType.value, ReportExtraColumns.desc.value])
 	logHdr.to_csv(logFilePath, index = False)
@@ -150,22 +152,21 @@ def buildOutput(fileInfos, nameMatchCallBack):
 	#when a new coursename is encounter, this course will be added as a column
 	ids = pd.DataFrame(columns = [SourceFileColumns.dodid.value, SourceFileColumns.email.value, ReportExtraColumns.cleanName.value, ReportExtraColumns.fullName.value])
 
-	sources = pd.read_csv(sourceFilePath, index_col = 0)
+	sources = buildSourceDataFromFile()
+	types = buildTypeDataFromFile()
+
 
 	for fileInfo in fileInfos:
 		filePath = fileInfo[0]
 		sourceName = fileInfo[1]
 
-		source_indices = sources.loc[sourceName]
-
-		skipRows = source_indices.loc[SourceFileColumns.skipRows.value]
-		emailIndex = source_indices.loc[SourceFileColumns.email.value]
-		dodIndex = source_indices.loc[SourceFileColumns.dodid.value]
-		firstNameIndex = source_indices.loc[SourceFileColumns.firstName.value]
-		lastNameIndex = source_indices.loc[SourceFileColumns.lastName.value]
-		courseNameIndex = source_indices.loc[SourceFileColumns.courseName.value]
-		dueDateIndex = source_indices.loc[SourceFileColumns.dueDate.value]
-		compDateIndex = source_indices.loc[SourceFileColumns.compDate.value]
+		source_data = sources[sourceName]
+		skipRows = int(source_data[SourceFileColumns.skipRows.value])#required
+		emailIndex = int(source_data[SourceFileColumns.email.value]) if source_data[SourceFileColumns.email.value] != "" else -1
+		dodIndex = int(source_data[SourceFileColumns.dodid.value]) if source_data[SourceFileColumns.dodid.value] != "" else -1
+		firstNameIndex = int(source_data[SourceFileColumns.firstName.value]) if source_data[SourceFileColumns.firstName.value] != "" else -1
+		lastNameIndex = int(source_data[SourceFileColumns.lastName.value]) if source_data[SourceFileColumns.lastName.value] != "" else -1
+		courseNameIndex = int(source_data[SourceFileColumns.courseName.value]) if source_data[SourceFileColumns.courseName.value] != "" else -1
 
 		fileDf = pd.read_excel(filePath, header = None)
 		if skipRows > 0:
@@ -178,17 +179,31 @@ def buildOutput(fileInfos, nameMatchCallBack):
 				fileDf = pd.read_excel(filePath, header = list(range(skipRows)))
 		
 		lc = len(fileDf.columns) - 1
-		if emailIndex > lc or dodIndex > lc or firstNameIndex > lc or lastNameIndex > lc or courseNameIndex > lc or dueDateIndex > lc or compDateIndex > lc:
+		if emailIndex > lc or dodIndex > lc or firstNameIndex > lc or lastNameIndex > lc or courseNameIndex > lc:
 			return "Column Index too large! File: " + filePath + " Source Assigned: " + sourceName
+
+		customCols = source_data[ExtraSourceFileColumns.typeCols.value]
+
+		for colName in customCols.keys():
+			colIndex = int(customCols[colName]) # required
+			if colIndex > lc:
+				return "Column Index too large! File: " + filePath + " Source Assigned: " + sourceName
+
+		trainingTypeName = source_data[ExtraSourceFileColumns.typeName.value]
+
+		trainingTypeData = types[trainingTypeName]
+
+		pluginFilePath = trainingTypeData[TypeFileColumns.pluginFile.value]
+		executePlugin(pluginFilePath)
 
 		forceTypeOnColumn(fileDf,emailIndex, convertToStr, sourceName, filePath)
 		forceTypeOnColumn(fileDf,firstNameIndex, convertToStr, sourceName, filePath)
 		forceTypeOnColumn(fileDf,lastNameIndex, convertToStr, sourceName, filePath)
 		forceTypeOnColumn(fileDf,courseNameIndex, convertToStr, sourceName, filePath)
 		forceTypeOnColumn(fileDf,dodIndex, convertToInt, sourceName, filePath)
-		forceTypeOnColumn(fileDf,dueDateIndex, convertToDate, sourceName, filePath)
-		forceTypeOnColumn(fileDf,compDateIndex, convertToDate, sourceName, filePath)
 		
+		return
+
 		for ind, row in fileDf.iterrows():
 			dodidNum = -1
 			email = ""
