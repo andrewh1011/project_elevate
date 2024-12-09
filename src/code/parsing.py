@@ -203,7 +203,10 @@ def buildOutput(fileInfos, nameMatchCallBack):
 		forceTypeOnColumn(fileDf,dodIndex, convertToInt, sourceName, filePath)
 
 		pluginFilePath = trainingTypeData[TypeFileColumns.pluginFile.value]
-		pluginStr = plugin.readPlugin(pluginFilePath)
+		try:
+			pluginStr = plugin.readPlugin(pluginFilePath)
+		except:
+			return "Error reading plugin. It is possible this plugin file has moved somewhere else or it is being used by another program. File: " + filePath
 		
 		for ind, row in fileDf.iterrows():
 
@@ -271,18 +274,21 @@ def buildOutput(fileInfos, nameMatchCallBack):
 				ids = ids._append({SourceFileColumns.dodid.value : dodidNum,SourceFileColumns.email.value: email, ReportExtraColumns.cleanName.value: clnName, ReportExtraColumns.fullName.value: fullName}, ignore_index=True)
 				inds = ids.index.values.tolist()
 				matchIndex = inds[len(inds)-1]
-				ids.iloc[matchIndex, 4:] = "=CHOOSE(1,{0})".format(DateStatus.notAssigned.value)
+				ids.iloc[matchIndex, 4:] = "=CHOOSE(1,{0},{1},{2})".format("\"\"", "\"" + DateStatus.notAssigned.value + "\"", "\"\"")
 
 			
 			courseName = buildCourseName(row.iloc[courseNameIndex],sourceName)
 			if not courseName in ids.columns.values.tolist():
-				colInfo = {courseName: "=CHOOSE(1,{0})".format(DateStatus.notAssigned.value)}
+				colInfo = {courseName: "=CHOOSE(1,{0},{1},{2})".format("\"\"", "\"" + DateStatus.notAssigned.value + "\"", "\"\"")}
 				ids = ids.assign(**colInfo)
 			
+			try:
+				plugin.executePlugin(pluginStr)
+			except Exception as e:
+				return "Error while running plugin. File: " + pluginFilePath + " Error: " + str(e)
 
-			plugin.executePlugin(pluginStr)
-
-			#ids.loc[matchIndex, courseName] = "=CHOOSE(1,{0})".format(buildDateIndicator(dueDate,compDate))
+			builtOutput = plugin.globalOutput
+			ids.loc[matchIndex, courseName] = "=CHOOSE(1,{0})".format(builtOutput)
 			
 	ids.drop(ReportExtraColumns.cleanName.value, axis=1, inplace=True)
 	formatOutput(ids)

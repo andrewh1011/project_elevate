@@ -1,1 +1,1 @@
-{"noType": {"tName": "noType", "colList": "", "failureCond": "", "failureInfo": "", "notAssignedCond": "", "notAssignedInfo": "", "pendingCond": "", "pendingInfo": "", "successCond": "", "successInfo": ""}}
+{"noType": {"tName": "noType", "colList": "", "pluginFile": "", "annotation": ""}, "twoDates": {"tName": "twoDates", "colList": "dueDate,compDate", "pluginFile": "C:/Users/nflet/Desktop/project_elevate/src/plugins/dueDateCompDatePlugin.py", "annotation": "this type of file will have two dates: a due date and comp date."}}
