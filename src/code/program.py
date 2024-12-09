@@ -1,5 +1,5 @@
 from PyQt5 import Qt, QtCore
-from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QFileDialog, QLabel, QListWidget, QListWidgetItem, QInputDialog, QMessageBox, QLineEdit
+from PyQt5.QtWidgets import QMainWindow,QPlainTextEdit, QApplication, QPushButton, QFileDialog, QLabel, QListWidget, QListWidgetItem, QInputDialog, QMessageBox, QLineEdit
 import sys, os
 from uiFile import Ui_Dialog
 from addSource import Ui_AddWindow
@@ -22,7 +22,7 @@ class MainUI(QMainWindow):
 	
 	def __init__(self):
 		super(MainUI, self).__init__()
-		self.fileNames = {} # maps fileNames to (fullFilePath, sourceName) -> a tuple with important information about the file
+		self.fileNames = {} # maps fileNames to (fullFilePath, sourceName)
 		
 		self.ui = Ui_Dialog()
 		self.ui.setupUi(self)
@@ -523,6 +523,7 @@ class AddTypeUI(QMainWindow):
 		self.ui = TypeUi_AddWindow()
 		self.ui.setupUi(self)
 
+		self.ui.pluginImportBtn.clicked.connect(self.plugin_import_clicked)
 		self.ui.saveBtn.clicked.connect(self.save_type_clicked)
 		
 		self.ui.tutorialBtn.clicked.connect(self.open_tutorial)
@@ -532,15 +533,25 @@ class AddTypeUI(QMainWindow):
 		for rCol in RequiredTypeFileColumns:
 			el = self.findChild(QLabel, rCol.value + "Label")
 			el.setStyleSheet('color: red;')
+	
+	def plugin_import_clicked(self):
+		file = QFileDialog.getOpenFileName(self, "Add Plugin", "/~", "Plugins(*.py)")
+		if file[0]:
+			self.ui.pluginFile.setText(file[0])
 
 	def show_type_clicked(self, type_name):
 		types = buildTypeDataFromFile()
 		
 		for column in TypeFileColumns:
-			colName = column.value
-			val = types[type_name][colName]
-			inputField = self.findChild(QLineEdit, colName)
-			inputField.setText(str(val))
+			if column != TypeFileColumns.annotation:
+				colName = column.value
+				val = types[type_name][colName]
+				inputField = self.findChild(QLineEdit, colName)
+				inputField.setText(str(val))
+		
+		txt = types[type_name][TypeFileColumns.annotation.value]
+		annotField = self.findChild(QPlainTextEdit, TypeFileColumns.annotation.value)
+		annotField.setPlainText(str(txt))
 						
 	def return_to_main_window(self):
 		self.mainWindow.refresh_types()
@@ -557,9 +568,13 @@ class AddTypeUI(QMainWindow):
 	def package_type_form(self):
 		dictL = {}
 		for typeColumn in TypeFileColumns:
-			inputField = self.findChild(QLineEdit, typeColumn.value)
-			if not typeColumn in dictL.keys():
-				dictL[typeColumn.value] = str(inputField.text())
+			if typeColumn != TypeFileColumns.annotation:
+				inputField = self.findChild(QLineEdit, typeColumn.value)
+				if not typeColumn in dictL.keys():
+					dictL[typeColumn.value] = str(inputField.text())
+		
+		annotField = self.findChild(QPlainTextEdit, TypeFileColumns.annotation.value)
+		dictL[TypeFileColumns.annotation.value] = str(annotField.toPlainText())
 		return dictL
 
 	def confirm_change_columns_for_type(self):

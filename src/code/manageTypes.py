@@ -11,18 +11,13 @@ typeFilePath = os.path.join(baseDir, "../appStorage/types.json")
 class TypeFileColumns(Enum):
 	typeName = "tName"
 	colList = "colList"
-	failureCond = "failureCond"
-	failureInfo = "failureInfo"
-	notAssignedCond = "notAssignedCond"
-	notAssignedInfo = "notAssignedInfo"
-	pendingCond = "pendingCond"
-	pendingInfo = "pendingInfo"
-	successCond = "successCond"
-	successInfo = "successInfo"
+	pluginFile = "pluginFile"
+	annotation = "annotation"
 	
 class RequiredTypeFileColumns(Enum):
 	typeName = "tName"
 	colList = "colList"
+	pluginFile = "pluginFile"
 
 emptyTypeName = "noType"
 def buildEmptyType():
