@@ -1,8 +1,11 @@
 import pandas as pd
+from pandas._libs.parsers import STR_NA_VALUES
 import numpy as np
 from datetime import datetime
 from manageSources import *
 from manageSettings import *
+from manageTypes import *
+import plugins as plugin
 from thefuzz import fuzz
 import os
 
@@ -10,11 +13,11 @@ baseDir = os.path.dirname(__file__)
 reportFilePath = os.path.join(baseDir, "../output/output.xlsx")
 logFilePath = os.path.join(baseDir, "../output/log.csv")
 
-class DateStatus(Enum):
-	overdue = "IND_OVERDUE" #this person has been assigned the course, and they either completed it(after the due date) or havent completed it and its past the due date.
-	ontime = "IND_ONTIME" #this person has been assigned the course, and they completed it before the due date.
-	assigned = "IND_ASSIGNED" #this person has been assigned the course, and they have not completed it but it is still before the due date.
-	notAssigned = "IND_NOTASSIGNED"
+class CellStatus(Enum):
+	failure = "IND_FAILURE" 
+	success = "IND_SUCCESS" 
+	pending = "IND_PENDING" 
+	notApplicable = "IND_NOTAPPLICABLE"
 
 #for all the columns needed in the report/log building that arent already in the source storage file.
 class ReportExtraColumns(Enum):
@@ -45,12 +48,6 @@ def convertToStr(value,sourceName,fileName,columnIndex):
 	except Exception:
 		writeLogRow(sourceName, fileName, str(value), LogTypes.error.value, "invalid string ignored in column " + str(columnIndex))
 		return ""
-def convertToDate(value,sourceName,fileName,columnIndex):
-	try:
-		return pd.Timestamp(value)
-	except Exception:
-		writeLogRow(sourceName, fileName, str(value), LogTypes.error.value, "invalid date ignored in column " + str(columnIndex))
-		return pd.NaT
 			
 def forceTypeOnColumn(data, columnIndex, typeFunc, sourceName, fileName):
 	if columnIndex != -1:
@@ -62,28 +59,6 @@ def cleanName(name):
 	return name.replace(" ", "").replace("-", "").lower()
 def buildCourseName(courseName, sourceName):
 	return courseName + "-" + sourceName
-
-def buildDateIndicator(dueDate,compDate):
-
-	baseString = "\"{0}\",\"{1}\""
-
-	if pd.isnull(dueDate):
-		if pd.isnull(compDate):
-			return baseString.format("",DateStatus.notAssigned.value)
-		else:
-			return baseString.format(str(compDate.date()), DateStatus.ontime.value + "(DUE:NONE)")
-
-	today = datetime.today()
-	if pd.isnull(compDate):
-		if today > dueDate:
-			return baseString.format("", DateStatus.overdue.value + "(DUE:" + str(dueDate.date()) + ")")
-		else:
-			return baseString.format("", DateStatus.assigned.value + "(DUE:" + str(dueDate.date()) + ")")
-	else:
-		if compDate > dueDate:
-			return baseString.format(str(compDate.date()), DateStatus.overdue.value + "(DUE:" + str(dueDate.date()) + ")")
-		else:
-			return baseString.format(str(compDate.date()), DateStatus.ontime.value + "(DUE:" + str(dueDate.date()) + ")")
 
 #this makes sure we only name match rows that dont have a mismatch with dodids or emails
 #dont want to give a name match on two people who have two different values for an id value.
@@ -113,18 +88,18 @@ def formatOutput(data):
 	book  = writer.book
 	sheet = writer.sheets['Report']
 
-	overDueColor = book.add_format({'bg_color':'#FF0000'})
-	onTimeColor = book.add_format({'bg_color':'#00FF00'})
-	notAssignedColor = book.add_format({'bg_color':'#C0C0C0'})
-	assignedColor = book.add_format({'bg_color':'#FFFF00'})
-	infoColor = book.add_format({'bg_color':'#0066CC'})
+	failureColor = book.add_format({'bg_color':'#D82C2C'})
+	successColor = book.add_format({'bg_color':'#7AD52F'})
+	notApplicableColor = book.add_format({'bg_color':'#C0C0C0'})
+	pendingColor = book.add_format({'bg_color':'#FFFF00'})
+	infoColor = book.add_format({'bg_color':'#9999FF'})
 	
 	sheet.set_column(0,lastInfoColumnIndex - 1,15)
 	sheet.set_column(lastInfoColumnIndex,colCount-1,30)
-	sheet.conditional_format(1,lastInfoColumnIndex,rowCount,colCount,{'type':'formula','criteria': "=ISNUMBER(SEARCH(\"{0}\", _xlfn.FORMULATEXT({1})))".format(DateStatus.overdue.value, firstCellDates),'format': overDueColor})
-	sheet.conditional_format(1,lastInfoColumnIndex,rowCount,colCount,{'type':'formula','criteria':"=ISNUMBER(SEARCH(\"{0}\", _xlfn.FORMULATEXT({1})))".format(DateStatus.ontime.value, firstCellDates),'format': onTimeColor})
-	sheet.conditional_format(1,lastInfoColumnIndex,rowCount,colCount,{'type':'formula','criteria':"=ISNUMBER(SEARCH(\"{0}\", _xlfn.FORMULATEXT({1})))".format(DateStatus.notAssigned.value, firstCellDates),'format': notAssignedColor})
-	sheet.conditional_format(1,lastInfoColumnIndex,rowCount,colCount,{'type':'formula','criteria':"=ISNUMBER(SEARCH(\"{0}\", _xlfn.FORMULATEXT({1})))".format(DateStatus.assigned.value, firstCellDates),'format': assignedColor})
+	sheet.conditional_format(1,lastInfoColumnIndex,rowCount,colCount,{'type':'formula','criteria': "=ISNUMBER(SEARCH(\"{0}\", _xlfn.FORMULATEXT({1})))".format(CellStatus.failure.value, firstCellDates),'format': failureColor})
+	sheet.conditional_format(1,lastInfoColumnIndex,rowCount,colCount,{'type':'formula','criteria':"=ISNUMBER(SEARCH(\"{0}\", _xlfn.FORMULATEXT({1})))".format(CellStatus.success.value, firstCellDates),'format': successColor})
+	sheet.conditional_format(1,lastInfoColumnIndex,rowCount,colCount,{'type':'formula','criteria':"=ISNUMBER(SEARCH(\"{0}\", _xlfn.FORMULATEXT({1})))".format(CellStatus.notApplicable.value, firstCellDates),'format': notApplicableColor})
+	sheet.conditional_format(1,lastInfoColumnIndex,rowCount,colCount,{'type':'formula','criteria':"=ISNUMBER(SEARCH(\"{0}\", _xlfn.FORMULATEXT({1})))".format(CellStatus.pending.value, firstCellDates),'format': pendingColor})
 	sheet.conditional_format(1,0,rowCount,lastInfoColumnIndex -1,{'type':'formula','criteria':"=AND(COLUMN({2}) < {0}, ROW({2}) < {1})".format(lastInfoColumnIndex + 1, rowCount + 2 , firstCellIds),'format': infoColor})
 	
 	sheet.freeze_panes(0, lastInfoColumnIndex)
@@ -136,12 +111,12 @@ def buildOutput(fileInfos, nameMatchCallBack):
 
 	settings = buildSettingsDataFromFile()
 	nameMatchThreshold = 75
-	if SettingsFileColumns.nameMatchThreshold.value in list(settings.index):
-		nameMatchThreshold = settings.loc[SettingsFileColumns.nameMatchThreshold.value]
+	if SettingsFileColumns.nameMatchThreshold.value in settings.keys():
+		nameMatchThreshold = settings[SettingsFileColumns.nameMatchThreshold.value]
 
 	autoMatchThreshold = 75
-	if SettingsFileColumns.autoMatchThreshold.value in list(settings.index):
-		autoMatchThreshold = settings.loc[SettingsFileColumns.autoMatchThreshold.value]
+	if SettingsFileColumns.autoMatchThreshold.value in settings.keys():
+		autoMatchThreshold = settings[SettingsFileColumns.autoMatchThreshold.value]
 
 	logHdr = pd.DataFrame(columns = [SourceFileColumns.sourceName.value, ReportExtraColumns.filePath.value, ReportExtraColumns.rowData.value, ReportExtraColumns.logType.value, ReportExtraColumns.desc.value])
 	logHdr.to_csv(logFilePath, index = False)
@@ -150,24 +125,28 @@ def buildOutput(fileInfos, nameMatchCallBack):
 	#when a new coursename is encounter, this course will be added as a column
 	ids = pd.DataFrame(columns = [SourceFileColumns.dodid.value, SourceFileColumns.email.value, ReportExtraColumns.cleanName.value, ReportExtraColumns.fullName.value])
 
-	sources = pd.read_csv(sourceFilePath, index_col = 0)
+	sources = buildSourceDataFromFile()
+	types = buildTypeDataFromFile()
 
 	for fileInfo in fileInfos:
 		filePath = fileInfo[0]
 		sourceName = fileInfo[1]
 
-		source_indices = sources.loc[sourceName]
+		source_data = sources[sourceName]
+		skipRows = int(source_data[SourceFileColumns.skipRows.value])#required
+		emailIndex = int(source_data[SourceFileColumns.email.value]) if source_data[SourceFileColumns.email.value] != "" else -1
+		dodIndex = int(source_data[SourceFileColumns.dodid.value]) if source_data[SourceFileColumns.dodid.value] != "" else -1
+		firstNameIndex = int(source_data[SourceFileColumns.firstName.value]) if source_data[SourceFileColumns.firstName.value] != "" else -1
+		lastNameIndex = int(source_data[SourceFileColumns.lastName.value]) if source_data[SourceFileColumns.lastName.value] != "" else -1
+		courseNameIndex = int(source_data[SourceFileColumns.courseName.value]) if source_data[SourceFileColumns.courseName.value] != "" else -1
 
-		skipRows = source_indices.loc[SourceFileColumns.skipRows.value]
-		emailIndex = source_indices.loc[SourceFileColumns.email.value]
-		dodIndex = source_indices.loc[SourceFileColumns.dodid.value]
-		firstNameIndex = source_indices.loc[SourceFileColumns.firstName.value]
-		lastNameIndex = source_indices.loc[SourceFileColumns.lastName.value]
-		courseNameIndex = source_indices.loc[SourceFileColumns.courseName.value]
-		dueDateIndex = source_indices.loc[SourceFileColumns.dueDate.value]
-		compDateIndex = source_indices.loc[SourceFileColumns.compDate.value]
+		if firstNameIndex == -1 and dodIndex == -1 and emailIndex == -1:
+			return "Must have at least one identifier column(email, id, name,...) " + filePath + " Source Assigned: " + sourceName
 
-		fileDf = pd.read_excel(filePath, header = None)
+
+		accepted_na_values = STR_NA_VALUES - {'N/A'}
+
+		fileDf = pd.read_excel(filePath, header = None, keep_default_na=False, na_values=accepted_na_values)
 		if skipRows > 0:
 			actualRowNum = len(fileDf.index)
 			#want at least one row to process for a file
@@ -175,21 +154,48 @@ def buildOutput(fileInfos, nameMatchCallBack):
 				return "Skip row number too large! File: " + filePath + " Source Assigned: " + sourceName
 			else:
 				del fileDf
-				fileDf = pd.read_excel(filePath, header = list(range(skipRows)))
+				fileDf = pd.read_excel(filePath, header = list(range(skipRows)), keep_default_na=False, na_values=accepted_na_values)
 		
 		lc = len(fileDf.columns) - 1
-		if emailIndex > lc or dodIndex > lc or firstNameIndex > lc or lastNameIndex > lc or courseNameIndex > lc or dueDateIndex > lc or compDateIndex > lc:
+		if emailIndex > lc or dodIndex > lc or firstNameIndex > lc or lastNameIndex > lc or courseNameIndex > lc:
 			return "Column Index too large! File: " + filePath + " Source Assigned: " + sourceName
 
-		forceTypeOnColumn(fileDf,emailIndex, convertToStr, sourceName, filePath)
-		forceTypeOnColumn(fileDf,firstNameIndex, convertToStr, sourceName, filePath)
-		forceTypeOnColumn(fileDf,lastNameIndex, convertToStr, sourceName, filePath)
-		forceTypeOnColumn(fileDf,courseNameIndex, convertToStr, sourceName, filePath)
-		forceTypeOnColumn(fileDf,dodIndex, convertToInt, sourceName, filePath)
-		forceTypeOnColumn(fileDf,dueDateIndex, convertToDate, sourceName, filePath)
-		forceTypeOnColumn(fileDf,compDateIndex, convertToDate, sourceName, filePath)
+		customCols = source_data[ExtraSourceFileColumns.typeCols.value]
+
+		for colName in customCols.keys():
+			colIndex = int(customCols[colName]) # required
+			if colIndex > lc:
+				return "Column Index too large! File: " + filePath + " Source Assigned: " + sourceName
+
+		plugin.globalCustomCols = customCols
+
+		trainingTypeName = source_data[ExtraSourceFileColumns.typeName.value]
+		trainingTypeData = types[trainingTypeName]
+
+		if emailIndex != -1:
+			forceTypeOnColumn(fileDf,emailIndex, convertToStr, sourceName, filePath)
+		if firstNameIndex != -1:
+			forceTypeOnColumn(fileDf,firstNameIndex, convertToStr, sourceName, filePath)
+		if lastNameIndex != -1:
+			forceTypeOnColumn(fileDf,lastNameIndex, convertToStr, sourceName, filePath)
+		if courseNameIndex != -1:
+			forceTypeOnColumn(fileDf,courseNameIndex, convertToStr, sourceName, filePath)
+		if dodIndex != -1:
+			forceTypeOnColumn(fileDf,dodIndex, convertToInt, sourceName, filePath)
+
+		#empty type means this is an info/personel file, which we want to treat differently.
+		#info files data are solely used to add more information to person info section or course names
+		if trainingTypeName != emptyTypeName:
+			pluginFilePath = trainingTypeData[TypeFileColumns.pluginFile.value]
+			try:
+				pluginStr = plugin.readPlugin(pluginFilePath)
+			except:
+				return "Error reading plugin. It is possible this plugin file has moved somewhere else or it is being used by another program. File: " + filePath
 		
 		for ind, row in fileDf.iterrows():
+
+			plugin.globalRow = row
+
 			dodidNum = -1
 			email = ""
 			fullName = ""
@@ -201,10 +207,17 @@ def buildOutput(fileInfos, nameMatchCallBack):
 			if emailIndex != -1:
 				email = cleanEmail(row.iloc[emailIndex])
 		
-			fullName = row.iloc[firstNameIndex]	
+			if firstNameIndex != -1:
+				fullName = row.iloc[firstNameIndex]	
 			if lastNameIndex != -1:
 				fullName = fullName + " " + row.iloc[lastNameIndex]
 			clnName = cleanName(fullName)
+
+			#user claims to have given at least one identifier column, yet didnt get any identifier information.
+			#this is a useless row, so ignore it.
+			if clnName == "" and email == "" and dodidNum == -1:
+				writeLogRow(sourceName, filePath, row.to_string(), LogTypes.action.error, "blank row(" + str(ind) + ") with no identifying information ignored.")
+				continue
 
 			matchIndex = -1
 			
@@ -241,27 +254,40 @@ def buildOutput(fileInfos, nameMatchCallBack):
 							else:
 								return "Parsing process stopped manually during name match."
 			if matchIndex != -1:
+				#fill in any new data that we gained for a person from a match
 				matchRow = ids.loc[matchIndex]
 				if matchRow.loc[SourceFileColumns.dodid.value] == -1 and dodidNum != -1:
 					ids.loc[matchIndex,SourceFileColumns.dodid.value] = dodidNum
 				if matchRow.loc[SourceFileColumns.email.value] == "" and email != "":
 					ids.loc[matchIndex,SourceFileColumns.email.value] = email
+				if matchRow.loc[ReportExtraColumns.fullName.value] == "" and fullName != "":
+					ids.loc[matchIndex,ReportExtraColumns.fullName.value] = fullName
 
 			else:
 				ids = ids._append({SourceFileColumns.dodid.value : dodidNum,SourceFileColumns.email.value: email, ReportExtraColumns.cleanName.value: clnName, ReportExtraColumns.fullName.value: fullName}, ignore_index=True)
 				inds = ids.index.values.tolist()
 				matchIndex = inds[len(inds)-1]
-				ids.iloc[matchIndex, 4:] = "=CHOOSE(1,{0})".format(buildDateIndicator(None,None))
+				ids.iloc[matchIndex, 4:] = "=CHOOSE(1,{0},{1},{2})".format("\"\"", "\"" + CellStatus.notApplicable.value + "\"", "\"\"")
 
+			if trainingTypeName != emptyTypeName:
+				if courseNameIndex != -1:
+					courseName = buildCourseName(row.iloc[courseNameIndex],sourceName)
+				else:
+					#if no coursename, file is assumed to be describing a single training module. In this case, sourceName is the same as courseName
+					courseName = sourceName
+
+				if not courseName in ids.columns.values.tolist():
+					colInfo = {courseName: "=CHOOSE(1,{0},{1},{2})".format("\"\"", "\"" + CellStatus.notApplicable.value + "\"", "\"\"")}
+					ids = ids.assign(**colInfo)
 			
-			courseName = buildCourseName(row.iloc[courseNameIndex],sourceName)
-			dueDate = row.iloc[dueDateIndex]
-			compDate = row.iloc[compDateIndex]
-			if not courseName in ids.columns.values.tolist():
-				colInfo = {courseName: "=CHOOSE(1,{0})".format(buildDateIndicator(None,None))}
-				ids = ids.assign(**colInfo)
-			
-			ids.loc[matchIndex, courseName] = "=CHOOSE(1,{0})".format(buildDateIndicator(dueDate,compDate))
+			if trainingTypeName != emptyTypeName:
+				try:
+					plugin.executePlugin(pluginStr)
+				except Exception as e:
+					return "Error while running plugin. File: " + pluginFilePath + " Error: " + str(e)
+				
+				builtOutput = plugin.globalOutput
+				ids.loc[matchIndex, courseName] = "=CHOOSE(1,{0})".format(builtOutput)
 			
 	ids.drop(ReportExtraColumns.cleanName.value, axis=1, inplace=True)
 	formatOutput(ids)

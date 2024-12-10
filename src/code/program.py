@@ -1,11 +1,13 @@
 from PyQt5 import Qt, QtCore
-from PyQt5.QtWidgets import QMainWindow, QApplication, QPushButton, QFileDialog, QLabel, QListWidget, QListWidgetItem, QInputDialog, QMessageBox, QLineEdit
+from PyQt5.QtWidgets import QMainWindow,QPlainTextEdit, QApplication, QPushButton, QFileDialog, QLabel, QListWidget, QListWidgetItem, QInputDialog, QMessageBox, QLineEdit
 import sys, os
 from uiFile import Ui_Dialog
 from addSource import Ui_AddWindow
 from settingsUI import Ui_AddWindow as SettingUi_AddWindow
+from addTypeUI import Ui_AddWindow as TypeUi_AddWindow
 from manageSources import *
 from manageSettings import *
+from manageTypes import *
 from parsing import *
 
 #make sure the directories of files needed by the app are resolved to be relative to the path of the current python file, NOT the cwd.
@@ -14,29 +16,32 @@ baseDir = os.path.dirname(__file__)
 genAppInstPath = os.path.join(baseDir, "../appStorage/generalAppInstructions.txt")
 addSrcInstPath = os.path.join(baseDir, "../appStorage/addSourceInstructions.txt")
 addSetInstPath = os.path.join(baseDir, "../appStorage/settingsInstructions.txt")
+addTypeInstPath = os.path.join(baseDir, "../appStorage/typesInstructions.txt")
 
 class MainUI(QMainWindow):
 	
 	def __init__(self):
 		super(MainUI, self).__init__()
-
-		self.fileNames = {} # maps fileNames to (fullFilePath, system) -> a tuple with important information about the file
-		self.sources = None # this is a pandas dataframe. Each row's index is the source name. call the refresh_sources() anytime an update to the source storage file is made.
+		self.fileNames = {} # maps fileNames to (fullFilePath, sourceName)
 		
 		self.ui = Ui_Dialog()
 		self.ui.setupUi(self)
 
 		self.ui.sourceList.itemDoubleClicked.connect(self.source_clicked)
+		self.ui.typeList.itemDoubleClicked.connect(self.type_clicked)
 		self.ui.fileList.itemClicked.connect(self.file_clicked)
 
 		self.ui.importButton.clicked.connect(self.import_clicked)
 		self.ui.deleteFileBtn.clicked.connect(self.delete_file_clicked)
 		self.ui.deleteSourceBtn.clicked.connect(self.delete_source_clicked)
 		self.ui.addSourceBtn.clicked.connect(self.open_add_source_window)
+		self.ui.addTypeBtn.clicked.connect(self.open_add_type_window)
+		self.ui.deleteTypeBtn.clicked.connect(self.delete_type_clicked)
 		self.ui.settingsBtn.clicked.connect(self.open_settings_window)
 		self.ui.startBtn.clicked.connect(self.start_btn_clicked)
 		
 		self.refresh_sources()
+		self.refresh_types()
 
 		self.ui.tutorialBtn.clicked.connect(self.open_tutorial)
 		with open(genAppInstPath, "r") as file:
@@ -46,7 +51,7 @@ class MainUI(QMainWindow):
 	def name_match_confirmer(self):
 		#returns (bool: yesAnswer, bool: keepGoing)
 		def nameMatchConfirmInner(name1, name2):
-			msgBox = QMessageBox();
+			msgBox = QMessageBox()
 			msgBox.setWindowTitle("Name Match Detected")
 			msgBox.setText(name1 + " appears to match " + name2 + ". Proceed to combine these into one person record?")
 			msgBox.setStandardButtons(QMessageBox.Yes | QMessageBox.No | QMessageBox.Close)
@@ -74,11 +79,16 @@ class MainUI(QMainWindow):
 		else:
 			self.ui.actionLabel.setText("Please provide at least one file for the report generation.")	
 
-	#When a source is clicked, the AddSourceUI window is opened to allow the user to edit the source
 	def source_clicked(self, item):
 		source_name = item.text()
 		self.window = AddSourceUI(self)
-		self.window.show_source_clicked(source_name, self.sources)
+		self.window.show_source_clicked(source_name)
+		self.window.show()
+
+	def type_clicked(self, item):
+		type_name = item.text()
+		self.window = AddTypeUI(self)
+		self.window.show_type_clicked(type_name)
 		self.window.show()
 
 	#If a source is deleted, all files with the source must be deleted
@@ -95,24 +105,43 @@ class MainUI(QMainWindow):
 		for file in remFiles:
 			del fileDict[file]
 
-	#Ask user to confirm to delete all files with a source
+	def default_all_sources_with_type(self, typeName):
+		sources = buildSourceDataFromFile()
+		for sourcek in sources.keys():
+			sourceInfo = sources[sourcek]
+			sourceType = sourceInfo[ExtraSourceFileColumns.typeName.value]
+			if sourceType == typeName:
+				sourceInfo[ExtraSourceFileColumns.typeName.value] = emptyTypeName
+				addSourceToFile(sourceInfo)
+
 	def confirm_delete_files_from_source(self, sName):
 		choice = QMessageBox.question(self, 'Confirmation', "Deleting a source will delete all the files currently mapped to this source in the current session. Are you sure?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 		return choice
 
-	#Loads saved sources from sources.csv
+	def confirm_edit_sources_of_type(self, sName):
+		choice = QMessageBox.question(self, 'Confirmation', "Deleting a type will set any source using this type to use an empty type. Are you sure?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+		return choice
+
 	def refresh_sources(self):
 		self.ui.sourceList.clear()
-		self.sources = buildSourceDataFromFile()
-		if not self.sources.empty:
-			for source in self.sources[SourceFileColumns.sourceName.value].to_list():
-				itm = QListWidgetItem(source)
-				itm.setTextAlignment(QtCore.Qt.AlignCenter)
-				self.ui.sourceList.addItem(itm)
+		sources = buildSourceDataFromFile()
+		for source in sources.keys():
+			itm = QListWidgetItem(source)
+			itm.setTextAlignment(QtCore.Qt.AlignCenter)
+			self.ui.sourceList.addItem(itm)
+	
+	def refresh_types(self):
+		self.ui.typeList.clear()
+		types = buildTypeDataFromFile()
+		for typeR in types.keys():
+				if typeR != emptyTypeName:
+					itm = QListWidgetItem(typeR)
+					itm.setTextAlignment(QtCore.Qt.AlignCenter)
+					self.ui.typeList.addItem(itm)
 
 	def delete_source_clicked(self):
 		itm = self.ui.sourceList.currentItem()
-		if (not self.sources.empty) and itm:
+		if itm:
 			sName = itm.text()
 			choice = self.confirm_delete_files_from_source(sName)
 			if choice == QMessageBox.Yes:
@@ -123,12 +152,27 @@ class MainUI(QMainWindow):
 				else:
 					self.ui.actionLabel.setText("Could not delete source" + sName)
 
-	#Opens the AddSourceUI window to allow for adding a source 
+	def delete_type_clicked(self):
+		itm = self.ui.typeList.currentItem()
+		if itm:
+			tName = itm.text()
+			choice = self.confirm_edit_sources_of_type(tName)
+			if choice == QMessageBox.Yes:
+				ret = deleteTypeFromFile(tName)
+				if ret:
+					self.refresh_types()
+					self.default_all_sources_with_type(tName)
+				else:
+					self.ui.actionLabel.setText("Could not delete type" + tName)
+
+	def open_add_type_window(self):
+		self.window = AddTypeUI(self)
+		self.window.show()
+
 	def open_add_source_window(self):
 		self.window = AddSourceUI(self)
 		self.window.show()
 	
-	#Opens the AddSettingUI window
 	def open_settings_window(self):
 		self.window = AddSettingUI(self)
 		self.window.show_settings()
@@ -142,25 +186,29 @@ class MainUI(QMainWindow):
 				self.ui.fileList.takeItem(row)
 				del self.fileNames[itm.text()]
 
-	#Allows the user to import a file
 	def import_clicked(self):
-		file = QFileDialog.getOpenFileName(self, "Add Source", "/~", "Spreadsheets(*.csv *.xlsx *.txt)")
+		options = QFileDialog.Options()
+		options |= QFileDialog.DontUseNativeDialog
+		files = QFileDialog.getOpenFileNames(self, "Add File", "/~", "Spreadsheets (*.xlsx)", options = options)
+		if files and len(files) > 0 and files[0]:
+			fileList = files[0]
+			for file in fileList:
+				fileFullPath = file
+				fileName = file.rsplit('/', 1)[-1]
 
-		if file[0]:
-			system = self.get_source()
-			if system:
-				fileFullPath = file[0]
-				fileName = file[0].rsplit('/', 1)[-1]
-				self.add_to_file_list(fileName, fileFullPath, system)
+				system = self.get_source(fileName)
+				if system:
+					self.add_to_file_list(fileName, fileFullPath, system)
+				else:
+					break
 
 	#Allows the user to tell us what source the file they imported is from
-	def get_source(self):
-		if not self.sources.empty:
-			source, ok_pressed = QInputDialog.getItem(self, "Source Selection", "Select Source:", self.sources[SourceFileColumns.sourceName.value].to_list(), 0, False)
-		
+	def get_source(self, fileName):
+		sources = buildSourceDataFromFile()
+		if len(sources.keys()) > 0:
+			source, ok_pressed = QInputDialog.getItem(self, "Source Selection", "Select Source for file " + fileName + ":", sources.keys(), 0, False)
 			if ok_pressed:
 				return source
-		
 			#User clicked cancel
 			return None
 		else:
@@ -200,6 +248,7 @@ class AddSourceUI(QMainWindow):
 		self.mainWindow = mainWindow
 		self.ui = Ui_AddWindow()
 		self.ui.setupUi(self)
+		
 
 		self.ui.saveSourceBtn.clicked.connect(self.save_source_clicked)
 		
@@ -211,18 +260,75 @@ class AddSourceUI(QMainWindow):
 			el = self.findChild(QLabel, rCol.value + "Label")
 			el.setStyleSheet('color: red;')
 
+		types = buildTypeDataFromFile()
+		for ind in types.keys():
+			self.ui.typeDdl.addItem(ind)
+		self.populateDynamicCols(self.ui.typeDdl.currentText())
+
+		self.ui.typeDdl.currentIndexChanged.connect(self.typeChanged)
+		
+	def clearDynamicCols(self):
+		while self.ui.dynamicLabelVL.count():
+			item = self.ui.dynamicLabelVL.takeAt(0)
+			widget = item.widget()
+			if widget is not None:
+				widget.deleteLater()
+		while self.ui.dynamicIndexVL.count():
+			item = self.ui.dynamicIndexVL.takeAt(0)
+			widget = item.widget()
+			if widget is not None:
+				widget.deleteLater()
+
+	def typeChanged(self,ind):
+		types = buildTypeDataFromFile()
+		currType = self.ui.typeDdl.currentText()
+		self.populateDynamicCols(currType)
+
+
+	def populateDynamicCols(self, typeName):
+		types = buildTypeDataFromFile()
+		self.clearDynamicCols()
+		if typeName != "" and typeName != emptyTypeName:
+			customCols = str(types[typeName][TypeFileColumns.colList.value])
+			colList = customCols.split(",")
+			for col in colList:
+				lab = QLabel()
+				lab.setText(col + ":")
+				lab.setStyleSheet('color: red;')
+				lab.setObjectName(col + "Label")
+
+				lEdit = QLineEdit()
+				lEdit.setObjectName(col)
+				self.ui.dynamicLabelVL.addWidget(lab)
+				self.ui.dynamicIndexVL.addWidget(lEdit)
+
+	def fillDynamicCol(self, columnName, columnIndex):
+		for i in range(self.ui.dynamicIndexVL.count()):
+			item = self.ui.dynamicIndexVL.itemAt(i)
+			if item.widget() and item.widget().objectName() == columnName:
+				el = item.widget()
+				el.setText(columnIndex)
+		
 	#Fill out source values if source is clicked
-	def show_source_clicked(self, source_name, sources):
-		cols = list(sources.columns)
-		for column in cols:
-			val = sources.loc[source_name, column]
-			inputField = self.findChild(QLineEdit, column)
+	def show_source_clicked(self, source_name):
+		sources = buildSourceDataFromFile()
+		for column in SourceFileColumns:
+			colName = column.value
+			val = sources[source_name][colName]
+			inputField = self.findChild(QLineEdit, colName)
 			if inputField:
-				if val != notUsedNumber:
-					inputField.setText(str(val))
-				else:
-					inputField.setText("")
-			
+				inputField.setText(str(val))
+				
+		tName = sources[source_name][ExtraSourceFileColumns.typeName.value]
+		self.ui.typeDdl.blockSignals(True)
+		self.ui.typeDdl.setCurrentText(str(tName))
+		self.populateDynamicCols(tName)
+		tcols = sources[source_name][ExtraSourceFileColumns.typeCols.value]
+		for col in tcols.keys():
+			colIndex = tcols[col]
+			self.fillDynamicCol(col,colIndex)
+		self.ui.typeDdl.blockSignals(False)
+
 	def return_to_main_window(self):
 		self.mainWindow.refresh_sources()
 		self.close()
@@ -236,15 +342,23 @@ class AddSourceUI(QMainWindow):
 
 	#assumes all number columns have already been verified
 	def package_source_form(self):
-		dict = {}
+		dictL = {}
 		for sourceColumn in SourceFileColumns:
 			inputField = self.findChild(QLineEdit, sourceColumn.value)
-			if not sourceColumn in dict.keys():
+			if not sourceColumn in dictL.keys():
 				if sourceColumn.value == SourceFileColumns.sourceName.value:
-					dict[sourceColumn.value] = inputField.text()
+					dictL[sourceColumn.value] = inputField.text()
 				else:
-					dict[sourceColumn.value] = notUsedNumber if inputField.text() == "" else int(inputField.text())
-		return dict
+					dictL[sourceColumn.value] = str(inputField.text())
+
+		dictL[ExtraSourceFileColumns.typeName.value] = self.ui.typeDdl.currentText()
+		dynamicCols = {}
+		for dynamicColInd in range(self.ui.dynamicIndexVL.count()):
+			dynamicCol = self.ui.dynamicIndexVL.itemAt(dynamicColInd).widget()
+			dynamicCols[dynamicCol.objectName()] = dynamicCol.text()
+		
+		dictL[ExtraSourceFileColumns.typeCols.value] = dynamicCols
+		return dictL
 
 	#Add source
 	def save_source_clicked(self):
@@ -254,13 +368,17 @@ class AddSourceUI(QMainWindow):
 				if inputField.text() == "":
 					self.ui.actionLabel.setText("REQUIRED COLUMN " + inputField.objectName() + " NEEDS NON-EMPTY INPUT")
 					return False
+		for dynamicColInd in range(self.ui.dynamicIndexVL.count()):
+			dynamicCol = self.ui.dynamicIndexVL.itemAt(dynamicColInd).widget()
+			if dynamicCol.text() == "":
+				self.ui.actionLabel.setText("REQUIRED COLUMN " + dynamicCol.objectName() + " NEEDS NON-EMPTY INPUT")
+				return False
 		
 		#all columns besides sourceName should be a number(index).
 		for sourceColumn in SourceFileColumns:
 			inputField = self.findChild(QLineEdit, sourceColumn.value)
 			if inputField:
 				if inputField.text() != "" and sourceColumn.value != SourceFileColumns.sourceName.value:
-
 					try:
 						converted = int(inputField.text())
 						if converted < 0:
@@ -270,6 +388,18 @@ class AddSourceUI(QMainWindow):
 					except ValueError:
 						self.ui.actionLabel.setText("INPUT COLUMN " + inputField.objectName() + " NEEDS A NUMBER")
 						return False
+
+		for dynamicColInd in range(self.ui.dynamicIndexVL.count()):
+			dynamicCol = self.ui.dynamicIndexVL.itemAt(dynamicColInd).widget()
+			try:
+				converted = int(dynamicCol.text())
+				if converted < 0:
+					self.ui.actionLabel.setText("INPUT COLUMN " + dynamicCol.objectName() + " HAS INVALID NUMBER")
+					return False
+
+			except ValueError:
+				self.ui.actionLabel.setText("INPUT COLUMN " + dynamicCol.objectName() + " NEEDS A NUMBER")
+				return False
 	
 		formData = self.package_source_form()
 
@@ -277,7 +407,7 @@ class AddSourceUI(QMainWindow):
 			if sourceColumn.value != SourceFileColumns.sourceName.value and sourceColumn.value != SourceFileColumns.skipRows.value:
 				for sourceColumnInner in SourceFileColumns:
 					if sourceColumnInner.value != SourceFileColumns.sourceName.value and sourceColumnInner.value != SourceFileColumns.skipRows.value and sourceColumnInner.value != sourceColumn.value:	
-						if formData[sourceColumn.value] == formData[sourceColumnInner.value] and formData[sourceColumn.value] != notUsedNumber:
+						if formData[sourceColumn.value] == formData[sourceColumnInner.value] and formData[sourceColumn.value] != "":
 							self.ui.actionLabel.setText("DUPLICATE COLUMN INDICES ASSIGNED")
 							return False
 	
@@ -312,9 +442,9 @@ class AddSettingUI(QMainWindow):
 
 	def show_settings(self):
 		settings = buildSettingsDataFromFile()
-		cols = list(settings.index)
+		cols = settings.keys()
 		for column in cols:
-			val = settings.loc[column]
+			val = settings[column]
 			inputField = self.findChild(QLineEdit, column)
 			if inputField:
 				inputField.setText(str(val))
@@ -331,12 +461,12 @@ class AddSettingUI(QMainWindow):
 
 	#assumes all number columns have already been verified
 	def package_setting_form(self):
-		dict = {}
+		dictL = {}
 		for setColumn in SettingsFileColumns:
 			inputField = self.findChild(QLineEdit, setColumn.value)
-			if not setColumn in dict.keys():
-				dict[setColumn.value] = int(inputField.text())
-		return dict
+			if not setColumn in dictL.keys():
+				dictL[setColumn.value] = int(inputField.text())
+		return dictL
 
 	def save_setting_clicked(self):
 		for setColumn in RequiredSettingsFileColumns:
@@ -382,6 +512,132 @@ class AddSettingUI(QMainWindow):
 			self.mainWindow.ui.actionLabel.setText("Settings could not be updated.")
 			self.return_to_main_window()
 			return False
+
+class AddTypeUI(QMainWindow):
+	def __init__(self, mainWindow):
+		super(AddTypeUI, self).__init__()
+
+		self.mainWindow = mainWindow
+		self.ui = TypeUi_AddWindow()
+		self.ui.setupUi(self)
+
+		self.ui.pluginImportBtn.clicked.connect(self.plugin_import_clicked)
+		self.ui.saveBtn.clicked.connect(self.save_type_clicked)
+		
+		self.ui.tutorialBtn.clicked.connect(self.open_tutorial)
+		with open(addTypeInstPath, "r") as file:
+			self.add_tutorial_text = file.read()
+
+		for rCol in RequiredTypeFileColumns:
+			el = self.findChild(QLabel, rCol.value + "Label")
+			el.setStyleSheet('color: red;')
+	
+	def plugin_import_clicked(self):
+		file = QFileDialog.getOpenFileName(self, "Add Plugin", "/~", "Plugins(*.py)")
+		if file[0]:
+			self.ui.pluginFile.setText(file[0])
+
+	def show_type_clicked(self, type_name):
+		types = buildTypeDataFromFile()
+		
+		for column in TypeFileColumns:
+			if column != TypeFileColumns.annotation:
+				colName = column.value
+				val = types[type_name][colName]
+				inputField = self.findChild(QLineEdit, colName)
+				inputField.setText(str(val))
+		
+		txt = types[type_name][TypeFileColumns.annotation.value]
+		annotField = self.findChild(QPlainTextEdit, TypeFileColumns.annotation.value)
+		annotField.setPlainText(str(txt))
+						
+	def return_to_main_window(self):
+		self.mainWindow.refresh_types()
+		self.close()
+
+	def open_tutorial(self):
+		instructions = QMessageBox(self)
+		instructions.setIcon(QMessageBox.Information)
+		instructions.setWindowTitle("Tutorial")
+		instructions.setText(self.add_tutorial_text)
+		instructions.exec_()
+
+	#assumes all number columns have already been verified
+	def package_type_form(self):
+		dictL = {}
+		for typeColumn in TypeFileColumns:
+			if typeColumn != TypeFileColumns.annotation:
+				inputField = self.findChild(QLineEdit, typeColumn.value)
+				if not typeColumn in dictL.keys():
+					dictL[typeColumn.value] = str(inputField.text())
+		
+		annotField = self.findChild(QPlainTextEdit, TypeFileColumns.annotation.value)
+		dictL[TypeFileColumns.annotation.value] = str(annotField.toPlainText())
+		return dictL
+
+	def confirm_change_columns_for_type(self):
+		choice = QMessageBox.warning(self, 'Confirmation', "Saving this change will cause the column list for this type to be different. If you added columns, these columns indices will need to be specified by the sources that use these types. Proceed with save?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+		return choice
+
+	def clean_type_info_for_sources(self):
+		sources = buildSourceDataFromFile()
+		types = buildTypeDataFromFile()
+		for sourcek in sources.keys():
+			sourceInfo = sources[sourcek]
+			typeName = sourceInfo[ExtraSourceFileColumns.typeName.value]
+			typeCols = dict(sourceInfo[ExtraSourceFileColumns.typeCols.value])
+
+			typeInfo = types[typeName]
+			realCols = typeInfo[TypeFileColumns.colList.value]
+			#make sure all real cols from type file are in source that has that type
+			for realCol in realCols.split(","):
+				if not realCol in typeCols:
+					#set an invalid index so the user will be alerted when they try to use this
+					sourceInfo[ExtraSourceFileColumns.typeCols.value][realCol] = "-1"
+			#make sure all cols in source are real cols from type file
+			for col in typeCols:
+				if not col in realCols.split(","):
+					sourceInfo[ExtraSourceFileColumns.typeCols.value].pop(col)
+
+			addSourceToFile(sourceInfo)
+
+
+	def save_type_clicked(self):
+		
+		for setColumn in RequiredTypeFileColumns:
+			inputField = self.findChild(QLineEdit, setColumn.value)
+			if inputField:
+				if inputField.text() == "":
+					self.ui.actionLabel.setText("REQUIRED COLUMN " + inputField.objectName() + " NEEDS NON-EMPTY INPUT")
+					return False
+
+		formData = self.package_type_form()
+		types = buildTypeDataFromFile()
+		typeName = formData[TypeFileColumns.typeName.value]
+		afterColList = formData[TypeFileColumns.colList.value]
+
+		#dont want to warn a user when they are adding a new type, since no sources will be affected by colList change yet.
+		if typeName in types.keys() and types[typeName][TypeFileColumns.colList.value] != afterColList:
+			choice = self.confirm_change_columns_for_type()
+			if choice == QMessageBox.Yes:
+				ret = addTypeToFile(formData)
+				if ret:
+					self.clean_type_info_for_sources()
+					self.return_to_main_window()
+					return True
+				else:
+					self.mainWindow.ui.actionLabel.setText("Type could not be updated.")
+					self.return_to_main_window()
+					return False
+		else:
+			ret = addTypeToFile(formData)
+			if ret:
+				self.return_to_main_window()
+				return True
+			else:
+				self.mainWindow.ui.actionLabel.setText("Type could not be updated.")
+				self.return_to_main_window()
+				return False
 
 if __name__ == '__main__':
 	app = QApplication(sys.argv)

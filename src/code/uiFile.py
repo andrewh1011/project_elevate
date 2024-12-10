@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(652, 476)
+        Dialog.resize(704, 530)
         font = QtGui.QFont()
         font.setFamily("Arial")
         Dialog.setFont(font)
@@ -22,32 +22,36 @@ class Ui_Dialog(object):
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
-        self.startBtn = QtWidgets.QPushButton(self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.startBtn.sizePolicy().hasHeightForWidth())
-        self.startBtn.setSizePolicy(sizePolicy)
-        self.startBtn.setMaximumSize(QtCore.QSize(16777215, 50))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        font.setBold(True)
-        font.setWeight(75)
-        self.startBtn.setFont(font)
-        self.startBtn.setLayoutDirection(QtCore.Qt.LeftToRight)
-        self.startBtn.setStyleSheet("background-color: #33b249;\n"
-"border: none;\n"
-"color: #FFFFFF;\n"
-"border-radius: 4px;\n"
-"text-align: center;\n"
-"text-decoration: none;\n"
-"margin: 4px 2px;\n"
-"padding-left: 25px;\n"
-"padding-right: 25px;")
-        self.startBtn.setObjectName("startBtn")
-        self.gridLayout.addWidget(self.startBtn, 3, 1, 1, 1, QtCore.Qt.AlignHCenter)
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        self.verticalLayout = QtWidgets.QVBoxLayout()
+        self.verticalLayout.setObjectName("verticalLayout")
+        self.label = QtWidgets.QLabel(self.centralwidget)
+        font = QtGui.QFont()
+        font.setPointSize(24)
+        font.setBold(False)
+        font.setWeight(50)
+        self.label.setFont(font)
+        self.label.setAlignment(QtCore.Qt.AlignCenter)
+        self.label.setObjectName("label")
+        self.verticalLayout.addWidget(self.label)
+        self.typeList = QtWidgets.QListWidget(self.centralwidget)
+        font = QtGui.QFont()
+        font.setFamily("Arial")
+        font.setPointSize(15)
+        self.typeList.setFont(font)
+        self.typeList.setObjectName("typeList")
+        self.verticalLayout.addWidget(self.typeList)
+        self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
+        self.deleteTypeBtn = QtWidgets.QPushButton(self.centralwidget)
+        self.deleteTypeBtn.setObjectName("deleteTypeBtn")
+        self.horizontalLayout_3.addWidget(self.deleteTypeBtn)
+        self.addTypeBtn = QtWidgets.QPushButton(self.centralwidget)
+        self.addTypeBtn.setObjectName("addTypeBtn")
+        self.horizontalLayout_3.addWidget(self.addTypeBtn)
+        self.verticalLayout.addLayout(self.horizontalLayout_3)
+        self.horizontalLayout_2.addLayout(self.verticalLayout)
         self.verticalLayout_3 = QtWidgets.QVBoxLayout()
         self.verticalLayout_3.setObjectName("verticalLayout_3")
         self.label_7 = QtWidgets.QLabel(self.centralwidget)
@@ -117,6 +121,30 @@ class Ui_Dialog(object):
         self.gridLayout.addLayout(self.horizontalLayout_2, 0, 1, 1, 1)
         spacerItem = QtWidgets.QSpacerItem(25, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
         self.gridLayout.addItem(spacerItem, 0, 0, 1, 1)
+        self.startBtn = QtWidgets.QPushButton(self.centralwidget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.startBtn.sizePolicy().hasHeightForWidth())
+        self.startBtn.setSizePolicy(sizePolicy)
+        self.startBtn.setMaximumSize(QtCore.QSize(16777215, 50))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        font.setBold(True)
+        font.setWeight(75)
+        self.startBtn.setFont(font)
+        self.startBtn.setLayoutDirection(QtCore.Qt.LeftToRight)
+        self.startBtn.setStyleSheet("background-color: #33b249;\n"
+"border: none;\n"
+"color: #FFFFFF;\n"
+"border-radius: 4px;\n"
+"text-align: center;\n"
+"text-decoration: none;\n"
+"margin: 4px 2px;\n"
+"padding-left: 25px;\n"
+"padding-right: 25px;")
+        self.startBtn.setObjectName("startBtn")
+        self.gridLayout.addWidget(self.startBtn, 3, 1, 1, 1, QtCore.Qt.AlignHCenter)
         self.formLayout = QtWidgets.QFormLayout()
         self.formLayout.setObjectName("formLayout")
         self.tutorialBtn = QtWidgets.QPushButton(self.centralwidget)
@@ -156,7 +184,7 @@ class Ui_Dialog(object):
         self.gridLayout.addWidget(self.actionLabel, 4, 1, 1, 1)
         Dialog.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(Dialog)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 652, 26))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 704, 26))
         self.menubar.setObjectName("menubar")
         Dialog.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(Dialog)
@@ -169,12 +197,15 @@ class Ui_Dialog(object):
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "Project Elevate"))
-        self.startBtn.setText(_translate("Dialog", "Create output"))
+        self.label.setText(_translate("Dialog", "Types"))
+        self.deleteTypeBtn.setText(_translate("Dialog", "Delete Type"))
+        self.addTypeBtn.setText(_translate("Dialog", "Add Type"))
         self.label_7.setText(_translate("Dialog", "Sources"))
         self.deleteSourceBtn.setText(_translate("Dialog", "Delete Source"))
         self.addSourceBtn.setText(_translate("Dialog", "Add Source"))
         self.label_8.setText(_translate("Dialog", "Files"))
         self.deleteFileBtn.setText(_translate("Dialog", "Delete File"))
         self.importButton.setText(_translate("Dialog", "Import"))
+        self.startBtn.setText(_translate("Dialog", "Create output"))
         self.tutorialBtn.setText(_translate("Dialog", "?"))
         self.settingsBtn.setText(_translate("Dialog", "..."))

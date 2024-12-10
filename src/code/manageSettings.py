@@ -1,10 +1,9 @@
-import pandas as pd
 from enum import Enum
 import os
+import json
 
 baseDir = os.path.dirname(__file__)
-settingsFilePath = os.path.join(baseDir, "../appStorage/settings.csv")
-
+settingsFilePath = os.path.join(baseDir, "../appStorage/settings.json")
 
 #below enum values are ids of fields from Pyqt5 form for the source input.
 #each fields corresponding text label id will be the fieldid + "Label".
@@ -23,16 +22,24 @@ def addSettingsToFile(settingFieldDict):
 	#want to overwrite settings each time they change it.
 	#there will only ever be one setting line so dont care about overwrite
 	try:
-		dfNew = pd.DataFrame([settingFieldDict])
-		dfNew.to_csv(settingsFilePath)	
-		return True
+		f = open(settingsFilePath, "w")
+		jsonStr = json.dumps(settingFieldDict)
+		f.write(jsonStr)
+		f.close()
+		return True 
 	except:
+		if not f.closed():
+			f.close()
 		return False	
 	
 def buildSettingsDataFromFile():
+	
 	try:
-		df = pd.read_csv(settingsFilePath, index_col = 0)
-		#only care about the first(and only) setting row
-		return df.iloc[0]
+		f = open(settingsFilePath, "r")
+		res = json.load(f)
+		f.close() 
+		return res
 	except:
-		return pd.DataFrame()
+		if not f.closed():
+			f.close()
+		return {}
