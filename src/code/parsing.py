@@ -143,7 +143,6 @@ def buildOutput(fileInfos, nameMatchCallBack):
 		if firstNameIndex == -1 and dodIndex == -1 and emailIndex == -1:
 			return "Must have at least one identifier column(email, id, name,...) " + filePath + " Source Assigned: " + sourceName
 
-
 		accepted_na_values = STR_NA_VALUES - {'N/A'}
 
 		fileDf = pd.read_excel(filePath, header = None, keep_default_na=False, na_values=accepted_na_values)

@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(704, 530)
+        Dialog.resize(861, 534)
         font = QtGui.QFont()
         font.setFamily("Arial")
         Dialog.setFont(font)
@@ -22,6 +22,54 @@ class Ui_Dialog(object):
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
+        spacerItem = QtWidgets.QSpacerItem(25, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        self.gridLayout.addItem(spacerItem, 0, 0, 1, 1)
+        self.startBtn = QtWidgets.QPushButton(self.centralwidget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.startBtn.sizePolicy().hasHeightForWidth())
+        self.startBtn.setSizePolicy(sizePolicy)
+        self.startBtn.setMaximumSize(QtCore.QSize(16777215, 50))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        font.setBold(True)
+        font.setWeight(75)
+        self.startBtn.setFont(font)
+        self.startBtn.setLayoutDirection(QtCore.Qt.LeftToRight)
+        self.startBtn.setStyleSheet("background-color: #33b249;\n"
+"border: none;\n"
+"color: #FFFFFF;\n"
+"border-radius: 4px;\n"
+"text-align: center;\n"
+"text-decoration: none;\n"
+"margin: 4px 2px;\n"
+"padding-left: 25px;\n"
+"padding-right: 25px;")
+        self.startBtn.setObjectName("startBtn")
+        self.gridLayout.addWidget(self.startBtn, 3, 1, 1, 1, QtCore.Qt.AlignHCenter)
+        self.formLayout = QtWidgets.QFormLayout()
+        self.formLayout.setObjectName("formLayout")
+        self.tutorialBtn = QtWidgets.QPushButton(self.centralwidget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.tutorialBtn.sizePolicy().hasHeightForWidth())
+        self.tutorialBtn.setSizePolicy(sizePolicy)
+        self.tutorialBtn.setMinimumSize(QtCore.QSize(25, 25))
+        self.tutorialBtn.setStyleSheet("background-color: #DCDCDC;\n"
+"border-style: outset;\n"
+"border-width: 2px;\n"
+"border-radius: 10px;\n"
+"border-color: black;\n"
+"padding: 4px;\n"
+"color: black;")
+        self.tutorialBtn.setObjectName("tutorialBtn")
+        self.formLayout.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.tutorialBtn)
+        self.settingsBtn = QtWidgets.QToolButton(self.centralwidget)
+        self.settingsBtn.setObjectName("settingsBtn")
+        self.formLayout.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.settingsBtn)
+        self.gridLayout.addLayout(self.formLayout, 0, 2, 1, 1)
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.verticalLayout = QtWidgets.QVBoxLayout()
@@ -119,72 +167,22 @@ class Ui_Dialog(object):
         self.verticalLayout_4.addLayout(self.horizontalLayout)
         self.horizontalLayout_2.addLayout(self.verticalLayout_4)
         self.gridLayout.addLayout(self.horizontalLayout_2, 0, 1, 1, 1)
-        spacerItem = QtWidgets.QSpacerItem(25, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
-        self.gridLayout.addItem(spacerItem, 0, 0, 1, 1)
-        self.startBtn = QtWidgets.QPushButton(self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.startBtn.sizePolicy().hasHeightForWidth())
-        self.startBtn.setSizePolicy(sizePolicy)
-        self.startBtn.setMaximumSize(QtCore.QSize(16777215, 50))
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        font.setBold(True)
-        font.setWeight(75)
-        self.startBtn.setFont(font)
-        self.startBtn.setLayoutDirection(QtCore.Qt.LeftToRight)
-        self.startBtn.setStyleSheet("background-color: #33b249;\n"
-"border: none;\n"
-"color: #FFFFFF;\n"
-"border-radius: 4px;\n"
-"text-align: center;\n"
-"text-decoration: none;\n"
-"margin: 4px 2px;\n"
-"padding-left: 25px;\n"
-"padding-right: 25px;")
-        self.startBtn.setObjectName("startBtn")
-        self.gridLayout.addWidget(self.startBtn, 3, 1, 1, 1, QtCore.Qt.AlignHCenter)
-        self.formLayout = QtWidgets.QFormLayout()
-        self.formLayout.setObjectName("formLayout")
-        self.tutorialBtn = QtWidgets.QPushButton(self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.tutorialBtn.sizePolicy().hasHeightForWidth())
-        self.tutorialBtn.setSizePolicy(sizePolicy)
-        self.tutorialBtn.setMinimumSize(QtCore.QSize(25, 25))
-        self.tutorialBtn.setStyleSheet("background-color: #DCDCDC;\n"
-"border-style: outset;\n"
-"border-width: 2px;\n"
-"border-radius: 10px;\n"
-"border-color: black;\n"
-"padding: 4px;\n"
-"color: black;")
-        self.tutorialBtn.setObjectName("tutorialBtn")
-        self.formLayout.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.tutorialBtn)
-        self.settingsBtn = QtWidgets.QToolButton(self.centralwidget)
-        self.settingsBtn.setObjectName("settingsBtn")
-        self.formLayout.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.settingsBtn)
-        self.gridLayout.addLayout(self.formLayout, 0, 2, 1, 1)
-        self.actionLabel = QtWidgets.QLabel(self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        self.actionLabel = QtWidgets.QPlainTextEdit(self.centralwidget)
+        self.actionLabel.setEnabled(True)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.actionLabel.sizePolicy().hasHeightForWidth())
         self.actionLabel.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
-        font.setFamily("Arial")
-        font.setPointSize(15)
+        font.setPointSize(12)
         self.actionLabel.setFont(font)
-        self.actionLabel.setMouseTracking(False)
-        self.actionLabel.setText("")
-        self.actionLabel.setAlignment(QtCore.Qt.AlignCenter)
+        self.actionLabel.setReadOnly(True)
         self.actionLabel.setObjectName("actionLabel")
         self.gridLayout.addWidget(self.actionLabel, 4, 1, 1, 1)
         Dialog.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(Dialog)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 704, 26))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 861, 26))
         self.menubar.setObjectName("menubar")
         Dialog.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(Dialog)
@@ -197,6 +195,9 @@ class Ui_Dialog(object):
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "Project Elevate"))
+        self.startBtn.setText(_translate("Dialog", "Create output"))
+        self.tutorialBtn.setText(_translate("Dialog", "?"))
+        self.settingsBtn.setText(_translate("Dialog", "..."))
         self.label.setText(_translate("Dialog", "Types"))
         self.deleteTypeBtn.setText(_translate("Dialog", "Delete Type"))
         self.addTypeBtn.setText(_translate("Dialog", "Add Type"))
@@ -206,6 +207,3 @@ class Ui_Dialog(object):
         self.label_8.setText(_translate("Dialog", "Files"))
         self.deleteFileBtn.setText(_translate("Dialog", "Delete File"))
         self.importButton.setText(_translate("Dialog", "Import"))
-        self.startBtn.setText(_translate("Dialog", "Create output"))
-        self.tutorialBtn.setText(_translate("Dialog", "?"))
-        self.settingsBtn.setText(_translate("Dialog", "..."))

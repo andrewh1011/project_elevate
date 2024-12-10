@@ -70,14 +70,14 @@ class MainUI(QMainWindow):
 		keys = self.fileNames.keys()
 		if len(keys) >	0:
 			try:
-				self.ui.actionLabel.setText("Output generation started...")
+				self.ui.actionLabel.setPlainText("Output generation started...")
 				QApplication.processEvents()
 				ret = buildOutput(self.fileNames.values(), self.name_match_confirmer())
-				self.ui.actionLabel.setText(ret)
+				self.ui.actionLabel.setPlainText(ret)
 			except Exception as e:
-				self.ui.actionLabel.setText("Parsing/Generation Error: " + str(e))
+				self.ui.actionLabel.setPlainText("Parsing/Generation Error: " + str(e))
 		else:
-			self.ui.actionLabel.setText("Please provide at least one file for the report generation.")	
+			self.ui.actionLabel.setPlainText("Please provide at least one file for the report generation.")	
 
 	def source_clicked(self, item):
 		source_name = item.text()
@@ -150,7 +150,7 @@ class MainUI(QMainWindow):
 					self.refresh_sources()
 					self.delete_all_files_with_source(sName)
 				else:
-					self.ui.actionLabel.setText("Could not delete source" + sName)
+					self.ui.actionLabel.setPlainText("Could not delete source" + sName)
 
 	def delete_type_clicked(self):
 		itm = self.ui.typeList.currentItem()
@@ -163,7 +163,7 @@ class MainUI(QMainWindow):
 					self.refresh_types()
 					self.default_all_sources_with_type(tName)
 				else:
-					self.ui.actionLabel.setText("Could not delete type" + tName)
+					self.ui.actionLabel.setPlainText("Could not delete type" + tName)
 
 	def open_add_type_window(self):
 		self.window = AddTypeUI(self)
@@ -212,15 +212,15 @@ class MainUI(QMainWindow):
 			#User clicked cancel
 			return None
 		else:
-			self.ui.actionLabel.setText("Please create a source")
+			self.ui.actionLabel.setPlainText("Please create a source")
 
 	def file_clicked(self, item):
-		self.ui.actionLabel.setText(self.fileNames[item.text()][0])
+		self.ui.actionLabel.setPlainText(self.fileNames[item.text()][0])
 
 	def add_to_file_list(self, name, path, system):
 		
 		if name in self.fileNames:
-			self.ui.actionLabel.setText("Duplicate file")
+			self.ui.actionLabel.setPlainText("Duplicate file")
 		else:
 			self.fileNames[name] = (path, system)
 			itm = QListWidgetItem(name)
@@ -382,7 +382,7 @@ class AddSourceUI(QMainWindow):
 					try:
 						converted = int(inputField.text())
 						if converted < 0:
-							self.ui.actionLabel.setText("INPUT COLUMN " + inputField.objectName() + " HAS INVALID NUMBER")
+							self.ui.actionLabel.setPlainText("INPUT COLUMN " + inputField.objectName() + " HAS INVALID NUMBER")
 							return False
 
 					except ValueError:
@@ -417,7 +417,7 @@ class AddSourceUI(QMainWindow):
 			self.return_to_main_window()
 			return True
 		else:
-			self.mainWindow.ui.actionLabel.setText("Source could not be added")
+			self.mainWindow.ui.actionLabel.setPlainText("Source could not be added")
 			self.return_to_main_window()
 			return False
 
@@ -509,7 +509,7 @@ class AddSettingUI(QMainWindow):
 			self.return_to_main_window()
 			return True
 		else:
-			self.mainWindow.ui.actionLabel.setText("Settings could not be updated.")
+			self.mainWindow.ui.actionLabel.setPlainText("Settings could not be updated.")
 			self.return_to_main_window()
 			return False
 
@@ -617,7 +617,7 @@ class AddTypeUI(QMainWindow):
 		afterColList = formData[TypeFileColumns.colList.value]
 
 		#dont want to warn a user when they are adding a new type, since no sources will be affected by colList change yet.
-		if typeName in types.keys() and types[typeName][TypeFileColumns.colList.value] != afterColList:
+		if typeName in types.keys() and types[typeName][TypeFileColumns.colList.value] != afterColList and typeName != emptyTypeName:
 			choice = self.confirm_change_columns_for_type()
 			if choice == QMessageBox.Yes:
 				ret = addTypeToFile(formData)
@@ -626,7 +626,7 @@ class AddTypeUI(QMainWindow):
 					self.return_to_main_window()
 					return True
 				else:
-					self.mainWindow.ui.actionLabel.setText("Type could not be updated.")
+					self.mainWindow.ui.actionLabel.setPlainText("Type could not be updated.")
 					self.return_to_main_window()
 					return False
 		else:
@@ -635,7 +635,7 @@ class AddTypeUI(QMainWindow):
 				self.return_to_main_window()
 				return True
 			else:
-				self.mainWindow.ui.actionLabel.setText("Type could not be updated.")
+				self.mainWindow.ui.actionLabel.setPlainText("Type could not be updated.")
 				self.return_to_main_window()
 				return False
 
