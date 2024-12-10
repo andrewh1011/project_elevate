@@ -1,4 +1,5 @@
 import pandas as pd
+from pandas._libs.parsers import STR_NA_VALUES
 import numpy as np
 from datetime import datetime
 from manageSources import *
@@ -142,7 +143,10 @@ def buildOutput(fileInfos, nameMatchCallBack):
 		if firstNameIndex == -1 and dodIndex == -1 and emailIndex == -1:
 			return "Must have at least one identifier column(email, id, name,...) " + filePath + " Source Assigned: " + sourceName
 
-		fileDf = pd.read_excel(filePath, header = None)
+
+		accepted_na_values = STR_NA_VALUES - {'N/A'}
+
+		fileDf = pd.read_excel(filePath, header = None, keep_default_na=False, na_values=accepted_na_values)
 		if skipRows > 0:
 			actualRowNum = len(fileDf.index)
 			#want at least one row to process for a file
@@ -150,7 +154,7 @@ def buildOutput(fileInfos, nameMatchCallBack):
 				return "Skip row number too large! File: " + filePath + " Source Assigned: " + sourceName
 			else:
 				del fileDf
-				fileDf = pd.read_excel(filePath, header = list(range(skipRows)))
+				fileDf = pd.read_excel(filePath, header = list(range(skipRows)), keep_default_na=False, na_values=accepted_na_values)
 		
 		lc = len(fileDf.columns) - 1
 		if emailIndex > lc or dodIndex > lc or firstNameIndex > lc or lastNameIndex > lc or courseNameIndex > lc:
@@ -168,11 +172,16 @@ def buildOutput(fileInfos, nameMatchCallBack):
 		trainingTypeName = source_data[ExtraSourceFileColumns.typeName.value]
 		trainingTypeData = types[trainingTypeName]
 
-		forceTypeOnColumn(fileDf,emailIndex, convertToStr, sourceName, filePath)
-		forceTypeOnColumn(fileDf,firstNameIndex, convertToStr, sourceName, filePath)
-		forceTypeOnColumn(fileDf,lastNameIndex, convertToStr, sourceName, filePath)
-		forceTypeOnColumn(fileDf,courseNameIndex, convertToStr, sourceName, filePath)
-		forceTypeOnColumn(fileDf,dodIndex, convertToInt, sourceName, filePath)
+		if emailIndex != -1:
+			forceTypeOnColumn(fileDf,emailIndex, convertToStr, sourceName, filePath)
+		if firstNameIndex != -1:
+			forceTypeOnColumn(fileDf,firstNameIndex, convertToStr, sourceName, filePath)
+		if lastNameIndex != -1:
+			forceTypeOnColumn(fileDf,lastNameIndex, convertToStr, sourceName, filePath)
+		if courseNameIndex != -1:
+			forceTypeOnColumn(fileDf,courseNameIndex, convertToStr, sourceName, filePath)
+		if dodIndex != -1:
+			forceTypeOnColumn(fileDf,dodIndex, convertToInt, sourceName, filePath)
 
 		#empty type means this is an info/personel file, which we want to treat differently.
 		#info files data are solely used to add more information to person info section or course names
@@ -184,8 +193,6 @@ def buildOutput(fileInfos, nameMatchCallBack):
 				return "Error reading plugin. It is possible this plugin file has moved somewhere else or it is being used by another program. File: " + filePath
 		
 		for ind, row in fileDf.iterrows():
-
-			print(row)
 
 			plugin.globalRow = row
 
