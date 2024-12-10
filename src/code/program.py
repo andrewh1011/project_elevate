@@ -79,7 +79,6 @@ class MainUI(QMainWindow):
 		else:
 			self.ui.actionLabel.setText("Please provide at least one file for the report generation.")	
 
-	#When a source is clicked, the AddSourceUI window is opened to allow the user to edit the source
 	def source_clicked(self, item):
 		source_name = item.text()
 		self.window = AddSourceUI(self)
@@ -115,17 +114,14 @@ class MainUI(QMainWindow):
 				sourceInfo[ExtraSourceFileColumns.typeName.value] = emptyTypeName
 				addSourceToFile(sourceInfo)
 
-	#Ask user to confirm to delete all files with a source
 	def confirm_delete_files_from_source(self, sName):
 		choice = QMessageBox.question(self, 'Confirmation', "Deleting a source will delete all the files currently mapped to this source in the current session. Are you sure?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 		return choice
 
-	#Ask user to confirm to delete all files with a source
 	def confirm_edit_sources_of_type(self, sName):
 		choice = QMessageBox.question(self, 'Confirmation', "Deleting a type will set any source using this type to use an empty type. Are you sure?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 		return choice
 
-	#Loads saved sources from sources.csv
 	def refresh_sources(self):
 		self.ui.sourceList.clear()
 		sources = buildSourceDataFromFile()
@@ -169,17 +165,14 @@ class MainUI(QMainWindow):
 				else:
 					self.ui.actionLabel.setText("Could not delete type" + tName)
 
-	#Opens the AddSourceUI window to allow for adding a source 
 	def open_add_type_window(self):
 		self.window = AddTypeUI(self)
 		self.window.show()
 
-	#Opens the AddSourceUI window to allow for adding a source 
 	def open_add_source_window(self):
 		self.window = AddSourceUI(self)
 		self.window.show()
 	
-	#Opens the AddSettingUI window
 	def open_settings_window(self):
 		self.window = AddSettingUI(self)
 		self.window.show_settings()
@@ -193,22 +186,27 @@ class MainUI(QMainWindow):
 				self.ui.fileList.takeItem(row)
 				del self.fileNames[itm.text()]
 
-	#Allows the user to import a file
 	def import_clicked(self):
-		file = QFileDialog.getOpenFileName(self, "Add Source", "/~", "Spreadsheets(*.csv *.xlsx *.txt)")
+		options = QFileDialog.Options()
+		options |= QFileDialog.DontUseNativeDialog
+		files = QFileDialog.getOpenFileNames(self, "Add File", "/~", "Spreadsheets (*.xlsx)", options = options)
+		if files and len(files) > 0 and files[0]:
+			fileList = files[0]
+			for file in fileList:
+				fileFullPath = file
+				fileName = file.rsplit('/', 1)[-1]
 
-		if file[0]:
-			system = self.get_source()
-			if system:
-				fileFullPath = file[0]
-				fileName = file[0].rsplit('/', 1)[-1]
-				self.add_to_file_list(fileName, fileFullPath, system)
+				system = self.get_source(fileName)
+				if system:
+					self.add_to_file_list(fileName, fileFullPath, system)
+				else:
+					break
 
 	#Allows the user to tell us what source the file they imported is from
-	def get_source(self):
+	def get_source(self, fileName):
 		sources = buildSourceDataFromFile()
 		if len(sources.keys()) > 0:
-			source, ok_pressed = QInputDialog.getItem(self, "Source Selection", "Select Source:", sources.keys(), 0, False)
+			source, ok_pressed = QInputDialog.getItem(self, "Source Selection", "Select Source for file " + fileName + ":", sources.keys(), 0, False)
 			if ok_pressed:
 				return source
 			#User clicked cancel
