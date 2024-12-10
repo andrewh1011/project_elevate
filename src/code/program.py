@@ -5,6 +5,7 @@ from uiFile import Ui_Dialog
 from addSource import Ui_AddWindow
 from settingsUI import Ui_AddWindow as SettingUi_AddWindow
 from addTypeUI import Ui_AddWindow as TypeUi_AddWindow
+from instructionUI import Ui_AddWindow as Inst_Window
 from manageSources import *
 from manageSettings import *
 from manageTypes import *
@@ -30,7 +31,6 @@ class MainUI(QMainWindow):
 		self.ui.sourceList.itemDoubleClicked.connect(self.source_clicked)
 		self.ui.typeList.itemDoubleClicked.connect(self.type_clicked)
 		self.ui.fileList.itemClicked.connect(self.file_clicked)
-
 		self.ui.importButton.clicked.connect(self.import_clicked)
 		self.ui.deleteFileBtn.clicked.connect(self.delete_file_clicked)
 		self.ui.deleteSourceBtn.clicked.connect(self.delete_source_clicked)
@@ -39,13 +39,10 @@ class MainUI(QMainWindow):
 		self.ui.deleteTypeBtn.clicked.connect(self.delete_type_clicked)
 		self.ui.settingsBtn.clicked.connect(self.open_settings_window)
 		self.ui.startBtn.clicked.connect(self.start_btn_clicked)
-		
 		self.refresh_sources()
 		self.refresh_types()
-
 		self.ui.tutorialBtn.clicked.connect(self.open_tutorial)
-		with open(genAppInstPath, "r") as file:
-			self.tutorial_text = file.read()
+		
 
 	#Prompts user to confirm to two names are the same person
 	def name_match_confirmer(self):
@@ -227,18 +224,26 @@ class MainUI(QMainWindow):
 			itm.setTextAlignment(QtCore.Qt.AlignCenter)
 			self.ui.fileList.addItem(itm)
 
-	#Opens a QMessageBox window that explains how to use the app
 	def open_tutorial(self):
-		instructions = QMessageBox(self)
-		instructions.setIcon(QMessageBox.Information)
-		instructions.setWindowTitle("Tutorial")
-		instructions.setText(self.tutorial_text)
-		instructions.exec_()
+		tutorialText = ""
+		with open(genAppInstPath, "r") as file:
+			tutorialText = file.read()
+		self.window = InstructionUI(self,tutorialText)
+		self.window.show()
 
 	#If the main window is closed, close all other windows
 	def closeEvent(self, event): 
 		for window in QApplication.topLevelWidgets(): 
 			window.close()
+
+class InstructionUI(QMainWindow):
+	def __init__(self, mainWindow, text):
+		super(InstructionUI, self).__init__()
+
+		self.mainWindow = mainWindow
+		self.ui = Inst_Window()
+		self.ui.setupUi(self)
+		self.ui.instructionText.setPlainText(text)
 
 #This window allows the user to edit and add a new source
 class AddSourceUI(QMainWindow):
@@ -248,13 +253,9 @@ class AddSourceUI(QMainWindow):
 		self.mainWindow = mainWindow
 		self.ui = Ui_AddWindow()
 		self.ui.setupUi(self)
-		
-
 		self.ui.saveSourceBtn.clicked.connect(self.save_source_clicked)
-		
 		self.ui.tutorialBtn.clicked.connect(self.open_tutorial)
-		with open(addSrcInstPath, "r") as file:
-			self.add_tutorial_text = file.read()
+		
 
 		for rCol in RequiredSourceFileColumns:
 			el = self.findChild(QLabel, rCol.value + "Label")
@@ -334,11 +335,11 @@ class AddSourceUI(QMainWindow):
 		self.close()
 
 	def open_tutorial(self):
-		instructions = QMessageBox(self)
-		instructions.setIcon(QMessageBox.Information)
-		instructions.setWindowTitle("Tutorial")
-		instructions.setText(self.add_tutorial_text)
-		instructions.exec_()
+		tutorialText = ""
+		with open(addSrcInstPath, "r") as file:
+			tutorialText = file.read()
+		self.window = InstructionUI(self,tutorialText)
+		self.window.show()
 
 	#assumes all number columns have already been verified
 	def package_source_form(self):
@@ -421,7 +422,6 @@ class AddSourceUI(QMainWindow):
 			self.return_to_main_window()
 			return False
 
-#This window allows the user to change app settings (name match threshold values)
 class AddSettingUI(QMainWindow):
 	def __init__(self, mainWindow):
 		super(AddSettingUI, self).__init__()
@@ -429,12 +429,8 @@ class AddSettingUI(QMainWindow):
 		self.mainWindow = mainWindow
 		self.ui = SettingUi_AddWindow()
 		self.ui.setupUi(self)
-
 		self.ui.saveBtn.clicked.connect(self.save_setting_clicked)
-		
 		self.ui.tutorialBtn.clicked.connect(self.open_tutorial)
-		with open(addSetInstPath, "r") as file:
-			self.add_tutorial_text = file.read()
 
 		for rCol in RequiredSettingsFileColumns:
 			el = self.findChild(QLabel, rCol.value + "Label")
@@ -453,11 +449,11 @@ class AddSettingUI(QMainWindow):
 		self.close()
 
 	def open_tutorial(self):
-		instructions = QMessageBox(self)
-		instructions.setIcon(QMessageBox.Information)
-		instructions.setWindowTitle("Tutorial")
-		instructions.setText(self.add_tutorial_text)
-		instructions.exec_()
+		tutorialText = ""
+		with open(addSetInstPath, "r") as file:
+			tutorialText = file.read()
+		self.window = InstructionUI(self,tutorialText)
+		self.window.show()
 
 	#assumes all number columns have already been verified
 	def package_setting_form(self):
@@ -520,13 +516,9 @@ class AddTypeUI(QMainWindow):
 		self.mainWindow = mainWindow
 		self.ui = TypeUi_AddWindow()
 		self.ui.setupUi(self)
-
 		self.ui.pluginImportBtn.clicked.connect(self.plugin_import_clicked)
 		self.ui.saveBtn.clicked.connect(self.save_type_clicked)
-		
 		self.ui.tutorialBtn.clicked.connect(self.open_tutorial)
-		with open(addTypeInstPath, "r") as file:
-			self.add_tutorial_text = file.read()
 
 		for rCol in RequiredTypeFileColumns:
 			el = self.findChild(QLabel, rCol.value + "Label")
@@ -556,11 +548,11 @@ class AddTypeUI(QMainWindow):
 		self.close()
 
 	def open_tutorial(self):
-		instructions = QMessageBox(self)
-		instructions.setIcon(QMessageBox.Information)
-		instructions.setWindowTitle("Tutorial")
-		instructions.setText(self.add_tutorial_text)
-		instructions.exec_()
+		tutorialText = ""
+		with open(addTypeInstPath, "r") as file:
+			tutorialText = file.read()
+		self.window = InstructionUI(self,tutorialText)
+		self.window.show()
 
 	#assumes all number columns have already been verified
 	def package_type_form(self):
@@ -617,6 +609,7 @@ class AddTypeUI(QMainWindow):
 		afterColList = formData[TypeFileColumns.colList.value]
 
 		#dont want to warn a user when they are adding a new type, since no sources will be affected by colList change yet.
+		#dont want to warn a user if they are trying to edit the empty type, since it will fail regardless.
 		if typeName in types.keys() and types[typeName][TypeFileColumns.colList.value] != afterColList and typeName != emptyTypeName:
 			choice = self.confirm_change_columns_for_type()
 			if choice == QMessageBox.Yes:
@@ -630,7 +623,7 @@ class AddTypeUI(QMainWindow):
 					self.return_to_main_window()
 					return False
 		else:
-			ret = addTypeToFile(formData)
+			ret = addTypeToFile(formData) #if this is the emptyType/infoType this will fail so no need to prevent explicitly
 			if ret:
 				self.return_to_main_window()
 				return True

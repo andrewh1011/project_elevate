@@ -165,6 +165,8 @@ def buildOutput(fileInfos, nameMatchCallBack):
 			colIndex = int(customCols[colName]) # required
 			if colIndex > lc:
 				return "Column Index too large! File: " + filePath + " Source Assigned: " + sourceName
+			if colIndex == -1:
+				return "Column Index invalid! You may have forgotten to change this when adding a new column to a type this source uses. File: " + filePath + " Source Assigned: " + sourceName
 
 		plugin.globalCustomCols = customCols
 
