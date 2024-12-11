@@ -1,4 +1,4 @@
-This application is designed to automate the process of outputing a report card of training data across multiple sources.
+This application is designed to automate the process of outputing a report card of training data across multiple sources and types of training data.
 
 The application requires Excel (.xlsx) files from the training sources. You can import these files by clicking the "Import" button.
 
@@ -6,7 +6,17 @@ Once imported, the application will ask you which source they came from (ie JKO,
 
 If the source is not in the dropdown menu or a source changes format, you can manually add a new data souce with the "Add Source" button.
 
-Import as many files as necessary. Once all files have been added, click the "Create Output" button. This will start the parsing and combination process.
+Files from a given source have a special "type" of training data contained within them. For files from some sources this may be numerical/percentage based data, and for others this may be data based data.
+
+When you create a source, you will tell the system what type of data this source will hold. You can select one of the existing types from the dropdown, or create a new type if it does not exist yet.
+
+A type describes custom columns the file that follows this type will have, and it also describes a simple plugin that tells the parser how to format the output according to those custom columns.
+
+Setting a source to be of type "infoType" means it does not hold any actual training data in it, only information that augments the info section of the output. An example of a source that would have this type is a personel roster.
+Files from sources that are an infoType are treated differently than data files. If a file is from a source that has type infoType, any columns besides the ones explicitly filled out in the form will be automatically included in the info section of the final report.
+For example, if you imported a personel roster that had a "squadron" column, this would automatically be included in the output info section.
+
+Import as many files as necessary. You can import multiple files at a time by either ctrl + clicking or ctrl + a. Once all files have been added, click the "Create Output" button. This will start the parsing and combination process.
 
 During parsing of the files you imported, records for the same people(either in the same file or across files) will be combined when possible to make a more consolidated output report card.
 
@@ -19,14 +29,15 @@ The name matching process is detailed more thoroughly in the settings instructio
 Once the parsing and combination is done, the app will generate an output report in an Excel file (/src/output/output.xlsx).
 
 Additionally, a log file (/src/output/log.csv) will be generated. This log file gives details about any non fatal errors that were encountered during the parsing process(for example a date was not formatted correctly).
-
 The log file also gives information about any automatic person matches that took place during the session.
 
-The colors of the output have meaning:
-    -Blue: important information about the trainees
-
-Courses section:
-    -Green: Course is assigned and completed on time
-    -Yellow: Course is assigned and has not been completed yet, and it is not past the due date
-    -Red: Course is assigned and not completed (if empty), or has been completed late (if there is a date)
-    -Grey: Course has not been assigned to this person
+The output file will be split into the info section and training data section.
+The info section will list identifier information of each person(along with any data provided by infoType sources)
+ 
+After the info section, the training data extends rightwards.
+For each course, the output is determined by running the plugin code that is associated with the source of the file the course came from. In general, the colors mean:
+    -Green: Success
+    -Yellow: Pending
+    -Red: Failure
+    -Grey: this course is not applicable to this person
+    -Cyan: the plugin code determined there was an error for this course and person.
