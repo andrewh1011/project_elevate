@@ -13,6 +13,8 @@ baseDir = os.path.dirname(__file__)
 reportFilePath = os.path.join(baseDir, "../output/output.xlsx")
 logFilePath = os.path.join(baseDir, "../output/log.csv")
 
+firstTrainingDataCol = 4
+
 class CellStatus(Enum):
 	failure = "IND_FAILURE" 
 	success = "IND_SUCCESS" 
@@ -75,7 +77,7 @@ def calculateMatchRow(cleanName,matchEmail,matchId, row):
 
 def formatOutput(data):
 
-	lastInfoColumnIndex = 3
+	lastInfoColumnIndex = firstTrainingDataCol - 1
 	#upper left cell where the data section of the report starts
 	firstCellDates = "D2"
 	#upper left cell where the id section of the report starts
@@ -127,7 +129,8 @@ def buildOutput(fileInfos, nameMatchCallBack):
 	#pandas dataframe that originally has columns dodid, email, name
 	#when a new coursename is encounter, this course will be added as a column
 	ids = pd.DataFrame(columns = [SourceFileColumns.dodid.value, SourceFileColumns.email.value, ReportExtraColumns.cleanName.value, ReportExtraColumns.fullName.value])
-
+	#by default, info section will always have dodid, email,cleanName, and  fullName. So first real training data col starts at 4
+	firstTrainingDataCol = 4
 	sources = buildSourceDataFromFile()
 	types = buildTypeDataFromFile()
 
@@ -147,8 +150,8 @@ def buildOutput(fileInfos, nameMatchCallBack):
 			return "Must have at least one identifier column(email, id, name,...) " + filePath + " Source Assigned: " + sourceName
 
 		accepted_na_values = STR_NA_VALUES - {'N/A'}
-
 		fileDf = pd.read_excel(filePath, header = None, keep_default_na=False, na_values=accepted_na_values)
+
 		if skipRows > 0:
 			actualRowNum = len(fileDf.index)
 			#want at least one row to process for a file
@@ -195,9 +198,31 @@ def buildOutput(fileInfos, nameMatchCallBack):
 				pluginStr = plugin.readPlugin(pluginFilePath)
 			except:
 				return "Error reading plugin. It is possible this plugin file has moved somewhere else or it is being used by another program. File: " + filePath
-		
-		for ind, row in fileDf.iterrows():
+		else:
+			explicitColIndices = []
 
+			for ind in [emailIndex,firstNameIndex,lastNameIndex,courseNameIndex,dodIndex]:
+				if ind != -1:
+					explicitColIndices.append(ind)
+
+			fileCols = list(fileDf.columns)		
+			possibleIndices = range(len(fileDf.columns))
+			infoCols = {}
+			for ind in possibleIndices:
+				if ind not in explicitColIndices:
+					infoCols[fileCols[ind]] = ind
+
+			#list of len 2 arrays: first num is index in file being read, second is index in ids
+			convertedIndices = []
+			for infoCol in infoCols.keys():
+				ids.insert(0, infoCol, "" , allow_duplicates=True)
+				firstTrainingDataCol = firstTrainingDataCol + 1
+				for convInd in convertedIndices:
+					convInd[1] = convInd[1] + 1
+				convertedIndices.append([infoCols[infoCol], 0])
+		
+
+		for ind, row in fileDf.iterrows():
 			plugin.globalRow = row
 
 			dodidNum = -1
@@ -267,11 +292,24 @@ def buildOutput(fileInfos, nameMatchCallBack):
 				if matchRow.loc[ReportExtraColumns.fullName.value] == "" and fullName != "":
 					ids.loc[matchIndex,ReportExtraColumns.fullName.value] = fullName
 
+				if trainingTypeName == emptyTypeName:
+					for convInd in convertedIndices:
+						fileInd = convInd[0]
+						idInd = convInd[1]
+						if str(matchRow.iloc[idInd]) == "" and str(row.iloc[fileInd]) != "":
+							ids.iloc[matchIndex,idInd] = str(row.iloc[fileInd])
+
 			else:
 				ids = ids._append({SourceFileColumns.dodid.value : dodidNum,SourceFileColumns.email.value: email, ReportExtraColumns.cleanName.value: clnName, ReportExtraColumns.fullName.value: fullName}, ignore_index=True)
 				inds = ids.index.values.tolist()
 				matchIndex = inds[len(inds)-1]
-				ids.iloc[matchIndex, 4:] = "=CHOOSE(1,{0},{1},{2})".format("\"\"", "\"" + CellStatus.notApplicable.value + "\"", "\"\"")
+				matchRow = ids.loc[matchIndex]
+				if trainingTypeName == emptyTypeName:
+					for convInd in convertedIndices:
+						fileInd = convInd[0]
+						idInd = convInd[1]
+						ids.iloc[matchIndex, idInd] = str(row.iloc[fileInd])
+				ids.iloc[matchIndex, firstTrainingDataCol:] = "=CHOOSE(1,{0},{1},{2})".format("\"\"", "\"" + CellStatus.notApplicable.value + "\"", "\"\"")
 
 			if trainingTypeName != emptyTypeName:
 				if courseNameIndex != -1:
