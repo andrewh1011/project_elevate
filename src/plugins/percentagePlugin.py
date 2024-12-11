@@ -1,41 +1,38 @@
-compOnTime = plugin.getCustomCol("compOnTime")
-compLate = plugin.getCustomCol("compLate")
-incompNYD = plugin.getCustomCol("incompNYD")
-overdue = plugin.getCustomCol("overdue")
-compPerc = plugin.getCustomCol("compPerc")
+compOnTime = plugin.getCustomColCell("compOnTime")
+compLate = plugin.getCustomColCell("compLate")
+incompNYD = plugin.getCustomColCell("incompNYD")
+overdue = plugin.getCustomColCell("overdue")
+compPerc = plugin.getCustomColCell("compPerc")
 
 try:
-	onTimeNum = int(compOnTime)
-	lateNum = int(compLate)
-	incompNYDNum = int(incompNYD)
-	overdueNum = int(overdue)
-	percStr = str(compPerc)
+	compOnTime = plugin.treatCellAsNumber(compOnTime)
+	compLate = plugin.treatCellAsNumber(compLate)
+	incompNYD = plugin.treatCellAsNumber(incompNYD)
+	overdue = plugin.treatCellAsNumber(overdue)
+	compPerc = plugin.treatCellAsString(compPerc)
 	haveAllVars = True
-
 except:
 	haveAllVars = False
 
 if haveAllVars:
-	totalAssigned = onTimeNum + lateNum + incompNYDNum + overdueNum
-	numComplete = onTimeNum + lateNum
-
-	if numComplete > overdueNum:
-		if numComplete > incompNYDNum:
+	numComplete = compOnTime + compLate
+	if numComplete > overdue:
+		if numComplete > incompNYD:
 			plugin.setOutputAsSuccess()
 		else:
 			plugin.setOutputAsPending()
 	else:
-		if overdueNum > incompNYDNum:
+		if overdue > incompNYD:
 			plugin.setOutputAsFailure()
 		else:
 			plugin.setOutputAsPending() 
 
-	plugin.setOutputText(percStr)
+	plugin.setOutputText(compPerc)
 	plugin.setHiddenText("") 
-		
+
 else:
 	plugin.setOutputText("")			
-	plugin.setOutputAsNotApplicable()
+	plugin.setOutputAsError()
 	plugin.setHiddenText("")
 
 plugin.finalizeOutput()

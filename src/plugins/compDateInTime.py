@@ -1,19 +1,24 @@
-try:
-	cLoc = pd.to_datetime(plugin.getCustomCol("compDate"))
-except:
-	cLoc = np.nan
+compDate = plugin.getCustomColCell("compDate")
 
-if pd.isnull(cLoc):
+if plugin.isCellEmpty(compDate):
 	plugin.setOutputText("")
 	plugin.setOutputAsPending()
 	plugin.setHiddenText("")
 else:
-	today = datetime.today()
-	if today.year > cLoc.year:
-		plugin.setOutputAsFailure()
-	else:
-		plugin.setOutputAsSuccess()
+	try:
+		compDate = plugin.treatCellAsDate(compDate)
+		today = datetime.today()
 
-	plugin.setOutputText(str(cLoc.date()))
-	plugin.setHiddenText("")
+		if today.year > compDate.year:
+			plugin.setOutputAsFailure()
+		else:
+			plugin.setOutputAsSuccess()
+
+		plugin.setOutputText(compDate)
+		plugin.setHiddenText("")
+	except:
+		plugin.setOutputText("")
+		plugin.setOutputAsError()
+		plugin.setHiddenText("")
+	
 plugin.finalizeOutput()

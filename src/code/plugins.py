@@ -51,7 +51,7 @@ def treatCellAsDate(cell):
 	return pd.to_datetime(cell).date()
 def treatCellAsString(cell):
 	return str(cell)
-def treatCellAsNumber():
+def treatCellAsNumber(cell):
 	return int(cell)
 
 def isCellEmpty(cell):

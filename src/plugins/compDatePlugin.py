@@ -1,14 +1,18 @@
-try:
-	cLoc = pd.to_datetime(plugin.getCustomCol("compDate"))
-except:
-	cLoc = np.nan
+compDate = plugin.getCustomColCell("compDate")
 
-if pd.isnull(cLoc):
+if plugin.isCellEmpty(compDate):
 	plugin.setOutputText("DUE")
 	plugin.setOutputAsPending()
 	plugin.setHiddenText("")
 else:
-	plugin.setOutputText(str(cLoc.date()))
-	plugin.setOutputAsSuccess()
-	plugin.setHiddenText("")
+	try:
+		compDate = plugin.treatCellAsDate(compDate)
+		plugin.setOutputText(compDate)
+		plugin.setOutputAsSuccess()
+		plugin.setHiddenText("")
+	except:
+		plugin.setOutputText("")
+		plugin.setOutputAsError()
+		plugin.setHiddenText("")
+
 plugin.finalizeOutput()

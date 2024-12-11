@@ -1,51 +1,48 @@
-dueDate = plugin.getCustomCol("dueDate")
-compDate = plugin.getCustomCol("compDate")
+dueDate = plugin.getCustomColCell("dueDate")
+compDate = plugin.getCustomColCell("compDate")
+today = datetime.today()
 
-if pd.isnull(dueDate):
-	plugin.setOutputText("")
-	plugin.setOutputAsNotApplicable()
-	plugin.setHiddenText("")
+if plugin.isCellEmpty(compDate):
+	if plugin.isCellEmpty(dueDate):
+		plugin.setOutputText("")
+		plugin.setOutputAsNotApplicable()
+		plugin.setHiddenText("")
+	else:
+		try:
+			dueDate = plugin.treatCellAsDate(dueDate)
+			if today > dueDate:
+				plugin.setOutputAsFailure()
+			else:
+				plugin.setOutputAsPending()
+			plugin.setOutputText("")
+			plugin.setHiddenText("DUE:" + plugin.treatCellAsString(dueDate))
+		except:
+			plugin.setOutputText("")
+			plugin.setOutputAsError()
+			plugin.setHiddenText("")
 else:
-	if str(dueDate) == "DUE":
+	if plugin.cellEqualsString(compDate, "DUE"):
 		plugin.setOutputText("DUE")
 		plugin.setOutputAsPending()
 		plugin.setHiddenText("")
 	else:
 		try:
-			dLoc = pd.to_datetime(dueDate)
-		except:
-			dLoc = np.nan
-		try:
-			cLoc = pd.to_datetime(compDate)
-		except:
-			cLoc = np.nan
-
-		if pd.isnull(dLoc):
-			if pd.isnull(cLoc):
-				plugin.setOutputText("")
-				plugin.setOutputAsNotApplicable()
-			else:
-				plugin.setOutputText(str(cLoc.date()))
+			compDate = plugin.treatCellAsDate(compDate)	
+			if plugin.isCellEmpty(dueDate):
+				plugin.setOutputText(compDate)
 				plugin.setOutputAsSuccess()
-				plugin.setHiddenText("DUE:NONE")
-		else:
-			today = datetime.today()
-			if pd.isnull(cLoc):
-				if today > dLoc:
-					plugin.setOutputText("")
-					plugin.setOutputAsFailure()
-					plugin.setHiddenText("DUE:" + str(dLoc.date()))
-				else:
-					plugin.setOutputText("")
-					plugin.setOutputAsPending()
-					plugin.setHiddenText("DUE:" + str(dLoc.date()))
+				plugin.setHiddenText("")
 			else:
-				if cLoc > dLoc:
-					plugin.setOutputText(str(cLoc.date()))
+				dueDate = plugin.treatCellAsDate(dueDate)
+				if compDate > dueDate:
 					plugin.setOutputAsFailure()
-					plugin.setHiddenText("DUE:" + str(dLoc.date()))
 				else:
-					plugin.setOutputText(str(cLoc.date()))
 					plugin.setOutputAsSuccess()
-					plugin.setHiddenText("DUE:" + str(dLoc.date()))
+				plugin.setOutputText(compDate)
+				plugin.setHiddenText("DUE:" + plugin.treatCellAsString(dueDate))
+		except:
+			plugin.setOutputText("")
+			plugin.setOutputAsError()
+			plugin.setHiddenText("")
+
 plugin.finalizeOutput()

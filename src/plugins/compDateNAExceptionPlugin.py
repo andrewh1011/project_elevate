@@ -5,9 +5,9 @@ if plugin.isCellEmpty(compDate):
 	plugin.setOutputAsFailure()
 	plugin.setHiddenText("")
 else:
-	if plugin.cellEqualsString(compDate,"DUE"):
-		plugin.setOutputText("DUE")
-		plugin.setOutputAsPending()
+	if plugin.cellEqualsString(compDate,"N/A"):
+		plugin.setOutputText("NOT REQUIRED")
+		plugin.setOutputAsNotApplicable()
 		plugin.setHiddenText("")
 	else:
 		try:
@@ -19,5 +19,5 @@ else:
 			plugin.setOutputText("")
 			plugin.setOutputAsError()
 			plugin.setHiddenText("")
-		
+
 plugin.finalizeOutput()
