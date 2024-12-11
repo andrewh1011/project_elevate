@@ -23,11 +23,10 @@ Additionally, a log file (/src/output/log.csv) will be generated. This log file 
 The log file also gives information about any automatic person matches that took place during the session.
 
 The colors of the output have meaning:
-
-    - Blue: important information about the trainees
+    -Blue: important information about the trainees
 
 Courses section:
-    - Green: Course is assigned and completed on time
-    - Yellow: Course is assigned and has not been completed yet, and it is not past the due date
-    - Red: Course is assigned and not completed (if empty), or has been completed late (if there is a date)
-    - Grey: Course has not been assigned to this person
+    -Green: Course is assigned and completed on time
+    -Yellow: Course is assigned and has not been completed yet, and it is not past the due date
+    -Red: Course is assigned and not completed (if empty), or has been completed late (if there is a date)
+    -Grey: Course has not been assigned to this person

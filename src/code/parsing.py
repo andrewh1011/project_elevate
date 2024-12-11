@@ -8,12 +8,11 @@ from manageTypes import *
 import plugins as plugin
 from thefuzz import fuzz
 import os
+import xlsxwriter
 
 baseDir = os.path.dirname(__file__)
 reportFilePath = os.path.join(baseDir, "../output/output.xlsx")
 logFilePath = os.path.join(baseDir, "../output/log.csv")
-
-firstTrainingDataCol = 4
 
 class CellStatus(Enum):
 	failure = "IND_FAILURE" 
@@ -75,11 +74,11 @@ def calculateMatchRow(cleanName,matchEmail,matchId, row):
 	else:
 		return -1	
 
-def formatOutput(data):
-
+def formatOutput(data, firstTrainingDataCol):
 	lastInfoColumnIndex = firstTrainingDataCol - 1
 	#upper left cell where the data section of the report starts
-	firstCellDates = "D2"
+	colLetters = xlsxwriter.utility.xl_col_to_name(lastInfoColumnIndex)
+	firstCellDates = colLetters + "2"
 	#upper left cell where the id section of the report starts
 	firstCellIds = "A2"
 
@@ -113,6 +112,9 @@ def formatOutput(data):
 #fileInfos is a list of pairs (filePath,sourceName)
 #nameMatchCallback is a function that takes two names(the two that matched), returns true/false
 def buildOutput(fileInfos, nameMatchCallBack):
+	
+	#by default, info section will always have dodid, email,cleanName, and  fullName. So first real training data col starts at 4
+	firstTrainingDataCol = 4
 
 	settings = buildSettingsDataFromFile()
 	nameMatchThreshold = 75
@@ -129,8 +131,7 @@ def buildOutput(fileInfos, nameMatchCallBack):
 	#pandas dataframe that originally has columns dodid, email, name
 	#when a new coursename is encounter, this course will be added as a column
 	ids = pd.DataFrame(columns = [SourceFileColumns.dodid.value, SourceFileColumns.email.value, ReportExtraColumns.cleanName.value, ReportExtraColumns.fullName.value])
-	#by default, info section will always have dodid, email,cleanName, and  fullName. So first real training data col starts at 4
-	firstTrainingDataCol = 4
+	
 	sources = buildSourceDataFromFile()
 	types = buildTypeDataFromFile()
 
@@ -330,7 +331,8 @@ def buildOutput(fileInfos, nameMatchCallBack):
 				
 				builtOutput = plugin.globalOutput
 				ids.loc[matchIndex, courseName] = "=CHOOSE(1,{0})".format(builtOutput)
+				plugin.resetOutputState()
 			
 	ids.drop(ReportExtraColumns.cleanName.value, axis=1, inplace=True)
-	formatOutput(ids)
+	formatOutput(ids, firstTrainingDataCol)
 	return "Output generated in output.xlsx file."

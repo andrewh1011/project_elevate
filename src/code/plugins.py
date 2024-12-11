@@ -62,6 +62,15 @@ def cellEqualsString(cell,s):
 def finalizeOutput():
 	global globalOutput
 	globalOutput = baseString.format(outputText,outputClass,hiddenText)	
+def resetOutputState():
+	global globalOutput
+	global hiddenText
+	global outputText
+	global outputClass
+	hiddenText = ""
+	outputText = ""
+	outputClass = ""
+	globalOutput = ""
 
 #functions for parsing interface
 def readPlugin(pluginFile):
