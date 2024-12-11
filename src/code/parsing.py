@@ -18,6 +18,7 @@ class CellStatus(Enum):
 	success = "IND_SUCCESS" 
 	pending = "IND_PENDING" 
 	notApplicable = "IND_NOTAPPLICABLE"
+	error = "IND_ERROR"
 
 #for all the columns needed in the report/log building that arent already in the source storage file.
 class ReportExtraColumns(Enum):
@@ -93,6 +94,7 @@ def formatOutput(data):
 	notApplicableColor = book.add_format({'bg_color':'#C0C0C0'})
 	pendingColor = book.add_format({'bg_color':'#FFFF00'})
 	infoColor = book.add_format({'bg_color':'#9999FF'})
+	errorColor = book.add_format({'bg_color':'#00FFFF'})
 	
 	sheet.set_column(0,lastInfoColumnIndex - 1,15)
 	sheet.set_column(lastInfoColumnIndex,colCount-1,30)
@@ -100,6 +102,7 @@ def formatOutput(data):
 	sheet.conditional_format(1,lastInfoColumnIndex,rowCount,colCount,{'type':'formula','criteria':"=ISNUMBER(SEARCH(\"{0}\", _xlfn.FORMULATEXT({1})))".format(CellStatus.success.value, firstCellDates),'format': successColor})
 	sheet.conditional_format(1,lastInfoColumnIndex,rowCount,colCount,{'type':'formula','criteria':"=ISNUMBER(SEARCH(\"{0}\", _xlfn.FORMULATEXT({1})))".format(CellStatus.notApplicable.value, firstCellDates),'format': notApplicableColor})
 	sheet.conditional_format(1,lastInfoColumnIndex,rowCount,colCount,{'type':'formula','criteria':"=ISNUMBER(SEARCH(\"{0}\", _xlfn.FORMULATEXT({1})))".format(CellStatus.pending.value, firstCellDates),'format': pendingColor})
+	sheet.conditional_format(1,lastInfoColumnIndex,rowCount,colCount,{'type':'formula','criteria':"=ISNUMBER(SEARCH(\"{0}\", _xlfn.FORMULATEXT({1})))".format(CellStatus.error.value, firstCellDates),'format': errorColor})
 	sheet.conditional_format(1,0,rowCount,lastInfoColumnIndex -1,{'type':'formula','criteria':"=AND(COLUMN({2}) < {0}, ROW({2}) < {1})".format(lastInfoColumnIndex + 1, rowCount + 2 , firstCellIds),'format': infoColor})
 	
 	sheet.freeze_panes(0, lastInfoColumnIndex)
@@ -112,11 +115,11 @@ def buildOutput(fileInfos, nameMatchCallBack):
 	settings = buildSettingsDataFromFile()
 	nameMatchThreshold = 75
 	if SettingsFileColumns.nameMatchThreshold.value in settings.keys():
-		nameMatchThreshold = settings[SettingsFileColumns.nameMatchThreshold.value]
+		nameMatchThreshold = int(settings[SettingsFileColumns.nameMatchThreshold.value])
 
 	autoMatchThreshold = 75
 	if SettingsFileColumns.autoMatchThreshold.value in settings.keys():
-		autoMatchThreshold = settings[SettingsFileColumns.autoMatchThreshold.value]
+		autoMatchThreshold = int(settings[SettingsFileColumns.autoMatchThreshold.value])
 
 	logHdr = pd.DataFrame(columns = [SourceFileColumns.sourceName.value, ReportExtraColumns.filePath.value, ReportExtraColumns.rowData.value, ReportExtraColumns.logType.value, ReportExtraColumns.desc.value])
 	logHdr.to_csv(logFilePath, index = False)

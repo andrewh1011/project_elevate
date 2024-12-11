@@ -461,7 +461,7 @@ class AddSettingUI(QMainWindow):
 		for setColumn in SettingsFileColumns:
 			inputField = self.findChild(QLineEdit, setColumn.value)
 			if not setColumn in dictL.keys():
-				dictL[setColumn.value] = int(inputField.text())
+				dictL[setColumn.value] = str(inputField.text())
 		return dictL
 
 	def save_setting_clicked(self):
