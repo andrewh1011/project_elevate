@@ -2,10 +2,28 @@ This portion of the application allows for adding a new data source. Enter the i
 
 For example, let's say there is a data source with the following columns in the order:
 
-Last Name, First Name, EDIPI, Category, Course Name, Completed Dt, Due Dt
+Last Name, First Name, EDIPI, Category, Course Name
 
 'Last Name' is in column 0, 'First Name' is in column 1, DODID is in column 2 and so on.
 
-The 'Header Rows' entry is how many rows you want to skip from the top of the file. For instance, most files have a header row before the data begins. So, the 'Header Rows' value is typically 1, but could be more.
+The 'Header Rows' entry is how many rows you want to skip from the top of the file until data is seen. For instance, most files have a header row before the data begins. So, the 'Header Rows' value is typically 1, but could be more.
 
 The required columns of the form are highlighted in red. If the first name and last name columns are combined into one name column, enter the index of the name column in the 'First Name' column.
+
+Note: Although the firstName, lastName, dodid, and email columns are not all explicitly required, you must give an index to at least one of these identifier columns. Otherwise the app would not have enough information to operate on. The app will print an error if you do not do this.
+
+Each source will have a "type" of data it holds. This could be percentage data, date data, etc. For more information on types, view the instructions in the type window.
+
+Choose a type from the dropdown. You can also add a new one if needed.
+
+When you choose a type, you will be required to enter the indices for the columns that type requires. The indices for these columns also start from 0 like the ones above.
+
+There are some special rules for sources:
+
+Setting a source to be of type "infoType" means it does not hold any actual training data in it, only information that augments the info section of the output. An example of a source that would have this type is a personel roster.
+Files from sources that are an infoType are treated differently than training data files. If a file is from a source that has type infoType, any columns besides the ones explicitly filled out in the form will be automatically included in the info section of the final report.
+For example, if you imported a personel roster that had a "squadron" column, this would automatically be included in the output info section.
+
+If a source has training data and is given some other type, not specifying the course name column will cause the source name to be the course name in the output. This is relevant to files from sources such as bls where the whole file describes a single training module.
+
+

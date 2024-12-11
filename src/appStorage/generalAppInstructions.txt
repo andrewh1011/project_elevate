@@ -12,10 +12,6 @@ When you create a source, you will tell the system what type of data this source
 
 A type describes custom columns the file that follows this type will have, and it also describes a simple plugin that tells the parser how to format the output according to those custom columns.
 
-Setting a source to be of type "infoType" means it does not hold any actual training data in it, only information that augments the info section of the output. An example of a source that would have this type is a personel roster.
-Files from sources that are an infoType are treated differently than data files. If a file is from a source that has type infoType, any columns besides the ones explicitly filled out in the form will be automatically included in the info section of the final report.
-For example, if you imported a personel roster that had a "squadron" column, this would automatically be included in the output info section.
-
 Import as many files as necessary. You can import multiple files at a time by either ctrl + clicking or ctrl + a. Once all files have been added, click the "Create Output" button. This will start the parsing and combination process.
 
 During parsing of the files you imported, records for the same people(either in the same file or across files) will be combined when possible to make a more consolidated output report card.
