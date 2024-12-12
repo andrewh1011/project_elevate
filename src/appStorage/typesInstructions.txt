@@ -1,0 +1,42 @@
+A type describes what kind of information a source will hold. This could be percentage data in the case of sources
+like hctt/hcta, date information like in most other sources, or some other kind of training data.
+
+The type system allows for the functionality shared by sources to be reused and to avoid writing custom scripts to support each different type of data.
+
+To create a type fill out the information in the form. The required fields are red like in other parts of the app.
+
+TypeName: labels the type
+colList: a comma seperated list of custom columns this type relies on. Note: these are not the names of the columns in the actual files. These are simply labels that describe each of the columns.
+Even columns with no headers can still be labeled using this list. These labels are used by the plugin system to provide custom functionality for the parser(explained more below).
+
+plugin: the path to the plugin this type will use.
+
+annotation: any notes to describe this type or the plugin it uses. For example, it might be helpful to leave notes about what a plugin does so that those who are less familiar with programming can understand it easier.
+In general, the plugins will be pretty simple so this is not necessary, just helpful.
+
+==========The plugin system===========:
+
+The plugin system allows users to write python code that can call some functions the app provides to determine the output of the report card. The user can write any python code they wish, but 
+much more than a simple python script that only calls the functions the app provides should not be needed.
+
+The plugin script provided for a type gets run any time a row from a file of a source that contains that type is encountered in the parsing/output generation. The result of the plugin script being run on the row is an output cell in the final report card being created.
+
+The colList for a type describes labels of the columns available in that row for the script to use. The plugin script can then get these cells and determine the output based on them with functions described below.
+
+List of functions made available by the app:
+-getCustomColCell(customCol): takes a string of a customCol from the colList and gives the cell of that column for the current row. Ensure the string you passed when using this function is one you actually listed in colList for this type.
+-setHiddenText(item): takes an object and writes the string representation of it to the hidden text for the current output cell.
+-setOutputText(item): takes an object and writes the string representation of it to the visible text for the current output cell.
+-setOutputAsSuccess(): makes the current output cell have the green success color.
+-setOutputAsFailure(): makes the current output cell have the red failure color.
+-setOutputAsPending(): makes the current output cell have the yellow pending color.
+-setOutputAsNotApplicable(): makes the current output cell have the gray not applicable color.
+-setOutputAsError(): makes the current output cell have the cyan error color.
+-treatCellAsDate(cell): converts the cell to a date. Should only be called on the object returned from getCustomColCell()
+-treatCellAsString(cell): converts the cell to a string. Should only be called on the object returned from getCustomColCell()
+-treatCellAsNumber(cell): converts the cell to a number. Should only be called on the object returned from getCustomColCell()
+-isCellEmpty(cell): checks if the cell is empty. You should use this to check if a cell is empty before trying to convert it or use it for output.
+-cellEqualsString(cell,s): checks if the string in the cell equals the given string
+-finalizeOutput(): saves your changes to the hidden text, visible text, and coloring of the current output cell. Make sure to call this if you want your changes to be visible in the output.	
+
+examples of plugins for common types are found in the /src/plugins directory.
