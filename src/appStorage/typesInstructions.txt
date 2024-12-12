@@ -1,7 +1,7 @@
 A type describes what kind of information a source will hold. This could be percentage data in the case of sources
 like hctt/hcta, date information like in most other sources, or some other kind of training data.
 
-The type system allows for the functionality shared by sources to be reused and to avoid writing custom scripts to support each different type of data.
+The type system allows for the functionality shared by sources to be reused, so that each source does not need its own custom script.
 
 To create a type fill out the information in the form. The required fields are red like in other parts of the app.
 

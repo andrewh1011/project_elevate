@@ -608,6 +608,14 @@ class AddTypeUI(QMainWindow):
 		typeName = formData[TypeFileColumns.typeName.value]
 		afterColList = formData[TypeFileColumns.colList.value]
 
+		enteredCols = afterColList.split(",")
+		for ind in range(len(enteredCols)):
+			for innerInd in range(len(enteredCols)):
+				if enteredCols[ind] == enteredCols[innerInd] and ind != innerInd:
+					self.ui.actionLabel.setText("Duplicate columns in col list.")
+					return False
+
+
 		#dont want to warn a user when they are adding a new type, since no sources will be affected by colList change yet.
 		#dont want to warn a user if they are trying to edit the empty type, since it will fail regardless.
 		if typeName in types.keys() and types[typeName][TypeFileColumns.colList.value] != afterColList and typeName != emptyTypeName:
