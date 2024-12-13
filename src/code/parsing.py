@@ -255,13 +255,13 @@ def buildOutput(fileInfos, nameMatchCallBack):
 				dodidMatchIndices = ids.index[ids[SourceFileColumns.dodid.value] == dodidNum]
 				if not dodidMatchIndices.empty:
 					matchIndex = dodidMatchIndices[0]
-					writeLogRow(sourceName, filePath, row.to_string(), LogTypes.action.value, "automatically matched by id to: \n" + ids.iloc[matchIndex, :4].to_string())
+					writeLogRow(sourceName, filePath, row.to_string(), LogTypes.action.value, "automatically matched by id to: \n" + ids.iloc[matchIndex, :firstTrainingDataCol].to_string())
 					
 			if email != "" and matchIndex == -1:	
 				emailMatchIndices = ids.index[ids[SourceFileColumns.email.value] == email]
 				if not emailMatchIndices.empty:
 					matchIndex = emailMatchIndices[0]
-					writeLogRow(sourceName, filePath, row.to_string(), LogTypes.action.value, "automatically matched by email to: \n " + ids.iloc[matchIndex, :4].to_string())
+					writeLogRow(sourceName, filePath, row.to_string(), LogTypes.action.value, "automatically matched by email to: \n " + ids.iloc[matchIndex, :firstTrainingDataCol].to_string())
 			if matchIndex == -1:
 				transformed = ids.apply(lambda row: calculateMatchRow(clnName,email,dodidNum, row), axis =1)
 				if not transformed.empty:
@@ -270,7 +270,7 @@ def buildOutput(fileInfos, nameMatchCallBack):
 					for index in matchIndices:
 						if transformed.iloc[index] > autoMatchThreshold:
 							matchIndex = index
-							writeLogRow(sourceName, filePath, row.to_string() , LogTypes.action.value, "automatically matched by name to: \n" + ids.iloc[matchIndex, :4].to_string())
+							writeLogRow(sourceName, filePath, row.to_string() , LogTypes.action.value, "automatically matched by name to: \n" + ids.iloc[matchIndex, :firstTrainingDataCol].to_string())
 							break
 						else:
 							results = nameMatchCallBack(fullName,ids.iloc[index].loc[ReportExtraColumns.fullName.value])
@@ -279,7 +279,7 @@ def buildOutput(fileInfos, nameMatchCallBack):
 							if keepGoing:
 								if yesAnswer:
 									matchIndex = index
-									writeLogRow(sourceName, filePath, row.to_string() , LogTypes.action.value, "user matched by name to: \n" + ids.iloc[matchIndex, :4].to_string())
+									writeLogRow(sourceName, filePath, row.to_string() , LogTypes.action.value, "user matched by name to: \n" + ids.iloc[matchIndex, :firstTrainingDataCol].to_string())
 									break
 							else:
 								return "Parsing process stopped manually during name match."
