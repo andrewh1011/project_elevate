@@ -48,4 +48,18 @@ To recompile:
 Each important section of the app will have an instruction button associated with it. Clicking this button will cause a popup with instructions to be displayed that give information about that section of the app.
 If you wish to read the instructions without running the app, they can be found in the src/appStorage directory.
 
+## Potential Error
+In some cases our program may give this error - "Error reading plugin. It is possible this plugin file has moved somewhere else or it is being used by another program." Here is how to fix it:
+
+This error means our program does not know where to find the plugins. To fix this, double click on a type, such as "percentage". The third row "plugin" is where to input the location of the plugin. Click "import" and choose the correct location of the type's plugin on your computer. Make sure to give the correct plugin for each type. For example, for the percentage type, you would find percentagePlugin.py on your computer. You will have to do this for each type. Plugins are located in src/plugins/. Here is a list of all the types and their plugins to make this process easier:
+
+
+    • Type: percentage -> percentagePlugin.py
+    • Type: compDateThisYear -> compDateInTime.py
+    • Type: compDateWithDue -> compDateDueExceptionPlugin.py
+    • Type: compDueDate -> dueDateCompDatePlugin.py
+    • Type: compDueDateException -> dueDateCompDateDueException.py
+    • Type: compDateSimple -> compDatePlugin.py
+    • Type: compDateWithNA -> compDateNAExceptionPlugin.py
+
 
